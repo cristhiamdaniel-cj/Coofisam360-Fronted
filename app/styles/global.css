@@ -58,7 +58,7 @@
 .dashboard-financiero {
   display: flex;
   gap: 50px;
-  padding: 100px;
+  padding: 99px;
 }
 
 .modulo-button {
