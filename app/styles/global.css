@@ -1,0 +1,84 @@
+.main-layout {
+  display: flex;
+  flex-direction: column;
+}
+
+.main-container {
+  display: flex;
+}
+
+.navbar-container {
+  width: 300px;
+  height: 95vh;
+  background-color: rgb(120, 0, 0);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.navbar-box {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  align-items: flex-start;
+  color: white;
+  padding-top: 20px;
+  margin-left: -10px;
+}
+
+.navbar-box p {
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.navbar-link {
+  margin-left: 40px;
+}
+
+.logout-button {
+  margin-top: auto;
+  margin-bottom: 20px;
+  color: white;
+}
+
+.logo-image {
+  width: 250px;
+  height: auto;
+  margin-top: -30px;
+  margin-left: -5px;
+}
+
+.separator {
+  width: 250px;
+  height: 0.5px;
+  background-color: white;
+  margin-top: -30px;
+}
+
+.dashboard-financiero {
+  display: flex;
+  gap: 50px;
+  padding: 100px;
+}
+
+.modulo-button {
+  width: 200px;
+  height: 120px;
+  background-color: rgb(215, 0, 20);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 20px;
+  box-shadow: 0 4px 12px rgb(80, 73, 73);
+}
+
+.footer-container {
+  background-color: black;
+  color: white;
+  height: 5vh;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
