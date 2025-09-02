@@ -16,7 +16,7 @@ export default function Navbar() {
         />
       </div>
       <div className="separator"></div>
-      <div className="navbar-box">
+      <div className="navbar-box px-8">
         <p className="navbar-title">Modulos</p>
         <Link href="/modulo-financiero" className="navbar-link">
           01 - Financiera
