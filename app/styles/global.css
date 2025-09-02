@@ -17,7 +17,7 @@
 }
 
 .navbar-container {
-  width: 300px;
+  min-width: 300px;
   height: 95vh;
   background-color: var(--dark-red);
   display: flex;
@@ -67,7 +67,7 @@
 .dashboard-financiero {
   display: flex;
   gap: 50px;
-  padding: 99px;
+  padding: 100px 0px;
 }
 
 .modulo-button {
@@ -115,7 +115,7 @@
 }
 
 .tabla-cupos-header {
-  background-color: var(--dark-red) !important;
+  background-color: var(--bright-red) !important;
   color: var(--light-text);
 }
 
@@ -126,4 +126,15 @@
 .titulo-tabla-cupos {
   color: var(--dark-text);
   text-transform: uppercase;
+}
+
+.container-financiero {
+  color: var(--dark-text);
+}
+
+.action-button {
+  background-color: var(--dark-red);
+  padding: 5px 20px;
+  border-radius: 5px;
+  color: var(--light-text);
 }

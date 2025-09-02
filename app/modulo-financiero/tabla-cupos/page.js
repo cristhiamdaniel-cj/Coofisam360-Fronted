@@ -1,6 +1,9 @@
 "use client";
 import { useEffect, useState } from "react";
 //import { getFinancialRecords } from "@/services/financial";
+import { FaFileUpload } from "react-icons/fa";
+import { FaFileDownload } from "react-icons/fa";
+import { IoSearch } from "react-icons/io5";
 
 export default function FinancialPage() {
   //const [records, setRecords] = useState([]);
@@ -19,6 +22,26 @@ export default function FinancialPage() {
       <h1 className="titulo-tabla-cupos text-3xl font-semibold pb-12">
         Cupo Créditos
       </h1>
+      <div className="actions-container flex justify-between mb-4">
+        <div className="search-bar flex gap-2">
+          <input type="text" className="border w-[300px]" />
+          <button className="action-button flex gap-2 items-center justify-center cursor-pointer">
+            Buscar
+            <IoSearch />
+          </button>
+        </div>
+        <div className="flex gap-4">
+          <button className="action-button flex gap-2 items-center justify-center cursor-pointer">
+            Cargar
+            <FaFileUpload />
+          </button>
+          <button className="action-button flex gap-2 items-center justify-center cursor-pointer">
+            Descargar
+            <FaFileDownload />
+          </button>
+        </div>
+      </div>
+
       <div className="overflow-x-auto max-w-full table-container">
         <table className="tabla-cupos table-fixed">
           <thead className="tabla-cupos-header">
