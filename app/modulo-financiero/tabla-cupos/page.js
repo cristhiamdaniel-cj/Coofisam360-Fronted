@@ -1,11 +1,11 @@
 "use client";
 import { useEffect, useState } from "react";
 //import { getFinancialRecords } from "@/services/financial";
-import { FaFileUpload } from "react-icons/fa";
+
 import { FaFileDownload } from "react-icons/fa";
 import { IoSearch } from "react-icons/io5";
 
-export default function FinancialPage() {
+export default function CuposTable() {
   //const [records, setRecords] = useState([]);
 
   /*useEffect(() => {
@@ -18,7 +18,7 @@ export default function FinancialPage() {
   */
 
   return (
-    <main className="p-12 overflow-auto">
+    <main className="pt-12 pb-0 px-12 overflow-auto">
       <h1 className="titulo-tabla-cupos text-3xl font-semibold pb-12">
         Cupo Créditos
       </h1>
@@ -32,45 +32,41 @@ export default function FinancialPage() {
         </div>
         <div className="flex gap-4">
           <button className="action-button flex gap-2 items-center justify-center cursor-pointer">
-            Cargar
-            <FaFileUpload />
-          </button>
-          <button className="action-button flex gap-2 items-center justify-center cursor-pointer">
             Descargar
             <FaFileDownload />
           </button>
         </div>
       </div>
 
-      <div className="overflow-x-auto max-w-full table-container">
-        <table className="tabla-cupos table-fixed">
+      <div className="overflow-x-auto max-w-full table-container h-[65vh]">
+        <table className="table-auto border-collapse w-full">
           <thead className="tabla-cupos-header">
             <tr>
-              <th className="p-4 border text-center whitespace-nowrap w-full">
+              <th className="p-4 border text-center whitespace-nowrap">
                 Fecha Renovado
               </th>
-              <th className="p-4 border text-center whitespace-nowrap w-full">
+              <th className="p-4 border text-center whitespace-nowrap">
                 Cuenta
               </th>
-              <th className="p-4 border text-center whitespace-nowrap w-full">
+              <th className="p-4 border text-center whitespace-nowrap">
                 Entidad Financiera
               </th>
-              <th className="p-4 border text-center whitespace-nowrap w-full">
+              <th className="p-4 border text-center whitespace-nowrap">
                 Cupo Asignado
               </th>
-              <th className="p-4 border text-center whitespace-nowrap w-full">
+              <th className="p-4 border text-center whitespace-nowrap">
                 Cupo Ejecutado
               </th>
-              <th className="p-4 border text-center whitespace-nowrap w-full">
+              <th className="p-4 border text-center whitespace-nowrap">
                 Disponible
               </th>
-              <th className="p-4 border text-center whitespace-nowrap w-full">
+              <th className="p-4 border text-center whitespace-nowrap">
                 Garantia
               </th>
-              <th className="p-4 border text-center whitespace-nowrap w-full">
+              <th className="p-4 border text-center whitespace-nowrap">
                 % Utilizacion
               </th>
-              <th className="p-4 border text-center whitespace-nowrap w-full">
+              <th className="p-4 border text-center whitespace-nowrap">
                 Plazo/Meses
               </th>
             </tr>

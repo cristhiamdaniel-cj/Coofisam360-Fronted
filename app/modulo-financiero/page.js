@@ -1,13 +1,33 @@
 import "../styles/global.css";
 import Image from "next/image";
 import Link from "next/link";
+import { FaFileUpload } from "react-icons/fa";
 
 export default function FinancieroDashboard() {
   return (
     <main className="container-financiero flex-col p-12">
       <h1 className="text-3xl font-semibold">Formularios</h1>
+      <div className="actions-container flex gap-4 pt-12">
+        <label className="action-button flex gap-2 items-center justify-center cursor-pointer">
+          Cargar Balance
+          <FaFileUpload />
+          <input type="file" accept=".xlsx,.csv" className="hidden" />
+        </label>
+        <label className="action-button flex gap-2 items-center justify-center cursor-pointer">
+          Cargar Presupuesto
+          <FaFileUpload />
+          <input type="file" accept=".xlsx,.csv" className="hidden" />
+        </label>
+        <label className="action-button flex gap-2 items-center justify-center cursor-pointer">
+          Ejecutar
+          <input type="file" accept=".xlsx,.csv" className="hidden" />
+        </label>
+      </div>
       <div className="dashboard-financiero">
-        <Link href="/modulo-financiero/tabla-cupos" className="modulo-button">
+        <Link
+          href="/modulo-financiero/tabla-indicadores"
+          className="modulo-button"
+        >
           <div className="logo">
             <Image
               src="/indicadores.svg" // Path relative to /public
@@ -33,7 +53,10 @@ export default function FinancieroDashboard() {
           </div>
           Cupos Credito
         </Link>
-        <Link href="/modulo-financiero/tabla-cupos" className="modulo-button">
+        <Link
+          href="/modulo-financiero/tabla-categorias"
+          className="modulo-button"
+        >
           <div className="logo">
             <Image
               src="/oficina.png" // Path relative to /public
