@@ -2,11 +2,14 @@ import "../styles/global.css";
 import Image from "next/image";
 import Link from "next/link";
 import { FaFileUpload } from "react-icons/fa";
+import { FaPlay } from "react-icons/fa";
 
 export default function FinancieroDashboard() {
   return (
     <main className="container-financiero flex-col p-12">
-      <h1 className="text-3xl font-semibold">Formularios</h1>
+      <h1 className="text-3xl font-semibold uppercase titulo-modulo">
+        Formularios
+      </h1>
       <div className="actions-container flex gap-4 pt-12">
         <label className="action-button flex gap-2 items-center justify-center cursor-pointer">
           Cargar Balance
@@ -20,9 +23,11 @@ export default function FinancieroDashboard() {
         </label>
         <label className="action-button flex gap-2 items-center justify-center cursor-pointer">
           Ejecutar
+          <FaPlay />
           <input type="file" accept=".xlsx,.csv" className="hidden" />
         </label>
       </div>
+      <div className="separator-modulo"></div>
       <div className="dashboard-financiero">
         <Link
           href="/modulo-financiero/tabla-indicadores"

@@ -1,5 +1,6 @@
 :root {
   --background: rgb(255, 250, 251);
+  --hover-background: rgb(255, 228, 233);
   --foreground: #171717;
   --dark-red: rgb(120, 0, 0);
   --bright-red: rgb(215, 0, 20);
@@ -29,7 +30,7 @@
 .navbar-box {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 10px;
   align-items: flex-start;
   color: white;
   padding-top: 20px;
@@ -43,6 +44,13 @@
 
 .navbar-link {
   margin-left: 10px;
+  width: 200px;
+  padding: 5px;
+  border-radius: 10px;
+}
+
+.navbar-link:hover {
+  background-color: var(--bright-red);
 }
 
 .logout-button {
@@ -65,6 +73,14 @@
   margin-top: -30px;
 }
 
+.separator-modulo {
+  width: 100%;
+  padding: 0px 50px;
+  height: 2px;
+  background-color: var(--bright-red);
+  margin-top: 30px;
+}
+
 .dashboard-financiero {
   display: flex;
   gap: 50px;
@@ -82,6 +98,11 @@
   justify-content: center;
   border-radius: 20px;
   box-shadow: 0 4px 12px rgb(80, 73, 73);
+}
+
+.modulo-button:hover {
+  background-color: var(--hover-background);
+  color: var(--bright-red);
 }
 
 .modulo-button .logo {
@@ -124,8 +145,12 @@
 }
 
 .titulo-tabla-cupos {
-  color: var(--dark-text);
+  color: var(--bright-red);
   text-transform: uppercase;
+}
+
+.titulo-modulo {
+  color: var(--bright-red);
 }
 
 .container-financiero {
@@ -133,8 +158,15 @@
 }
 
 .action-button {
-  background-color: var(--dark-red);
-  padding: 5px 20px;
+  background-color: white;
+  border: 2px solid var(--bright-red);
+  padding: 10px 20px;
   border-radius: 5px;
+  color: var(--bright-red);
+  box-shadow: 4px 4px 10px rgb(162 157 157);
+}
+
+.action-button:hover {
+  background-color: var(--bright-red);
   color: var(--light-text);
 }

@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 //import { getFinancialRecords } from "@/services/financial";
-
+import { FaRegSave } from "react-icons/fa";
 import { FaFileDownload } from "react-icons/fa";
 import { IoSearch } from "react-icons/io5";
 
@@ -17,7 +17,7 @@ export default function CategoriasTable() {
   }, []);
   */
 
-  const [rows, setRows] = useState([
+  const initialRows = [
     {
       id: 1,
       codigo: "1",
@@ -82,7 +82,39 @@ export default function CategoriasTable() {
       entidades: "6",
       poblacion: "1234",
     },
-  ]);
+  ];
+
+  const [rows, setRows] = useState(initialRows);
+  const [editedRows, setEditedRows] = useState([]);
+
+  const handleChange = (id, field, value) => {
+    // update rows state immediately
+    setRows(prev =>
+      prev.map(row => (row.id === id ? { ...row, [field]: value } : row))
+    );
+
+    // mark this row as edited
+    setEditedRows(prev => ({
+      ...prev,
+      [id]: { ...prev[id], [field]: value },
+    }));
+  };
+
+  const handleSave = async () => {
+    console.log("Saving edits:", editedRows);
+
+    // Example: send to backend
+    /*
+    await fetch("https://coofisam360.ngrok.io/api/update-records/", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(editedRows),
+    });
+    */
+
+    // clear edited state after saving
+    setEditedRows({});
+  };
 
   return (
     <main className="pt-12 pb-0 px-12 overflow-auto">
@@ -98,6 +130,15 @@ export default function CategoriasTable() {
           </button>
         </div>
         <div className="flex gap-4">
+          {Object.keys(editedRows).length > 0 && (
+            <button
+              onClick={handleSave}
+              className="action-button flex gap-2 items-center justify-center cursor-pointer"
+            >
+              Guardar cambios
+              <FaRegSave />
+            </button>
+          )}
           <button className="action-button flex gap-2 items-center justify-center cursor-pointer">
             Descargar
             <FaFileDownload />
@@ -105,7 +146,7 @@ export default function CategoriasTable() {
         </div>
       </div>
 
-      <div className="overflow-x-auto max-w-full table-container h-[70vh]">
+      <div className="overflow-x-auto max-w-full table-container h-[65vh]">
         <table className="table-auto border-collapse w-full">
           <thead className="tabla-cupos-header">
             <tr>
@@ -145,8 +186,26 @@ export default function CategoriasTable() {
                 <td></td>
                 <td></td>
                 <td>{row.fecha}</td>
-                <td>{row.entidades}</td>
-                <td>{row.poblacion}</td>
+                <td>
+                  <input
+                    type="number"
+                    value={row.entidades}
+                    onChange={e =>
+                      handleChange(row.id, "entidades", e.target.value)
+                    }
+                    className="px-2 py-1 w-full cursor-pointer"
+                  />
+                </td>
+                <td>
+                  <input
+                    type="number"
+                    value={row.poblacion}
+                    onChange={e =>
+                      handleChange(row.id, "poblacion", e.target.value)
+                    }
+                    className="px-2 py-1 w-full cursor-pointer"
+                  />
+                </td>
               </tr>
             ))}
 
