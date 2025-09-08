@@ -31,7 +31,7 @@ export default function FinancieroDashboard() {
       <div className="separator-modulo"></div>
       <div className="dashboard-financiero">
         <Link
-          href="/modulo-financiero/tabla-indicadores"
+          href="/modulo-cartera/tabla-asignacion-llamadas"
           className="modulo-button"
         >
           <div className="logo">
@@ -44,9 +44,12 @@ export default function FinancieroDashboard() {
               priority // loads immediately
             />
           </div>
-          Indicadores financieros
+          Asignación de llamadas
         </Link>
-        <Link href="/modulo-financiero/tabla-cupos" className="modulo-button">
+        <Link
+          href="/modulo-cartera/tabla-gestion-llamadas"
+          className="modulo-button"
+        >
           <div className="logo">
             <Image
               src="/aprobacion-de-prestamo.png" // Path relative to /public
@@ -57,10 +60,55 @@ export default function FinancieroDashboard() {
               priority // loads immediately
             />
           </div>
-          Cupos de Crédito
+          Gestión de llamadas
+        </Link>
+        <Link href="/modulo-cartera/tabla-gestiones" className="modulo-button">
+          <div className="logo">
+            <Image
+              src="/oficina.png" // Path relative to /public
+              className="module-image"
+              alt="Company Logo"
+              width={200} // required
+              height={50} // required
+              priority // loads immediately
+            />
+          </div>
+          Gestiones
         </Link>
         <Link
-          href="/modulo-financiero/tabla-categorias"
+          href="/modulo-cartera/tabla-link-llamadas"
+          className="modulo-button"
+        >
+          <div className="logo">
+            <Image
+              src="/indicadores.svg" // Path relative to /public
+              className="module-image"
+              alt="Company Logo"
+              width={200} // required
+              height={50} // required
+              priority // loads immediately
+            />
+          </div>
+          Link de llamadas
+        </Link>
+        <Link
+          href="/modulo-cartera/tabla-link-visitas"
+          className="modulo-button"
+        >
+          <div className="logo">
+            <Image
+              src="/aprobacion-de-prestamo.png" // Path relative to /public
+              className="module-image"
+              alt="Company Logo"
+              width={200} // required
+              height={50} // required
+              priority // loads immediately
+            />
+          </div>
+          Link de visitas
+        </Link>
+        <Link
+          href="/modulo-cartera/tabla-seguimiento-campanas"
           className="modulo-button"
         >
           <div className="logo">
@@ -73,7 +121,7 @@ export default function FinancieroDashboard() {
               priority // loads immediately
             />
           </div>
-          Categorias de Oficinas
+          Seguimiento de campañas
         </Link>
       </div>
     </main>

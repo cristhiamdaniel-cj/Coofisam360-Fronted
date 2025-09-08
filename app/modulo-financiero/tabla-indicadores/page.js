@@ -4,6 +4,9 @@ import { useEffect, useState } from "react";
 import { FaRegSave } from "react-icons/fa";
 import { FaFileDownload } from "react-icons/fa";
 import { IoSearch } from "react-icons/io5";
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
+import { FiDownload } from "react-icons/fi";
 
 export default function IndicadoresTable() {
   //const [records, setRecords] = useState([]);
@@ -156,6 +159,27 @@ export default function IndicadoresTable() {
     setEditedRows({});
   };
 
+  const handleDownload = () => {
+    // Convert JSON to worksheet
+    const worksheet = XLSX.utils.json_to_sheet(rows);
+
+    // Create a new workbook
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(
+      workbook,
+      worksheet,
+      "Indicadores Financieros"
+    );
+
+    // Write workbook and save
+    const excelBuffer = XLSX.write(workbook, {
+      bookType: "xlsx",
+      type: "array",
+    });
+    const data = new Blob([excelBuffer], { type: "application/octet-stream" });
+    saveAs(data, "cupos.xlsx");
+  };
+
   return (
     <main className="pt-12 pb-0 px-12 overflow-auto">
       <h1 className="titulo-tabla-cupos text-3xl font-semibold pb-12">
@@ -179,9 +203,12 @@ export default function IndicadoresTable() {
               <FaRegSave />
             </button>
           )}
-          <button className="action-button flex gap-2 items-center justify-center cursor-pointer">
+          <button
+            className="action-button flex gap-2 items-center justify-center cursor-pointer"
+            onClick={handleDownload}
+          >
             Descargar
-            <FaFileDownload />
+            <FiDownload />
           </button>
         </div>
       </div>

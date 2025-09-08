@@ -6,10 +6,10 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body className="main-layout">
-        <main className="main-container">
+        <div className="main-container">
           <Navbar />
           {children}
-        </main>
+        </div>
         <Footer />
       </body>
     </html>

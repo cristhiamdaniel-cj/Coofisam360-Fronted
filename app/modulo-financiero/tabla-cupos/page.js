@@ -1,131 +1,29 @@
 "use client";
 import { useEffect, useState } from "react";
-//import { getFinancialRecords } from "@/services/financial";
+import { listCreditQuota } from "../../services/creditQuota";
 import { FaRegSave } from "react-icons/fa";
 import { FaFileDownload } from "react-icons/fa";
 import { IoSearch } from "react-icons/io5";
 
 export default function CuposTable() {
-  //const [records, setRecords] = useState([]);
-
-  /*useEffect(() => {
-    async function loadData() {
-      const data = await getFinancialRecords();
-      setRecords(data);
-    }
-    loadData();
-  }, []);
-  */
-
-  const initialRows = [
-    {
-      id: 1,
-      fecha: "2025-09-02",
-      cuenta: "12345",
-      entidad: "Banco de Bogotá",
-      asignado: "50000",
-      ejecutado: "20000",
-      disponible: "30000",
-      garantia: "Hipoteca",
-      utilizacion: "40%",
-      plazo: "12",
-      tasa: "La vigente al reesembolso",
-    },
-    {
-      id: 2,
-      fecha: "2025-09-10",
-      cuenta: "67890",
-      entidad: "Davivienda",
-      asignado: "70000",
-      ejecutado: "50000",
-      disponible: "20000",
-      garantia: "Fianza",
-      utilizacion: "71%",
-      plazo: "24",
-      tasa: "La vigente al reesembolso",
-    },
-    {
-      id: 3,
-      fecha: "2025-09-02",
-      cuenta: "12345",
-      entidad: "Banco de Bogotá",
-      asignado: "50000",
-      ejecutado: "20000",
-      disponible: "30000",
-      garantia: "Hipoteca",
-      utilizacion: "40%",
-      plazo: "12",
-      tasa: "La vigente al reesembolso",
-    },
-    {
-      id: 4,
-      fecha: "2025-09-10",
-      cuenta: "67890",
-      entidad: "Davivienda",
-      asignado: "70000",
-      ejecutado: "50000",
-      disponible: "20000",
-      garantia: "Fianza",
-      utilizacion: "71%",
-      plazo: "24",
-      tasa: "La vigente al reesembolso",
-    },
-    {
-      id: 5,
-      fecha: "2025-09-02",
-      cuenta: "12345",
-      entidad: "Banco de Bogotá",
-      asignado: "50000",
-      ejecutado: "20000",
-      disponible: "30000",
-      garantia: "Hipoteca",
-      utilizacion: "40%",
-      plazo: "12",
-      tasa: "La vigente al reesembolso",
-    },
-    {
-      id: 6,
-      fecha: "2025-09-10",
-      cuenta: "67890",
-      entidad: "Davivienda",
-      asignado: "70000",
-      ejecutado: "50000",
-      disponible: "20000",
-      garantia: "Fianza",
-      utilizacion: "71%",
-      plazo: "24",
-      tasa: "La vigente al reesembolso",
-    },
-    {
-      id: 7,
-      fecha: "2025-09-02",
-      cuenta: "12345",
-      entidad: "Banco de Bogotá",
-      asignado: "50000",
-      ejecutado: "20000",
-      disponible: "30000",
-      garantia: "Hipoteca",
-      utilizacion: "40%",
-      plazo: "12",
-      tasa: "La vigente al reesembolso",
-    },
-    {
-      id: 8,
-      fecha: "2025-09-10",
-      cuenta: "67890",
-      entidad: "Davivienda",
-      asignado: "70000",
-      ejecutado: "50000",
-      disponible: "20000",
-      garantia: "Fianza",
-      utilizacion: "71%",
-      plazo: "24",
-      tasa: "La vigente al reesembolso",
-    },
-  ];
-
-  const [rows, setRows] = useState(initialRows);
+  const [rows, setRows] = useState([]);
   const [editedRows, setEditedRows] = useState({});
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function load() {
+      try {
+        const data = await listCreditQuota({ limit: 200 });
+        setRows(data);
+        setError("");
+      } catch (e) {
+        setError(e.message);
+      } finally {
+        setLoading(false);
+      }
+    }
+    load();
+  }, []);
 
   const handleChange = (id, field, value) => {
     // update rows state immediately
@@ -188,7 +86,7 @@ export default function CuposTable() {
 
       <div className="overflow-x-auto max-w-full table-container h-[65vh]">
         <table className="table-auto border-collapse w-full">
-          <thead className="tabla-cupos-header">
+          <thead className="tabla-header">
             <tr>
               <th className="p-4 border text-center whitespace-nowrap">
                 Fecha Renovado
@@ -199,7 +97,7 @@ export default function CuposTable() {
               <th className="p-4 border text-center whitespace-nowrap">
                 Entidad Financiera
               </th>
-              <th className="p-4 border text-center whitespace-nowrap">
+              <th className="p-4 border text-center whitespace-nowrap min-w-[250px]">
                 Cupo Asignado
               </th>
               <th className="p-4 border text-center whitespace-nowrap">
@@ -208,7 +106,7 @@ export default function CuposTable() {
               <th className="p-4 border text-center whitespace-nowrap">
                 Disponible
               </th>
-              <th className="p-4 border text-center whitespace-nowrap">
+              <th className="p-4 border text-center  min-w-[250px]">
                 Garantia
               </th>
               <th className="p-4 border text-center whitespace-nowrap">
@@ -221,56 +119,88 @@ export default function CuposTable() {
             </tr>
           </thead>
           <tbody className="tabla-cupos-content p-4">
-            {rows.map(r => (
-              <tr key={r.id}>
-                <td>
-                  <input
-                    type="date"
-                    value={r.fecha}
-                    onChange={e => handleChange(r.id, "fecha", e.target.value)}
-                    className="px-2 py-1 w-full cursor-pointer"
-                  />
-                </td>
+            {rows.map((r, idx) => (
+              <tr key={idx}>
+                {/* Fecha Renovado editable */}
+                <td>{r.fechaRenovado || r.fecha_renovado}</td>
+
                 <td>{r.cuenta}</td>
-                <td>{r.entidad}</td>
+                <td>{r.entidadFinanciera || r.entidad_financiera}</td>
+
+                {/* Cupo Asignado editable */}
                 <td>
                   <input
                     type="number"
-                    value={r.asignado}
+                    value={r.cupoAsignado || r.cupo_asignado || ""}
                     onChange={e =>
-                      handleChange(r.id, "asignado", e.target.value)
+                      handleChange(r.id, "cupoAsignado", e.target.value)
                     }
-                    className="px-2 py-1 w-full cursor-pointer"
+                    className="px-2 py-1 w-full text-right border"
                   />
                 </td>
-                <td>{r.ejecutado}</td>
-                <td>{r.disponible}</td>
-                <td className="min-w-[350px]">
+
+                <td className="num">
+                  {Intl.NumberFormat("es-CO").format(
+                    r.cupoEjecutado || r.cupo_ejecutado
+                  )}
+                </td>
+                <td className="num">
+                  {Intl.NumberFormat("es-CO").format(r.disponible)}
+                </td>
+
+                {/* Garantia editable */}
+                <td>
                   <input
                     type="text"
-                    value={r.garantia}
+                    value={r.garantia || ""}
                     onChange={e =>
                       handleChange(r.id, "garantia", e.target.value)
                     }
-                    className="px-2 py-1 w-full cursor-pointer"
+                    className="px-2 py-1 w-full border"
                   />
                 </td>
-                <td>{r.utilizacion}</td>
+
+                <td className="num">
+                  {r.porcentajeUtilizacion ?? r.porcentaje_utilizacion ?? 0}%
+                </td>
                 <td>{r.plazo}</td>
                 <td>{r.tasa}</td>
               </tr>
             ))}
-
-            {/*records.map((r) => (
-            <tr key={r.id}>
-              <td>{r.id}</td>
-              <td>{r.amount}</td>
-              <td>{r.description}</td>
-            </tr>
-          ))*/}
           </tbody>
         </table>
       </div>
     </main>
   );
 }
+
+function toInputDateValue(v) {
+  if (!v) return "";
+  const d = new Date(v);
+  if (Number.isNaN(d.getTime())) return "";
+  const dd = String(d.getDate()).padStart(2, "0");
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const yy = d.getFullYear();
+  return `${yy}-${mm}-${dd}`; // browser-friendly
+}
+
+/*
+function fmtDate(v) {
+  if (!v) return "";
+  const d = new Date(v);
+  if (Number.isNaN(d.getTime())) return v;
+  const dd = String(d.getDate()).padStart(2, "0");
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const yy = d.getFullYear();
+  return `${dd}/${mm}/${yy}`;
+}
+  */
+
+/*<td>
+                  <input
+                    type="date"
+                    value={r.fecharenovado}
+                    onChange={e => handleChange(r.id, "fecha", e.target.value)}
+                    className="px-2 py-1 w-full cursor-pointer"
+                  />
+</td>*/

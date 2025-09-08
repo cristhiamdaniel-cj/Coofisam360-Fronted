@@ -31,7 +31,7 @@ export default function FinancieroDashboard() {
       <div className="separator-modulo"></div>
       <div className="dashboard-financiero">
         <Link
-          href="/modulo-financiero/tabla-indicadores"
+          href="/modulo-credito/tabla-radicaciones-credito"
           className="modulo-button"
         >
           <div className="logo">
@@ -44,9 +44,12 @@ export default function FinancieroDashboard() {
               priority // loads immediately
             />
           </div>
-          Indicadores financieros
+          Radicaciones de Crédito
         </Link>
-        <Link href="/modulo-financiero/tabla-cupos" className="modulo-button">
+        <Link
+          href="/modulo-credito/tabla-seguimiento-cc"
+          className="modulo-button"
+        >
           <div className="logo">
             <Image
               src="/aprobacion-de-prestamo.png" // Path relative to /public
@@ -57,10 +60,10 @@ export default function FinancieroDashboard() {
               priority // loads immediately
             />
           </div>
-          Cupos de Crédito
+          Seguimiento de Campañas de Crédito
         </Link>
         <Link
-          href="/modulo-financiero/tabla-categorias"
+          href="/modulo-credito/tabla-seguimiento-cco"
           className="modulo-button"
         >
           <div className="logo">
@@ -73,7 +76,7 @@ export default function FinancieroDashboard() {
               priority // loads immediately
             />
           </div>
-          Categorias de Oficinas
+          Seguimiento de Campañas de Crédito x Oficinas
         </Link>
       </div>
     </main>

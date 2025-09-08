@@ -1,30 +1,63 @@
-import axios from 'axios';
+const BASE_URL = process.env.NEXT_PUBLIC_API_BASE || "";
+const DEFAULT_TIMEOUT = 20000;
 
-const BASE_URL  = process.env.BUK_BASE_URL || 'https://coofisam.buk.co/api/v1';
-const TOKEN     = process.env.BUK_TOKEN || '';
-const AUTH_TYPE = process.env.BUK_AUTH_TYPE || 'bearer';
+function withQuery(url, params) {
+  if (!params) return url;
+  const u = new URL(
+    url,
+    typeof window !== "undefined" ? window.location.origin : "http://localhost"
+  );
+  Object.entries(params).forEach(([k, v]) => {
+    if (v !== undefined && v !== null && v !== "") u.searchParams.set(k, v);
+  });
+  return u.toString();
+}
 
-const api = axios.create({
-  baseURL: BASE_URL,
-  timeout: 20000,
-  headers: { 'Content-Type': 'application/json' }
-});
+async function request(method, path, { params, body, headers } = {}) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), DEFAULT_TIMEOUT);
+  const base = BASE_URL || (typeof window !== "undefined" ? "" : "");
+  const url = withQuery(base + path, params);
+  const h = { "Content-Type": "application/json", ...(headers || {}) };
+  try {
+    if (typeof window !== "undefined") {
+      const token = window.localStorage.getItem("authToken");
+      if (token) h.Authorization = `Token ${token}`;
+    }
+  } catch (_) {}
 
-api.interceptors.request.use((config) => {
-  if (TOKEN) {
-    if (AUTH_TYPE === 'bearer') config.headers.Authorization = `Bearer ${TOKEN}`;
-    else config.headers['X-API-KEY'] = TOKEN;
+  const res = await fetch(url, {
+    method,
+    headers: h,
+    signal: controller.signal,
+    body:
+      method === "GET" || method === "HEAD"
+        ? undefined
+        : body
+        ? JSON.stringify(body)
+        : undefined,
+  });
+  clearTimeout(timer);
+
+  const isJson = (res.headers.get("content-type") || "").includes(
+    "application/json"
+  );
+  const data = isJson
+    ? await res.json().catch(() => undefined)
+    : await res.text();
+  if (!res.ok) {
+    const message =
+      (data && (data.error || data.message)) || res.statusText || "API error";
+    throw { status: res.status, message, data };
   }
-  return config;
-});
+  return { status: res.status, data };
+}
 
-api.interceptors.response.use(
-  (r) => r,
-  (err) => {
-    const status  = err?.response?.status;
-    const message = err?.response?.data?.message || err?.message || 'API error';
-    return Promise.reject({ status, message, data: err?.response?.data });
-  }
-);
+const api = {
+  get: (path, { params } = {}) => request("GET", path, { params }),
+  post: (path, body) => request("POST", path, { body }),
+  put: (path, body) => request("PUT", path, { body }),
+  delete: (path, params) => request("DELETE", path, { params }),
+};
 
 export default api;

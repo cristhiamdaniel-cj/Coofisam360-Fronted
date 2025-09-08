@@ -5,7 +5,7 @@
   --dark-red: rgb(120, 0, 0);
   --bright-red: rgb(215, 0, 20);
   --light-text: rgb(255, 241, 242);
-  --dark-text: rgb(120, 0, 0);
+  --dark-text: rgb(122, 122, 122);
 }
 
 .main-layout {
@@ -82,7 +82,8 @@
 }
 
 .dashboard-financiero {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
   gap: 50px;
   padding: 40px 0px 0px 0px;
 }
@@ -131,11 +132,11 @@
 .tabla-cupos-content tr td {
   border: 1px solid #e5e7eb; /* Same as Tailwind border */
   text-align: center; /* Centers text */
-
+  color: var(--dark-text);
   padding: 10px 20px;
 }
 
-.tabla-cupos-header {
+.tabla-header {
   background-color: var(--bright-red) !important;
   color: var(--light-text);
 }
@@ -161,7 +162,7 @@
   background-color: white;
   border: 2px solid var(--bright-red);
   padding: 10px 20px;
-  border-radius: 5px;
+  border-radius: 25px;
   color: var(--bright-red);
   box-shadow: 4px 4px 10px rgb(162 157 157);
 }
@@ -169,4 +170,32 @@
 .action-button:hover {
   background-color: var(--bright-red);
   color: var(--light-text);
+}
+
+table thead th {
+  position: sticky; /* makes the element stick in its container */
+  top: 0; /* sticks to the top of the scroll container */
+  background: var(
+    --bright-red
+  ); /* give it a solid background so rows don’t bleed through */
+  z-index: 10; /* keep it above the body cells */
+}
+
+.login-header {
+  background-color: var(--dark-red);
+  color: var(--light-text);
+}
+
+.form-field {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: 10px;
+}
+
+.login-subtitle {
+  color: var(--dark-text);
+}
+
+.login-link {
+  color: white;
 }

@@ -19,34 +19,39 @@ export default function Navbar() {
       <div className="navbar-box px-8">
         <p className="navbar-title">Modulos</p>
         <Link href="/modulo-financiero" className="navbar-link">
-          01 - Financiera
+          - Financiera
         </Link>
         <Link href="/modulo-financiero" className="navbar-link">
-          02 - Talento y Cultura
+          - Talento y Cultura
+        </Link>
+        <Link href="/modulo-cartera" className="navbar-link">
+          - Cartera
+        </Link>
+        <Link href="/modulo-credito" className="navbar-link">
+          - Crédito
         </Link>
         <Link href="/modulo-financiero" className="navbar-link">
-          03 - Cartera
+          - Comercial
         </Link>
         <Link href="/modulo-financiero" className="navbar-link">
-          04 - Crédito
+          - Gestión Documental
         </Link>
         <Link href="/modulo-financiero" className="navbar-link">
-          05 - Comercial
+          - Ingenieria Organizacional
         </Link>
         <Link href="/modulo-financiero" className="navbar-link">
-          06 - Gestion Documental
+          - Jurídico
         </Link>
         <Link href="/modulo-financiero" className="navbar-link">
-          07 - Ingenieria Organizacional
-        </Link>
-        <Link href="/modulo-financiero" className="navbar-link">
-          08 - Juridico
-        </Link>
-        <Link href="/modulo-financiero" className="navbar-link">
-          09 - Oficial de Cumplimiento
+          - Oficial de Cumplimiento
         </Link>
       </div>
-      <p className="logout-button">Salir</p>
+      <div className="flex gap-8 mt-8">
+        <Link href="/login" className="login-link">
+          Ingresar
+        </Link>
+        <p className="logout-button">Salir</p>
+      </div>
     </nav>
   );
 }
