@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { listCreditQuota } from "../../services/creditQuota";
+import { listCreditQuota } from "../../services/modulo-financiero/creditQuota";
 import { FaRegSave } from "react-icons/fa";
 import { FaFileDownload } from "react-icons/fa";
 import { IoSearch } from "react-icons/io5";
