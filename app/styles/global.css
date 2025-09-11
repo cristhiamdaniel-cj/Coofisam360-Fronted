@@ -11,6 +11,7 @@
 .main-layout {
   display: flex;
   flex-direction: column;
+  overflow: auto;
 }
 
 .main-container {
@@ -198,4 +199,14 @@ table thead th {
 
 .login-link {
   color: white;
+}
+
+.back-button {
+  position: absolute;
+  top: 0;
+  left: 300px;
+}
+
+.back-arrow {
+  color: var(--dark-red);
 }

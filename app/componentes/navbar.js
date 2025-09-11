@@ -21,7 +21,7 @@ export default function Navbar() {
         <Link href="/modulo-financiero" className="navbar-link">
           - Financiera
         </Link>
-        <Link href="/modulo-financiero" className="navbar-link">
+        <Link href="/modulo-talento" className="navbar-link">
           - Talento y Cultura
         </Link>
         <Link href="/modulo-cartera" className="navbar-link">
