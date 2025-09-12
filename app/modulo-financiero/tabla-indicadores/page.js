@@ -177,7 +177,7 @@ export default function IndicadoresTable() {
       type: "array",
     });
     const data = new Blob([excelBuffer], { type: "application/octet-stream" });
-    saveAs(data, "cupos.xlsx");
+    saveAs(data, "Indicadores_Financieros.xlsx");
   };
 
   return (

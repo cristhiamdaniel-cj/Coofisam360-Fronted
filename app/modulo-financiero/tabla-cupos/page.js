@@ -1,23 +1,32 @@
 "use client";
 import { useEffect, useState } from "react";
-import { listCreditQuota } from "../../services/modulo-financiero/creditQuota";
-import { FaRegSave } from "react-icons/fa";
-import { FaFileDownload } from "react-icons/fa";
+import {
+  listCreditQuota,
+  saveCreditQuota,
+} from "../../services/modulo-financiero/creditQuota";
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
+import { FaRegSave, FaFileDownload } from "react-icons/fa";
 import { IoSearch } from "react-icons/io5";
 
 export default function CuposTable() {
   const [rows, setRows] = useState([]);
+  const [filteredRows, setFilteredRows] = useState([]);
   const [editedRows, setEditedRows] = useState({});
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [search, setSearch] = useState("");
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     async function load() {
       try {
         const data = await listCreditQuota({ limit: 200 });
         setRows(data);
+        setFilteredRows(data);
         setError("");
       } catch (e) {
-        setError(e.message);
+        setError(e.message || "Error cargando datos");
       } finally {
         setLoading(false);
       }
@@ -25,13 +34,22 @@ export default function CuposTable() {
     load();
   }, []);
 
-  const handleChange = (id, field, value) => {
-    // update rows state immediately
-    setRows(prev =>
-      prev.map(row => (row.id === id ? { ...row, [field]: value } : row))
+  const handleSearch = () => {
+    const query = search.toLowerCase();
+    const filtered = rows.filter(
+      r =>
+        r.cuenta?.toLowerCase().includes(query) ||
+        r.entidadFinanciera?.toLowerCase().includes(query)
     );
+    setFilteredRows(filtered);
+  };
 
-    // mark this row as edited
+  const handleChange = (id, field, value) => {
+    const updateRow = row => (row.id === id ? { ...row, [field]: value } : row);
+
+    setRows(prev => prev.map(updateRow));
+    setFilteredRows(prev => prev.map(updateRow));
+
     setEditedRows(prev => ({
       ...prev,
       [id]: { ...prev[id], [field]: value },
@@ -39,19 +57,60 @@ export default function CuposTable() {
   };
 
   const handleSave = async () => {
-    console.log("Saving edits:", editedRows);
+    setSaving(true);
+    try {
+      const updates = Object.entries(editedRows).map(async ([id, changes]) => {
+        const fullRow = rows.find(r => r.id === Number(id));
+        if (!fullRow) return;
 
-    // Example: send to backend
-    /*
-    await fetch("https://coofisam360.ngrok.io/api/update-records/", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(editedRows),
+        const payload = {
+          ...fullRow,
+          ...changes,
+          id: Number(id),
+          entidad_financiera:
+            fullRow.entidadFinanciera || changes.entidadFinanciera,
+          fecha_renovado: fullRow.fechaRenovado || changes.fechaRenovado,
+          cupo_asignado: fullRow.cupoAsignado || changes.cupoAsignado,
+        };
+
+        await saveCreditQuota(payload);
+      });
+
+      await Promise.all(updates);
+
+      alert("Cambios guardados correctamente");
+      setEditedRows({});
+    } catch (err) {
+      console.error(err);
+      alert("Error guardando cambios");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (loading) {
+    return <div className="p-12 text-center">Cargando datos...</div>;
+  }
+
+  if (error) {
+    return <div className="p-12 text-center text-red-500">{error}</div>;
+  }
+
+  const handleDownload = () => {
+    // Convert JSON to worksheet
+    const worksheet = XLSX.utils.json_to_sheet(rows);
+
+    // Create a new workbook
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Cupos Credito");
+
+    // Write workbook and save
+    const excelBuffer = XLSX.write(workbook, {
+      bookType: "xlsx",
+      type: "array",
     });
-    */
-
-    // clear edited state after saving
-    setEditedRows({});
+    const data = new Blob([excelBuffer], { type: "application/octet-stream" });
+    saveAs(data, "Cupos_Credito.xlsx");
   };
 
   return (
@@ -59,10 +118,20 @@ export default function CuposTable() {
       <h1 className="titulo-tabla-cupos text-3xl font-semibold pb-12">
         Cupo Créditos
       </h1>
+
       <div className="actions-container flex justify-between mb-4">
         <div className="search-bar flex gap-2">
-          <input type="text" className="border w-[300px]" />
-          <button className="action-button flex gap-2 items-center justify-center cursor-pointer">
+          <input
+            type="text"
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            placeholder="Buscar por cuenta o entidad"
+            className="border w-[300px] px-2 py-1"
+          />
+          <button
+            onClick={handleSearch}
+            className="action-button flex gap-2 items-center justify-center cursor-pointer"
+          >
             Buscar
             <IoSearch />
           </button>
@@ -71,13 +140,17 @@ export default function CuposTable() {
           {Object.keys(editedRows).length > 0 && (
             <button
               onClick={handleSave}
-              className="action-button flex gap-2 items-center justify-center cursor-pointer"
+              disabled={saving}
+              className="action-button flex gap-2 items-center justify-center cursor-pointer disabled:opacity-50"
             >
-              Guardar cambios
+              {saving ? "Guardando..." : "Guardar cambios"}
               <FaRegSave />
             </button>
           )}
-          <button className="action-button flex gap-2 items-center justify-center cursor-pointer">
+          <button
+            className="action-button flex gap-2 items-center justify-center cursor-pointer"
+            onClick={handleDownload}
+          >
             Descargar
             <FaFileDownload />
           </button>
@@ -118,20 +191,37 @@ export default function CuposTable() {
               <th className="p-4 border text-center whitespace-nowrap">Tasa</th>
             </tr>
           </thead>
+
           <tbody className="tabla-cupos-content p-4">
-            {rows.map((r, idx) => (
+            {filteredRows.map((r, idx) => (
               <tr key={idx}>
-                {/* Fecha Renovado editable */}
-                <td>{r.fechaRenovado || r.fecha_renovado}</td>
+                <td>
+                  <input
+                    type="date"
+                    value={
+                      r.fechaRenovado
+                        ? r.fechaRenovado.split("/").reverse().join("-")
+                        : ""
+                    }
+                    onChange={e =>
+                      handleChange(
+                        r.id,
+                        "fechaRenovado",
+                        // Convert back to dd/mm/yyyy so it stays consistent with the rest of your code
+                        e.target.value.split("-").reverse().join("/")
+                      )
+                    }
+                    className="px-2 py-1 w-full cursor-pointer border"
+                  />
+                </td>
 
                 <td>{r.cuenta}</td>
-                <td>{r.entidadFinanciera || r.entidad_financiera}</td>
+                <td>{r.entidadFinanciera}</td>
 
-                {/* Cupo Asignado editable */}
                 <td>
                   <input
                     type="number"
-                    value={r.cupoAsignado || r.cupo_asignado || ""}
+                    value={r.cupoAsignado || ""}
                     onChange={e =>
                       handleChange(r.id, "cupoAsignado", e.target.value)
                     }
@@ -139,16 +229,13 @@ export default function CuposTable() {
                   />
                 </td>
 
-                <td className="num">
-                  {Intl.NumberFormat("es-CO").format(
-                    r.cupoEjecutado || r.cupo_ejecutado
-                  )}
+                <td className="num text-right">
+                  {Intl.NumberFormat("es-CO").format(r.cupoEjecutado || 0)}
                 </td>
-                <td className="num">
-                  {Intl.NumberFormat("es-CO").format(r.disponible)}
+                <td className="num text-right">
+                  {Intl.NumberFormat("es-CO").format(r.disponible || 0)}
                 </td>
 
-                {/* Garantia editable */}
                 <td>
                   <input
                     type="text"
@@ -160,11 +247,11 @@ export default function CuposTable() {
                   />
                 </td>
 
-                <td className="num">
-                  {r.porcentajeUtilizacion ?? r.porcentaje_utilizacion ?? 0}%
+                <td className="num text-right">
+                  {r.porcentajeUtilizacion ?? 0}%
                 </td>
-                <td>{r.plazo}</td>
-                <td>{r.tasa}</td>
+                <td className="text-center">{r.plazo}</td>
+                <td className="text-center">{r.tasa}</td>
               </tr>
             ))}
           </tbody>
@@ -181,7 +268,7 @@ function toInputDateValue(v) {
   const dd = String(d.getDate()).padStart(2, "0");
   const mm = String(d.getMonth() + 1).padStart(2, "0");
   const yy = d.getFullYear();
-  return `${yy}-${mm}-${dd}`; // browser-friendly
+  return `${yy}-${mm}-${dd}`;
 }
 
 /*
