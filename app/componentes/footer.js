@@ -1,9 +1,9 @@
 import "../styles/global.css";
 
-export default function Navbar() {
+export default function Footer() {
   return (
-    <footer className="footer-container">
+    <div className="footer-container">
       © 2025 Coofisam. Todos los derechos reservados.
-    </footer>
+    </div>
   );
 }

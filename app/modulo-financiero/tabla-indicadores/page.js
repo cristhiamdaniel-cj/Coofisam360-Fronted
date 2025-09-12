@@ -1,169 +1,88 @@
 "use client";
 import { useEffect, useState } from "react";
-//import { getFinancialRecords } from "@/services/financial";
 import { FaRegSave } from "react-icons/fa";
-import { FaFileDownload } from "react-icons/fa";
 import { IoSearch } from "react-icons/io5";
+import { FiDownload } from "react-icons/fi";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
-import { FiDownload } from "react-icons/fi";
+
+import {
+  listIndicatorsQuota,
+  saveIndicatorQuota, // ✅ note: correct name
+} from "../../services/modulo-financiero/indicatorsQuota";
 
 export default function IndicadoresTable() {
-  //const [records, setRecords] = useState([]);
+  const [rows, setRows] = useState([]);
+  const [filteredRows, setFilteredRows] = useState([]);
+  const [editedRows, setEditedRows] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [search, setSearch] = useState("");
+  const [saving, setSaving] = useState(false);
 
-  /*useEffect(() => {
-    async function loadData() {
-      const data = await getFinancialRecords();
-      setRecords(data);
+  // 🔹 Load data on mount
+  useEffect(() => {
+    async function load() {
+      try {
+        const data = await listIndicatorsQuota({ limit: 200 });
+        setRows(data);
+        setFilteredRows(data);
+        setError("");
+      } catch (e) {
+        console.error(e);
+        setError(e.message || "Error cargando datos");
+      } finally {
+        setLoading(false);
+      }
     }
-    loadData();
+    load();
   }, []);
-  */
 
-  const initialRows = [
-    {
-      id: 1,
-      fecha: "12-25-2005",
-      indicador: "Endedudamiento",
-      alcance:
-        "Es un indicador de estructura que mide la colocación eficiente de las captaciones. IDEAL 70% AL 80%",
-      mes2a: "",
-      mes1a: "",
-      diciembre1a: "",
-      mesActual: "",
-      analisis:
-        "Resultado alineado con el comportamiento de los deposito y cartera de crédito",
-    },
-    {
-      id: 2,
-      fecha: "12-25-2005",
-      indicador: "Endedudamiento",
-      alcance:
-        "Es un indicador de estructura que mide la colocación eficiente de las captaciones. IDEAL 70% AL 80%",
-      mes2a: "",
-      mes1a: "",
-      diciembre1a: "",
-      mesActual: "",
-      analisis:
-        "Resultado alineado con el comportamiento de los deposito y cartera de crédito",
-    },
-    {
-      id: 3,
-      fecha: "12-25-2005",
-      indicador: "Endedudamiento",
-      alcance:
-        "Es un indicador de estructura que mide la colocación eficiente de las captaciones. IDEAL 70% AL 80%",
-      mes2a: "",
-      mes1a: "",
-      diciembre1a: "",
-      mesActual: "",
-      analisis:
-        "Resultado alineado con el comportamiento de los deposito y cartera de crédito",
-    },
-    {
-      id: 4,
-      fecha: "12-25-2005",
-      indicador: "Endedudamiento",
-      alcance:
-        "Es un indicador de estructura que mide la colocación eficiente de las captaciones. IDEAL 70% AL 80%",
-      mes2a: "",
-      mes1a: "",
-      diciembre1a: "",
-      mesActual: "",
-      analisis:
-        "Resultado alineado con el comportamiento de los deposito y cartera de crédito",
-    },
-    {
-      id: 5,
-      fecha: "12-25-2005",
-      indicador: "Endedudamiento",
-      alcance:
-        "Es un indicador de estructura que mide la colocación eficiente de las captaciones. IDEAL 70% AL 80%",
-      mes2a: "",
-      mes1a: "",
-      diciembre1a: "",
-      mesActual: "",
-      analisis:
-        "Resultado alineado con el comportamiento de los deposito y cartera de crédito",
-    },
-    {
-      id: 6,
-      fecha: "12-25-2005",
-      indicador: "Endedudamiento",
-      alcance:
-        "Es un indicador de estructura que mide la colocación eficiente de las captaciones. IDEAL 70% AL 80%",
-      mes2a: "",
-      mes1a: "",
-      diciembre1a: "",
-      mesActual: "",
-      analisis:
-        "Resultado alineado con el comportamiento de los deposito y cartera de crédito",
-    },
-    {
-      id: 7,
-      fecha: "12-25-2005",
-      indicador: "Endedudamiento",
-      alcance:
-        "Es un indicador de estructura que mide la colocación eficiente de las captaciones. IDEAL 70% AL 80%",
-      mes2a: "",
-      mes1a: "",
-      diciembre1a: "",
-      mesActual: "",
-      analisis:
-        "Resultado alineado con el comportamiento de los deposito y cartera de crédito",
-    },
-    {
-      id: 8,
-      fecha: "12-25-2005",
-      indicador: "Endedudamiento",
-      alcance:
-        "Es un indicador de estructura que mide la colocación eficiente de las captaciones. IDEAL 70% AL 80%",
-      mes2a: "",
-      mes1a: "",
-      diciembre1a: "",
-      mesActual: "",
-      analisis:
-        "Resultado alineado con el comportamiento de los deposito y cartera de crédito",
-    },
-  ];
-
-  const [rows, setRows] = useState(initialRows);
-  const [editedRows, setEditedRows] = useState([]);
-
+  // 🔹 Update state on cell change
   const handleChange = (id, field, value) => {
-    // update rows state immediately
-    setRows(prev =>
-      prev.map(row => (row.id === id ? { ...row, [field]: value } : row))
-    );
+    const updateRow = row => (row.id === id ? { ...row, [field]: value } : row);
 
-    // mark this row as edited
+    setRows(prev => prev.map(updateRow));
+    setFilteredRows(prev => prev.map(updateRow));
+
     setEditedRows(prev => ({
       ...prev,
       [id]: { ...prev[id], [field]: value },
     }));
   };
 
+  // 🔹 Save edited rows to the API
   const handleSave = async () => {
-    console.log("Saving edits:", editedRows);
+    setSaving(true);
+    try {
+      const updates = Object.entries(editedRows).map(async ([id, changes]) => {
+        const fullRow = rows.find(r => r.id === Number(id));
+        if (!fullRow) return;
 
-    // Example: send to backend
-    /*
-    await fetch("https://coofisam360.ngrok.io/api/update-records/", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(editedRows),
-    });
-    */
+        const payload = {
+          ...fullRow,
+          ...changes,
+          id: Number(id),
+        };
 
-    // clear edited state after saving
-    setEditedRows({});
+        await saveIndicatorQuota(payload);
+      });
+
+      await Promise.all(updates);
+
+      alert("Cambios guardados correctamente");
+      setEditedRows({});
+    } catch (err) {
+      console.error(err);
+      alert("Error guardando cambios");
+    } finally {
+      setSaving(false);
+    }
   };
 
+  // 🔹 Download Excel
   const handleDownload = () => {
-    // Convert JSON to worksheet
     const worksheet = XLSX.utils.json_to_sheet(rows);
-
-    // Create a new workbook
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(
       workbook,
@@ -171,7 +90,6 @@ export default function IndicadoresTable() {
       "Indicadores Financieros"
     );
 
-    // Write workbook and save
     const excelBuffer = XLSX.write(workbook, {
       bookType: "xlsx",
       type: "array",
@@ -180,39 +98,68 @@ export default function IndicadoresTable() {
     saveAs(data, "Indicadores_Financieros.xlsx");
   };
 
+  // 🔹 Filter by search
+  const handleSearch = () => {
+    if (!search.trim()) {
+      setFilteredRows(rows);
+    } else {
+      const lower = search.toLowerCase();
+      setFilteredRows(
+        rows.filter(
+          r =>
+            r.indicador.toLowerCase().includes(lower) ||
+            r.alcance.toLowerCase().includes(lower)
+        )
+      );
+    }
+  };
+
+  if (loading) return <div className="p-12 text-center">Cargando datos...</div>;
+  if (error)
+    return <div className="p-12 text-center text-red-500">{error}</div>;
+
   return (
     <main className="pt-12 pb-0 px-12 overflow-auto">
       <h1 className="titulo-tabla-cupos text-3xl font-semibold pb-12">
         Indicadores Financieros
       </h1>
+
+      {/* 🔹 Actions */}
       <div className="actions-container flex justify-between mb-4">
         <div className="search-bar flex gap-2">
-          <input type="text" className="border w-[300px]" />
-          <button className="action-button flex gap-2 items-center justify-center cursor-pointer">
-            Buscar
-            <IoSearch />
+          <input
+            type="text"
+            className="border w-[300px] px-2"
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+          />
+          <button
+            onClick={handleSearch}
+            className="action-button flex gap-2 items-center justify-center cursor-pointer"
+          >
+            Buscar <IoSearch />
           </button>
         </div>
         <div className="flex gap-4">
           {Object.keys(editedRows).length > 0 && (
             <button
               onClick={handleSave}
+              disabled={saving}
               className="action-button flex gap-2 items-center justify-center cursor-pointer"
             >
-              Guardar cambios
-              <FaRegSave />
+              Guardar cambios <FaRegSave />
             </button>
           )}
           <button
-            className="action-button flex gap-2 items-center justify-center cursor-pointer"
             onClick={handleDownload}
+            className="action-button flex gap-2 items-center justify-center cursor-pointer"
           >
-            Descargar
-            <FiDownload />
+            Descargar <FiDownload />
           </button>
         </div>
       </div>
 
+      {/* 🔹 Table */}
       <div className="overflow-auto max-w-full table-container h-[65vh]">
         <table className="table-auto border-collapse w-full">
           <thead className="tabla-cupos-header">
@@ -220,61 +167,53 @@ export default function IndicadoresTable() {
               <th className="p-4 border text-center whitespace-nowrap min-w-[150px]">
                 Fecha
               </th>
-              <th className="p-4 border text-center whitespace-nowrap ">
+              <th className="p-4 border text-center whitespace-nowrap">
                 Indicador
               </th>
-              <th className="py-4 px-28 border text-center whitespace-nowrap ">
+              <th className="py-4 px-28 border text-center whitespace-nowrap">
                 Alcance
               </th>
-              <th className="p-4 border text-center whitespace-nowrap ">
-                Mismo mes <br />2 años atras
+              <th className="p-4 border text-center whitespace-nowrap">
+                Mismo mes <br />2 años atrás
               </th>
-              <th className="p-4 border text-center whitespace-nowrap ">
+              <th className="p-4 border text-center whitespace-nowrap">
                 Mismo mes <br />
                 año anterior
               </th>
-              <th className="p-4 border text-center whitespace-nowrap ">
+              <th className="p-4 border text-center whitespace-nowrap">
                 Diciembre <br />
                 año anterior
               </th>
-              <th className="p-4 border text-center whitespace-nowrap ">
+              <th className="p-4 border text-center whitespace-nowrap">
                 Mes año actual
               </th>
-              <th className="py-4 px-28 border text-center whitespace-nowrap ">
+              <th className="py-4 px-28 border text-center whitespace-nowrap">
                 Análisis
               </th>
             </tr>
           </thead>
           <tbody className="tabla-cupos-content p-4">
-            {rows.map(r => (
+            {filteredRows.map(r => (
               <tr key={r.id}>
-                <td>{r.fecha}</td>
-                <td>{r.indicador}</td>
-                <td>{r.alcance}</td>
-                <td>{r.mes2a}</td>
-                <td>{r.mes1a}</td>
-                <td>{r.diciembre1a}</td>
-                <td>{r.mesActual}</td>
-                <td>
+                <td className="border p-2">{r.fecha}</td>
+                <td className="border p-2">{r.indicador}</td>
+                <td className="border p-2">{r.alcance}</td>
+                <td className="border p-2">{r.mes2a}</td>
+                <td className="border p-2">{r.mes1a}</td>
+                <td className="border p-2">{r.diciembre1a}</td>
+                <td className="border p-2">{r.mesActual}</td>
+                <td className="border p-2">
                   <input
                     type="text"
                     value={r.analisis}
                     onChange={e =>
                       handleChange(r.id, "analisis", e.target.value)
                     }
-                    className="px-2 py-1 w-full cursor-pointer"
+                    className="px-2 py-1 w-full cursor-pointer border"
                   />
                 </td>
               </tr>
             ))}
-
-            {/*records.map((r) => (
-            <tr key={r.id}>
-              <td>{r.id}</td>
-              <td>{r.amount}</td>
-              <td>{r.description}</td>
-            </tr>
-          ))*/}
           </tbody>
         </table>
       </div>

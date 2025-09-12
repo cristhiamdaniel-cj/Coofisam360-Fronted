@@ -180,10 +180,10 @@ export default function CuposTable() {
                 Disponible
               </th>
               <th className="p-4 border text-center  min-w-[250px]">
-                Garantia
+                Garantía
               </th>
               <th className="p-4 border text-center whitespace-nowrap">
-                % Utilizacion
+                % Utilización
               </th>
               <th className="p-4 border text-center whitespace-nowrap">
                 Plazo/Meses

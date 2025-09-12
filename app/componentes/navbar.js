@@ -1,6 +1,7 @@
 import "../styles/global.css";
 import Image from "next/image";
 import Link from "next/link";
+import { logout } from "../lib/auth";
 
 export default function Navbar() {
   return (
@@ -47,10 +48,9 @@ export default function Navbar() {
         </Link>
       </div>
       <div className="flex gap-8 mt-8">
-        <Link href="/login" className="login-link">
-          Ingresar
-        </Link>
-        <p className="logout-button">Salir</p>
+        <button onClick={logout} className="navbar-link">
+          Salir
+        </button>
       </div>
     </nav>
   );

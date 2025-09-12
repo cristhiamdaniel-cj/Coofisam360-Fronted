@@ -47,12 +47,12 @@ export async function saveCredit(payload) {
 /*===========TABLA INDICADORES==================*/
 
 export async function listIndicators(params = {}) {
-  const { data } = await api.get("/api/v1/finanzas//", { params });
+  const { data } = await api.get("/api/v1/finanzas/", { params });
   return data?.items ?? data;
 }
 
 export async function getIndicator(id, params = {}) {
-  const { data } = await api.get("/api/v1/finanzas//", {
+  const { data } = await api.get("/api/v1/finanzas/", {
     params: { ...params, id },
   });
   const items = data?.items ?? [];
@@ -60,6 +60,6 @@ export async function getIndicator(id, params = {}) {
 }
 
 export async function saveIndicator(payload) {
-  const { data } = await api.post("/api/v1/finanzas//", payload);
+  const { data } = await api.post("/api/v1/finanzas/", payload);
   return data;
 }

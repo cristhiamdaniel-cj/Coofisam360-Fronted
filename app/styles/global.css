@@ -3,9 +3,11 @@
   --hover-background: rgb(255, 228, 233);
   --foreground: #171717;
   --dark-red: rgb(120, 0, 0);
-  --bright-red: rgb(215, 0, 20);
+  --bright-red: rgb(184, 17, 33);
   --light-text: rgb(255, 241, 242);
-  --dark-text: rgb(122, 122, 122);
+  --dark-text: rgb(184, 184, 184);
+  --secundary-gold: rgb(255, 180, 0);
+  --secundary-silver: rgb(184, 184, 184);
 }
 
 .main-layout {
@@ -48,10 +50,11 @@
   width: 200px;
   padding: 5px;
   border-radius: 10px;
+  color: var(--light-text);
 }
 
 .navbar-link:hover {
-  background-color: var(--bright-red);
+  background-color: var(--secundary-gold);
 }
 
 .logout-button {
@@ -146,6 +149,10 @@
   background-color: #f9fafb;
 }
 
+.tabla-cupos-header {
+  color: var(--light-text);
+}
+
 .titulo-tabla-cupos {
   color: var(--bright-red);
   text-transform: uppercase;
@@ -209,4 +216,65 @@ table thead th {
 
 .back-arrow {
   color: var(--dark-red);
+}
+
+.login-layout {
+  height: 95vh;
+  display: flex;
+  align-items: center;
+  justify-content: end;
+  position: relative;
+  overflow: hidden;
+}
+
+.login-banner {
+  width: 800px;
+  height: 2000px;
+  background-color: var(--bright-red);
+  position: absolute;
+  transform: rotate(45deg);
+  top: -600px;
+  left: -400px;
+}
+
+.login-container {
+  z-index: 20;
+}
+
+.logo-login {
+  z-index: 5;
+  position: absolute;
+  top: -100px;
+  left: 0;
+}
+
+.login-title {
+  color: var(--bright-red);
+}
+
+.login-form {
+  background-color: var(--secundary-silver);
+  color: var(--dark-red);
+  border-radius: 25px;
+  box-shadow: 4px 4px 10px rgb(162 157 157);
+}
+
+.login-form input {
+  background-color: white;
+  border-radius: 15px;
+  padding: 10px;
+}
+
+.login-button {
+  background-color: var(--dark-red);
+  padding: 10px 20px;
+  border-radius: 25px;
+}
+
+.login-button:hover {
+  background-color: var(--secundary-gold);
+}
+
+.search-bar input {
+  border-radius: 15px;
 }

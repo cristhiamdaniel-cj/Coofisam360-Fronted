@@ -172,7 +172,7 @@ export default function CategoriasTable() {
               <th className="p-4 border text-center whitespace-nowrap ">
                 Entidades Financieras
               </th>
-              <th className="p-4 border text-center whitespace-nowrap ">
+              <th className="p-4 border text-center whitespace-nowrap min-w-[220px]">
                 Población
               </th>
             </tr>
@@ -193,7 +193,7 @@ export default function CategoriasTable() {
                     onChange={e =>
                       handleChange(row.id, "entidades", e.target.value)
                     }
-                    className="px-2 py-1 w-full cursor-pointer"
+                    className="px-2 py-1 w-full text-right border"
                   />
                 </td>
                 <td>
@@ -203,7 +203,7 @@ export default function CategoriasTable() {
                     onChange={e =>
                       handleChange(row.id, "poblacion", e.target.value)
                     }
-                    className="px-2 py-1 w-full cursor-pointer"
+                    className="px-2 py-1 w-full text-right border"
                   />
                 </td>
               </tr>

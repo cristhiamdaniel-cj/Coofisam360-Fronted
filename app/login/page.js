@@ -7,7 +7,6 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const router = useRouter();
-
   const base = process.env.NEXT_PUBLIC_API_BASE || "";
 
   async function onSubmit(e) {
@@ -19,71 +18,51 @@ export default function LoginPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password }),
       });
+
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
         throw new Error(data.detail || "Credenciales inválidas");
       }
+
       const data = await res.json();
       localStorage.setItem("authToken", data.token);
-      router.push("/");
+      router.push("/"); // redirect to home
     } catch (err) {
       setError(err.message);
     }
   }
 
   return (
-    <div className="login-container flex items-center justify-center">
-      <div className="login-card border">
-        <div className="login-header px-8 py-4">
-          <div className="login-logo">
-            {/* Coloca el archivo en frontend/public/logo-coofisam.png */}
-          </div>
-          <h2 className="login-title">Bienvenido</h2>
-        </div>
-        <p className="login-subtitle p-4">Inicia sesión para continuar</p>
-        <div className="p-12">
-          <form onSubmit={onSubmit} className="login-form">
-            <div className="form-field">
-              <label htmlFor="username" className="mr-6">
-                Usuario
-              </label>
-              <input
-                id="username"
-                value={username}
-                onChange={e => setUsername(e.target.value)}
-                placeholder="Usuario"
-                className="border"
-              />
-            </div>
-            <div className="form-field">
-              <label htmlFor="password" className="mr-6">
-                Contraseña
-              </label>
-              <input
-                id="password"
-                type="password"
-                value={password}
-                onChange={e => setPassword(e.target.value)}
-                placeholder="••••••••"
-                className="border"
-              />
-            </div>
-            {error && (
-              <div className="form-error" role="alert">
-                {error}
-              </div>
-            )}
-            <div className="login-actions">
-              <button type="submit" className="action-button">
-                Ingresar
-              </button>
-            </div>
-          </form>
-        </div>
-        <div className="login-meta">
-          Backend: <code>{base || "(mismo origen)"}</code>
-        </div>
-      </div>
+    <div className="login-container flex flex-col items-center justify-center min-h-screen mr-32">
+      <h1 className="text-8xl login-title font-grand-hotel">
+        Bienvenido a <br />
+      </h1>
+      <h1 className="font-urbanist text-6xl login-title mb-8 font-bold">
+        Coofisam
+      </h1>
+      <form onSubmit={onSubmit} className="px-16 py-8 login-form">
+        <h2 className="text-xl mb-4">Ingrese con su usuario y contraseña</h2>
+        <input
+          value={username}
+          onChange={e => setUsername(e.target.value)}
+          placeholder="Usuario"
+          className="border mb-2 block w-full"
+        />
+        <input
+          type="password"
+          value={password}
+          onChange={e => setPassword(e.target.value)}
+          placeholder="••••••••"
+          className="border mb-2 block w-full"
+        />
+        {error && <p className="text-red-500 mb-2">{error}</p>}
+        <button
+          type="submit"
+          className="login-button mt-8 text-white px-4 py-2 cursor-pointer"
+        >
+          Ingresar
+        </button>
+      </form>
     </div>
   );
 }

@@ -526,10 +526,72 @@ export default function GestionesTable() {
                   {r.TRABAJADOR}
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
-                  {r.OFICINA}
+                  <select
+                    value={r.OFICINA}
+                    onChange={e => {
+                      const newRows = [...rows];
+                      newRows[idx].OFICINA = e.target.value;
+                      setRows(newRows);
+                    }}
+                    className="border rounded p-1"
+                  >
+                    {[
+                      "GARZON",
+                      "GUADALUPE",
+                      "EL PITAL",
+                      "GIGANTE",
+                      "ACEVEDO",
+                      "TARQUI",
+                      "LA PLATA",
+                      "PITALITO",
+                      "SUAZA",
+                      "LA ARGENTINA",
+                      "NEIVA",
+                      "RIVERA",
+                      "HOBO",
+                      "IQUIRA",
+                      "SALADOBLANCO",
+                      "ESPINAL",
+                      "PLANADAS",
+                      "CHAPARRAL",
+                      "FLORENCIA",
+                      "DIRECCIÓN GENERAL",
+                    ].map(opt => (
+                      <option key={opt} value={opt}>
+                        {opt}
+                      </option>
+                    ))}
+                  </select>
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
-                  {r.CARGO}
+                  <select
+                    value={r.CARGO}
+                    onChange={e => {
+                      const newRows = [...rows];
+                      newRows[idx].CARGO = e.target.value;
+                      setRows(newRows);
+                    }}
+                    className="border rounded p-1"
+                  >
+                    {[
+                      "ASESOR COMERCIAL",
+                      "ASESOR COMERCIAL CORRESPONSAL SOLIDARIO",
+                      "ASESOR FINANCIERO RURAL",
+                      "ASESOR MICROFINANZAS URBANO",
+                      "AUXILIAR CARTERA",
+                      "AUXILIAR DE OFICINA",
+                      "CAJERO",
+                      "DIRECTOR DE OFICINA",
+                      "DIRECTOR OFICINA",
+                      "JEFE DE OPERACIONES",
+                      "SUBGERENTE COMERCIAL",
+                      "SUPERNUMERARIO",
+                    ].map(opt => (
+                      <option key={opt} value={opt}>
+                        {opt}
+                      </option>
+                    ))}
+                  </select>
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
                   {r.ANTIGÜEDAD}
@@ -562,10 +624,45 @@ export default function GestionesTable() {
                   {r.FECHA_DESICIÓN_PRIMERA_INSTANCIA}
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
-                  {r.GRAVEDAD_PRIMERA_INSTANCIA}
+                  <select
+                    value={r.GRAVEDAD_PRIMERA_INSTANCIA}
+                    onChange={e => {
+                      const newRows = [...rows];
+                      newRows[idx].GRAVEDAD_PRIMERA_INSTANCIA = e.target.value;
+                      setRows(newRows);
+                    }}
+                    className="border rounded p-1"
+                  >
+                    {["GRAVE", "LEVE", "GRAVISIMA"].map(opt => (
+                      <option key={opt} value={opt}>
+                        {opt}
+                      </option>
+                    ))}
+                  </select>
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
-                  {r.SANCION_PRIMERA_INSTANCIA}
+                  <select
+                    value={r.SANCION_PRIMERA_INSTANCIA}
+                    onChange={e => {
+                      const newRows = [...rows];
+                      newRows[idx].SANCION_PRIMERA_INSTANCIA = e.target.value;
+                      setRows(newRows);
+                    }}
+                    className="border rounded p-1"
+                  >
+                    {[
+                      "SUSPENSION",
+                      "NO APLICA",
+                      "LLAMADO DE ATENCIÓN",
+                      "TERMINACION DE CONTRATO",
+                      "ARCHIVADO",
+                      "LLAMADO DE ATENCION",
+                    ].map(opt => (
+                      <option key={opt} value={opt}>
+                        {opt}
+                      </option>
+                    ))}
+                  </select>
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
                   {r.Duracion_Proceso_Inicial}
@@ -592,7 +689,21 @@ export default function GestionesTable() {
                   {r.GRAVEDAD_SEGUNDA_INSTANCIA}
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
-                  {r.SANCION_SEGUNDA_INSTANCIA}
+                  <select
+                    value={r.GRAVEDAD_PRIMERA_INSTANCIA}
+                    onChange={e => {
+                      const newRows = [...rows];
+                      newRows[idx].GRAVEDAD_PRIMERA_INSTANCIA = e.target.value;
+                      setRows(newRows);
+                    }}
+                    className="border rounded p-1"
+                  >
+                    {["GRAVE", "LEVE", "GRAVISIMA"].map(opt => (
+                      <option key={opt} value={opt}>
+                        {opt}
+                      </option>
+                    ))}
+                  </select>
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
                   {r.FECHA_DE_DECISIÓN_SEGUNDA_INSTANCIA}
