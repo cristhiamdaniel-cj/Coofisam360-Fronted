@@ -2,7 +2,7 @@ import {
   listCredits as listCreditsRaw,
   getCredit as getCreditRaw,
   saveCredit as saveCreditRaw,
-} from "../modulo-financiero/credits";
+} from "../financialService";
 
 export async function listCreditQuota(params = {}) {
   const raw = await listCreditsRaw(params);
