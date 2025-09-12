@@ -8,7 +8,6 @@ export async function listCategories(params = {}) {
   return data?.items ?? data;
 }
 
-
 export async function getCategory(id, params = {}) {
   const { data } = await api.get("/api/v1/finanzas//", {
     params: { ...params, id },
@@ -16,7 +15,6 @@ export async function getCategory(id, params = {}) {
   const items = data?.items ?? [];
   return items[0] || null;
 }
-
 
 export async function saveCategory(payload) {
   const { data } = await api.post("/api/v1/finanzas//", payload);
@@ -54,7 +52,6 @@ export async function listIndicators(params = {}) {
   return data?.items ?? data;
 }
 
-
 export async function getIndicator(id, params = {}) {
   const { data } = await api.get("/api/v1/finanzas//", {
     params: { ...params, id },
@@ -62,7 +59,6 @@ export async function getIndicator(id, params = {}) {
   const items = data?.items ?? [];
   return items[0] || null;
 }
-
 
 export async function saveIndicator(payload) {
   const { data } = await api.post("/api/v1/finanzas//", payload);
