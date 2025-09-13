@@ -6,6 +6,7 @@ import {
 
 export async function listIndicatorsQuota(params = {}) {
   const raw = await listIndicatorsRaw(params);
+  console.log("RAW API RESPONSE", raw);
   const rows = Array.isArray(raw) ? raw : raw?.items || raw?.data || [];
   return rows.map(mapIndicatorRow);
 }

@@ -25,11 +25,12 @@ export default function IndicadoresTable() {
     async function load() {
       try {
         const data = await listIndicatorsQuota({ limit: 200 });
+        console.log("DATA FROM listIndicatorsQuota", data);
         setRows(data);
         setFilteredRows(data);
         setError("");
       } catch (e) {
-        console.error(e);
+        console.error("ERROR LOADING INDICATORS", e.response?.data || e);
         setError(e.message || "Error cargando datos");
       } finally {
         setLoading(false);
@@ -129,15 +130,17 @@ export default function IndicadoresTable() {
         <div className="search-bar flex gap-2">
           <input
             type="text"
-            className="border w-[300px] px-2"
             value={search}
             onChange={e => setSearch(e.target.value)}
+            placeholder="Buscar por indicador o alcance"
+            className="border w-[300px] px-2 py-1"
           />
           <button
             onClick={handleSearch}
             className="action-button flex gap-2 items-center justify-center cursor-pointer"
           >
-            Buscar <IoSearch />
+            Buscar
+            <IoSearch />
           </button>
         </div>
         <div className="flex gap-4">

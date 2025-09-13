@@ -2,7 +2,7 @@ import {
   listCategories as listCategoriesRaw,
   getCategory as getCategoryRaw,
   saveCategory as saveCategoryRaw,
-} from "../financialService";
+} from "../modulo-financiero/financialService";
 
 export async function listCategoriesQuota(params = {}) {
   const raw = await listCategoriesRaw(params);
@@ -16,8 +16,7 @@ export async function getCategoryQuota(id, params = {}) {
 }
 
 export async function saveCategoryQuota(payload) {
-  const r = await saveCategoryRaw(payload);
-  return r;
+  return await saveCategoryRaw(payload);
 }
 
 function mapCategoryRow(r) {
@@ -36,7 +35,12 @@ function mapCategoryRow(r) {
 
 function num(v) {
   if (v == null) return 0;
-  const n = Number(String(v).replace(/\./g, "").replace(/,/g, ".").replace(/[^\d.-]/g, ""));
+  const n = Number(
+    String(v)
+      .replace(/\./g, "")
+      .replace(/,/g, ".")
+      .replace(/[^\d.-]/g, "")
+  );
   return Number.isFinite(n) ? n : 0;
 }
 

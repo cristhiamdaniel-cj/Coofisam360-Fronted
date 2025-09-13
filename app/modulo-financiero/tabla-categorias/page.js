@@ -1,99 +1,59 @@
 "use client";
 import { useEffect, useState } from "react";
-//import { getFinancialRecords } from "@/services/financial";
-import { FaRegSave } from "react-icons/fa";
-import { FaFileDownload } from "react-icons/fa";
+import {
+  listCategoriesQuota,
+  saveCategoryQuota,
+} from "../../services/modulo-financiero/categoriesQuota";
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
+import { FaRegSave, FaFileDownload } from "react-icons/fa";
 import { IoSearch } from "react-icons/io5";
 
-export default function CategoriasTable() {
-  //const [records, setRecords] = useState([]);
+export default function CuposTable() {
+  const [rows, setRows] = useState([]);
+  const [filteredRows, setFilteredRows] = useState([]);
+  const [editedRows, setEditedRows] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [search, setSearch] = useState("");
+  const [saving, setSaving] = useState(false);
 
-  /*useEffect(() => {
-    async function loadData() {
-      const data = await getFinancialRecords();
-      setRecords(data);
+  useEffect(() => {
+    async function load() {
+      try {
+        const data = await listCategoriesQuota({ limit: 200 });
+        setRows(data);
+        setFilteredRows(data);
+        setError("");
+      } catch (e) {
+        setError(e.message || "Error cargando datos");
+      } finally {
+        setLoading(false);
+      }
     }
-    loadData();
+    load();
   }, []);
-  */
 
-  const initialRows = [
-    {
-      id: 1,
-      codigo: "1",
-      nombre: "Garzon",
-      fecha: "20/07/1991",
-      entidades: "5",
-      poblacion: "1234",
-    },
-    {
-      id: 2,
-      codigo: "2",
-      nombre: "Guadalupe",
-      fecha: "20/07/1991",
-      entidades: "7",
-      poblacion: "1234",
-    },
-    {
-      id: 3,
-      codigo: "3",
-      nombre: "Pital",
-      fecha: "20/07/1991",
-      entidades: "9",
-      poblacion: "1234",
-    },
-    {
-      id: 4,
-      codigo: "4",
-      nombre: "Gigante",
-      fecha: "20/07/1991",
-      entidades: "1",
-      poblacion: "1234",
-    },
-    {
-      id: 5,
-      codigo: "5",
-      nombre: "Acevedo",
-      fecha: "20/07/1991",
-      entidades: "4",
-      poblacion: "1234",
-    },
-    {
-      id: 6,
-      codigo: "6",
-      nombre: "Tarqui",
-      fecha: "20/07/1991",
-      entidades: "2",
-      poblacion: "1234",
-    },
-    {
-      id: 7,
-      codigo: "7",
-      nombre: "La Plata",
-      fecha: "20/07/1991",
-      entidades: "10",
-      poblacion: "1234",
-    },
-    {
-      id: 8,
-      codigo: "8",
-      nombre: "Pitalito",
-      fecha: "20/07/1991",
-      entidades: "6",
-      poblacion: "1234",
-    },
-  ];
-
-  const [rows, setRows] = useState(initialRows);
-  const [editedRows, setEditedRows] = useState([]);
+  const handleSearch = () => {
+    const query = search.toLowerCase();
+    if (!query) {
+      setFilteredRows(rows); // reset if search is empty
+      return;
+    }
+    const filtered = rows.filter(
+      r =>
+        r.nombre?.toLowerCase().includes(query) ||
+        r.codigo?.toLowerCase().includes(query)
+    );
+    setFilteredRows(filtered);
+  };
 
   const handleChange = (id, field, value) => {
-    // update rows state immediately
-    setRows(prev =>
-      prev.map(row => (row.id === id ? { ...row, [field]: value } : row))
-    );
+    const updateRow = row => (row.id === id ? { ...row, [field]: value } : row);
 
-    // mark this row as edited
+    setRows(prev => prev.map(updateRow));
+    setFilteredRows(prev => prev.map(updateRow));
+
     setEditedRows(prev => ({
       ...prev,
       [id]: { ...prev[id], [field]: value },
@@ -101,19 +61,56 @@ export default function CategoriasTable() {
   };
 
   const handleSave = async () => {
-    console.log("Saving edits:", editedRows);
+    setSaving(true);
+    try {
+      const updates = Object.entries(editedRows).map(async ([id, changes]) => {
+        const fullRow = rows.find(r => r.id === Number(id));
+        if (!fullRow) return;
 
-    // Example: send to backend
-    /*
-    await fetch("https://coofisam360.ngrok.io/api/update-records/", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(editedRows),
+        const payload = {
+          ...fullRow,
+          ...changes,
+          id: Number(id),
+        };
+
+        await saveCategoryQuota(payload);
+      });
+
+      await Promise.all(updates);
+
+      alert("Cambios guardados correctamente");
+      setEditedRows({});
+    } catch (err) {
+      console.error(err);
+      alert("Error guardando cambios");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (loading) {
+    return <div className="p-12 text-center">Cargando datos...</div>;
+  }
+
+  if (error) {
+    return <div className="p-12 text-center text-red-500">{error}</div>;
+  }
+
+  const handleDownload = () => {
+    // Convert JSON to worksheet
+    const worksheet = XLSX.utils.json_to_sheet(rows);
+
+    // Create a new workbook
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Cupos Credito");
+
+    // Write workbook and save
+    const excelBuffer = XLSX.write(workbook, {
+      bookType: "xlsx",
+      type: "array",
     });
-    */
-
-    // clear edited state after saving
-    setEditedRows({});
+    const data = new Blob([excelBuffer], { type: "application/octet-stream" });
+    saveAs(data, "Cupos_Credito.xlsx");
   };
 
   return (
@@ -123,8 +120,17 @@ export default function CategoriasTable() {
       </h1>
       <div className="actions-container flex justify-between mb-4">
         <div className="search-bar flex gap-2">
-          <input type="text" className="border w-[300px]" />
-          <button className="action-button flex gap-2 items-center justify-center cursor-pointer">
+          <input
+            type="text"
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            placeholder="Buscar por codigo u oficina"
+            className="border w-[300px] px-2 py-1"
+          />
+          <button
+            onClick={handleSearch}
+            className="action-button flex gap-2 items-center justify-center cursor-pointer"
+          >
             Buscar
             <IoSearch />
           </button>
@@ -139,7 +145,10 @@ export default function CategoriasTable() {
               <FaRegSave />
             </button>
           )}
-          <button className="action-button flex gap-2 items-center justify-center cursor-pointer">
+          <button
+            className="action-button flex gap-2 items-center justify-center cursor-pointer"
+            onClick={handleDownload}
+          >
             Descargar
             <FaFileDownload />
           </button>
@@ -178,13 +187,13 @@ export default function CategoriasTable() {
             </tr>
           </thead>
           <tbody className="tabla-cupos-content p-4">
-            {rows.map(row => (
+            {filteredRows.map(row => (
               <tr key={row.id}>
                 <td>{row.codigo}</td>
                 <td>{row.nombre}</td>
-                <td></td>
-                <td></td>
-                <td></td>
+                <td>{row.ctaPuc14}</td>
+                <td>{row.ctaPuc21}</td>
+                <td>{row.asociados}</td>
                 <td>{row.fecha}</td>
                 <td>
                   <input
