@@ -77,7 +77,8 @@ export default function CategoriasTable() {
           anio: Number(fullRow.anio),
           mes: Number(fullRow.mes),
           nombre: (changes.nombre ?? fullRow.nombre) || undefined,
-          fecha: (changes.fecha ?? fullRow.fecha) || undefined,
+          // No enviar fecha si no se edita explícitamente en formato ISO (YYYY-MM-DD)
+          // fecha: (changes.fecha ?? fullRow.fecha) || undefined,
           asociados: Number(changes.asociados ?? fullRow.asociados),
           entidades: Number(changes.entidades ?? fullRow.entidades),
           poblacion: Number(changes.poblacion ?? fullRow.poblacion),

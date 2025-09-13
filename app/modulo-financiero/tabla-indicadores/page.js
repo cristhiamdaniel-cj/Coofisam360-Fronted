@@ -25,11 +25,42 @@ export default function IndicadoresTable() {
     load();
   }, []);
 
+  function mapRow(r){
+    // Backend devuelve: nombre_indicador, anio, mes, periodo, valor_indicador, dic_anterior, mes_1a, mes_2a, analisis
+    const indicador = String(r.indicador ?? r.nombre_indicador ?? r.nombre ?? "");
+    const anio = Number(r.anio ?? 0) || undefined;
+    const mes = Number(r.mes ?? 0) || undefined;
+    const periodo = r.periodo || (anio && mes ? `${anio}-${String(mes).padStart(2,'0')}` : undefined);
+    const fecha = periodo ? `${periodo}-01` : (r.fecha || "");
+    const id = `${indicador}|${periodo || ''}`;
+    const toNum = (v)=>{
+      if(v==null || v==='') return 0;
+      const n = Number(String(v).replace(/\./g,'').replace(/,/g,'.'));
+      return Number.isFinite(n)? n : 0;
+    };
+    return {
+      id,
+      indicador,
+      anio,
+      mes,
+      periodo,
+      fecha,
+      alcance: String(r.alcance ?? r.descripcion ?? r.scope ?? ''),
+      mes2a: toNum(r.mes2a ?? r.mes_2a),
+      mes1a: toNum(r.mes1a ?? r.mes_1a),
+      diciembre1a: toNum(r.diciembre1a ?? r.dic_anterior ?? r.anio_menos_1_dic ?? r.mes_de_diciembre_fijo),
+      mesActual: toNum(r.mesActual ?? r.valor_indicador),
+      analisis: String(r.analisis ?? r.analysis ?? ''),
+    };
+  }
+
   async function load() {
     try {
       const data = await listIndicatorsQuota({ limit: 200 });
-      setRows(data);
-      setFilteredRows(data);
+      const rows = Array.isArray(data) ? data : (data?.items || []);
+      const mapped = rows.map(mapRow);
+      setRows(mapped);
+      setFilteredRows(mapped);
       setError("");
     } catch (e) {
       console.error("ERROR LOADING INDICATORS", e.response?.data || e);
@@ -55,20 +86,16 @@ export default function IndicadoresTable() {
     setSaving(true);
     try {
       const updates = Object.entries(editedRows).map(async ([id, changes]) => {
-        const fullRow = rows.find(r => r.id === Number(id));
+        const fullRow = rows.find(r => String(r.id) === String(id));
         if (!fullRow) return;
 
-        // ✅ build proper backend payload
+        // Backend espera: nombre_indicador, anio, mes, periodo (YYYY-MM, opcional), analisis
         const payload = {
-          id: Number(id),
-          fecha: fullRow.fecha,
-          indicador: fullRow.indicador,
-          alcance: fullRow.alcance,
-          mes2a: fullRow.mes2a,
-          mes1a: fullRow.mes1a,
-          diciembre1a: fullRow.diciembre1a,
-          mesActual: fullRow.mesActual,
-          analisis: changes.analisis ?? fullRow.analisis,
+          nombre_indicador: fullRow.indicador,
+          anio: Number(fullRow.anio),
+          mes: Number(fullRow.mes),
+          periodo: fullRow.periodo,
+          analisis: (changes.analisis ?? fullRow.analisis) || '',
         };
 
         await saveIndicatorQuota(payload);
