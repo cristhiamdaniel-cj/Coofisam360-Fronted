@@ -2,76 +2,47 @@ import api from "../api";
 
 /*========TABLA CATEGORIAS==========*/
 
+/* ======== CATEGORÍAS (OFICINAS) ======== */
 export async function listCategories(params = {}) {
   const { data } = await api.get("/api/v1/finanzas/oficinas/", { params });
-  // Backend: { items: [...], count, source }  -> devolvemos items o data
   return data?.items ?? data;
 }
 
-export async function getCategory(id, params = {}) {
-  const { data } = await api.get("/api/v1/finanzas/oficinas/<codigo>/", {
-    params: { ...params, id },
-  });
-  const items = data?.items ?? [];
-  return items[0] || null;
+export async function getCategory(codigo, params = {}) {
+  // Soporta year/month para traer el periodo deseado. Si no, trae el último.
+  const { data } = await api.get(
+    `/api/v1/finanzas/oficinas/${encodeURIComponent(codigo)}/`,
+    { params }
+  );
+  return data;
 }
 
-export async function saveCategory(payload) {
-  const { id, ...rest } = payload;
-
-  // Map frontend fields back to backend fields
-  const backendPayload = {
-    codigo: rest.codigo,
-    nombre: rest.nombre,
-    fecha_apertura: rest.fecha,
-    cta_puc_14: rest.ctaPuc14,
-    cta_puc_21: rest.ctaPuc21,
-    asociados: rest.asociados,
-    entidades_financieras: rest.entidades,
-    poblacion: rest.poblacion,
-  };
-
-  // If has ID -> update (PUT), else create (POST)
-  if (id) {
-    const { data } = await api.put(
-      `/api/v1/finanzas/oficinas/${id}/`,
-      backendPayload
-    );
-    return data;
-  } else {
-    const { data } = await api.post(
-      `/api/v1/finanzas/oficinas/`,
-      backendPayload
-    );
-    return data;
-  }
+export async function saveCategory(payload = {}) {
+  // Requiere: { codigo, anio, mes } y opcionales: nombre, fecha, asociados, entidades, poblacion
+  const { data } = await api.post("/api/v1/finanzas/oficinas/", payload);
+  return data;
 }
 
-/*============TABLA CUPOS=================*/
-// Lista Cupos de Crédito desde el backend
+/* ======== CUPOS CRÉDITO ======== */
 export async function listCredits(params = {}) {
   const { data } = await api.get("/api/v1/finanzas/cupos-credito/", { params });
-  // El backend responde { items: [...], count, source }
   return data?.items ?? data;
 }
 
-// Obtener un cupo por id (usa filtro ?id=)
 export async function getCredit(id, params = {}) {
   const { data } = await api.get("/api/v1/finanzas/cupos-credito/", {
-    params: { ...params, id },
+    params: { ...(params || {}), id },
   });
   const items = data?.items ?? [];
   return items[0] || null;
 }
 
-// Crear/actualizar cupo (POST); si mandas id, actualiza
-export async function saveCredit(payload) {
+export async function saveCredit(payload = {}) {
   const { data } = await api.post("/api/v1/finanzas/cupos-credito/", payload);
   return data;
 }
 
-/*===========TABLA INDICADORES==================*/
-
+/* ======== INDICADORES · COMPARATIVA ======== */
 export async function listIndicators(params = {}) {
   const { data } = await api.get("/api/v1/indicadores/comparativa/", {
     params,
@@ -79,15 +50,33 @@ export async function listIndicators(params = {}) {
   return data?.items ?? data;
 }
 
-export async function getIndicator(id, params = {}) {
+export async function getIndicator(indicador, params = {}) {
+  // Pide por nombre + year + month
+  const { year, month, ...rest } = params || {};
   const { data } = await api.get("/api/v1/indicadores/comparativa/", {
-    params: { ...params, id },
+    params: { ...rest, year, month, indicador },
   });
   const items = data?.items ?? [];
   return items[0] || null;
 }
 
-export async function saveIndicator(payload) {
-  const { data } = await api.post("/api/v1/indicadores/comparativa/", payload);
+export async function saveIndicator({
+  indicador,
+  nombre_indicador,
+  anio,
+  mes,
+  periodo,
+  analisis,
+}) {
+  const y = Number(anio),
+    m = Number(mes);
+  const body = {
+    nombre_indicador: nombre_indicador || indicador,
+    anio: y,
+    mes: m,
+    periodo: periodo || `${y}-${String(m).padStart(2, "0")}`,
+    analisis: analisis ?? "",
+  };
+  const { data } = await api.post("/api/v1/indicadores/comparativa/", body);
   return data;
 }

@@ -21,7 +21,7 @@ export async function saveCategoryQuota(payload) {
 
 function mapCategoryRow(r) {
   return {
-    id: r.id ?? r.categoria_id ?? r.id_categoria,
+    id: String(r.id ?? r.categoria_id ?? r.id_categoria ?? ""), // forzar string
     codigo: str(r.codigo ?? r.codigo_oficina ?? r.office_code ?? r.cod),
     nombre: str(r.nombre ?? r.nombre_oficina ?? r.office_name),
     fecha: fmtDate(r.fecha ?? r.fecha_apertura ?? r.opened_at),
@@ -30,9 +30,11 @@ function mapCategoryRow(r) {
     asociados: num(r.asociados ?? r.num_asociados ?? r.members ?? 0),
     entidades: num(r.entidades ?? r.entidades_financieras ?? r.banks ?? 0),
     poblacion: num(r.poblacion ?? r.population ?? 0),
+    // necesarios para POST:
+    anio: Number(r.anio ?? r.year ?? 0) || 0,
+    mes: Number(r.mes ?? r.month ?? 0) || 0,
   };
 }
-
 function num(v) {
   if (v == null) return 0;
   const n = Number(

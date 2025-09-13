@@ -9,7 +9,7 @@ import { saveAs } from "file-saver";
 import { FaRegSave, FaFileDownload } from "react-icons/fa";
 import { IoSearch } from "react-icons/io5";
 
-export default function CuposTable() {
+export default function CategoriasTable() {
   const [rows, setRows] = useState([]);
   const [filteredRows, setFilteredRows] = useState([]);
   const [editedRows, setEditedRows] = useState({});
@@ -18,42 +18,46 @@ export default function CuposTable() {
   const [search, setSearch] = useState("");
   const [saving, setSaving] = useState(false);
 
-  useEffect(() => {
-    async function load() {
-      try {
-        const data = await listCategoriesQuota({ limit: 200 });
-        setRows(data);
-        setFilteredRows(data);
-        setError("");
-      } catch (e) {
-        setError(e.message || "Error cargando datos");
-      } finally {
-        setLoading(false);
-      }
+  async function loadData() {
+    setLoading(true);
+    try {
+      const data = await listCategoriesQuota({ limit: 200 });
+      setRows(data);
+      setFilteredRows(data);
+      setError("");
+    } catch (e) {
+      setError(e.message || "Error cargando datos");
+    } finally {
+      setLoading(false);
     }
-    load();
+  }
+
+  useEffect(() => {
+    loadData();
   }, []);
 
-  const handleSearch = () => {
-    const query = search.toLowerCase();
+  // Live search (reactive as you type)
+  useEffect(() => {
+    const query = search.trim().toLowerCase();
     if (!query) {
-      setFilteredRows(rows); // reset if search is empty
-      return;
+      setFilteredRows(rows);
+    } else {
+      const filtered = rows.filter(
+        r =>
+          r.nombre?.toLowerCase().includes(query) ||
+          r.codigo?.toLowerCase().includes(query)
+      );
+      setFilteredRows(filtered);
     }
-    const filtered = rows.filter(
-      r =>
-        r.nombre?.toLowerCase().includes(query) ||
-        r.codigo?.toLowerCase().includes(query)
-    );
-    setFilteredRows(filtered);
-  };
+  }, [search, rows]);
 
   const handleChange = (id, field, value) => {
-    const updateRow = row => (row.id === id ? { ...row, [field]: value } : row);
-
-    setRows(prev => prev.map(updateRow));
-    setFilteredRows(prev => prev.map(updateRow));
-
+    setRows(prev =>
+      prev.map(row => (row.id === id ? { ...row, [field]: value } : row))
+    );
+    setFilteredRows(prev =>
+      prev.map(row => (row.id === id ? { ...row, [field]: value } : row))
+    );
     setEditedRows(prev => ({
       ...prev,
       [id]: { ...prev[id], [field]: value },
@@ -64,25 +68,31 @@ export default function CuposTable() {
     setSaving(true);
     try {
       const updates = Object.entries(editedRows).map(async ([id, changes]) => {
-        const fullRow = rows.find(r => r.id === Number(id));
-        if (!fullRow) return;
+        // id es string; no lo conviertas a número
+        const fullRow = rows.find(r => String(r.id) === String(id));
+        if (!fullRow) return; // nada que guardar
 
         const payload = {
-          ...fullRow,
-          ...changes,
-          id: Number(id),
+          codigo: fullRow.codigo,
+          anio: Number(fullRow.anio),
+          mes: Number(fullRow.mes),
+          nombre: (changes.nombre ?? fullRow.nombre) || undefined,
+          fecha: (changes.fecha ?? fullRow.fecha) || undefined,
+          asociados: Number(changes.asociados ?? fullRow.asociados),
+          entidades: Number(changes.entidades ?? fullRow.entidades),
+          poblacion: Number(changes.poblacion ?? fullRow.poblacion),
         };
 
         await saveCategoryQuota(payload);
       });
 
       await Promise.all(updates);
-
       alert("Cambios guardados correctamente");
       setEditedRows({});
+      await loadData();
     } catch (err) {
       console.error(err);
-      alert("Error guardando cambios");
+      alert(err.message || "Error guardando cambios");
     } finally {
       setSaving(false);
     }
@@ -97,14 +107,9 @@ export default function CuposTable() {
   }
 
   const handleDownload = () => {
-    // Convert JSON to worksheet
     const worksheet = XLSX.utils.json_to_sheet(rows);
-
-    // Create a new workbook
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Cupos Credito");
-
-    // Write workbook and save
     const excelBuffer = XLSX.write(workbook, {
       bookType: "xlsx",
       type: "array",
@@ -127,13 +132,6 @@ export default function CuposTable() {
             placeholder="Buscar por codigo u oficina"
             className="border w-[300px] px-2 py-1"
           />
-          <button
-            onClick={handleSearch}
-            className="action-button flex gap-2 items-center justify-center cursor-pointer"
-          >
-            Buscar
-            <IoSearch />
-          </button>
         </div>
         <div className="flex gap-4">
           {Object.keys(editedRows).length > 0 && (

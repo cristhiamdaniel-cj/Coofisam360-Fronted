@@ -7,9 +7,9 @@ import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 
 import {
-  listIndicatorsQuota,
-  saveIndicatorQuota, // ✅ note: correct name
-} from "../../services/modulo-financiero/indicatorsQuota";
+  listIndicators as listIndicatorsQuota,
+  saveIndicator as saveIndicatorQuota,
+} from "../../services/modulo-financiero/financialService";
 
 export default function IndicadoresTable() {
   const [rows, setRows] = useState([]);
@@ -20,26 +20,25 @@ export default function IndicadoresTable() {
   const [search, setSearch] = useState("");
   const [saving, setSaving] = useState(false);
 
-  // 🔹 Load data on mount
+  // Load data on mount
   useEffect(() => {
-    async function load() {
-      try {
-        const data = await listIndicatorsQuota({ limit: 200 });
-        console.log("DATA FROM listIndicatorsQuota", data);
-        setRows(data);
-        setFilteredRows(data);
-        setError("");
-      } catch (e) {
-        console.error("ERROR LOADING INDICATORS", e.response?.data || e);
-        setError(e.message || "Error cargando datos");
-      } finally {
-        setLoading(false);
-      }
-    }
     load();
   }, []);
 
-  // 🔹 Update state on cell change
+  async function load() {
+    try {
+      const data = await listIndicatorsQuota({ limit: 200 });
+      setRows(data);
+      setFilteredRows(data);
+      setError("");
+    } catch (e) {
+      console.error("ERROR LOADING INDICATORS", e.response?.data || e);
+      setError(e.message || "Error cargando datos");
+    } finally {
+      setLoading(false);
+    }
+  }
+
   const handleChange = (id, field, value) => {
     const updateRow = row => (row.id === id ? { ...row, [field]: value } : row);
 
@@ -52,7 +51,6 @@ export default function IndicadoresTable() {
     }));
   };
 
-  // 🔹 Save edited rows to the API
   const handleSave = async () => {
     setSaving(true);
     try {
@@ -60,10 +58,17 @@ export default function IndicadoresTable() {
         const fullRow = rows.find(r => r.id === Number(id));
         if (!fullRow) return;
 
+        // ✅ build proper backend payload
         const payload = {
-          ...fullRow,
-          ...changes,
           id: Number(id),
+          fecha: fullRow.fecha,
+          indicador: fullRow.indicador,
+          alcance: fullRow.alcance,
+          mes2a: fullRow.mes2a,
+          mes1a: fullRow.mes1a,
+          diciembre1a: fullRow.diciembre1a,
+          mesActual: fullRow.mesActual,
+          analisis: changes.analisis ?? fullRow.analisis,
         };
 
         await saveIndicatorQuota(payload);
@@ -72,7 +77,9 @@ export default function IndicadoresTable() {
       await Promise.all(updates);
 
       alert("Cambios guardados correctamente");
+
       setEditedRows({});
+      load(); // ✅ reload data after saving
     } catch (err) {
       console.error(err);
       alert("Error guardando cambios");
@@ -81,7 +88,6 @@ export default function IndicadoresTable() {
     }
   };
 
-  // 🔹 Download Excel
   const handleDownload = () => {
     const worksheet = XLSX.utils.json_to_sheet(rows);
     const workbook = XLSX.utils.book_new();
@@ -99,21 +105,19 @@ export default function IndicadoresTable() {
     saveAs(data, "Indicadores_Financieros.xlsx");
   };
 
-  // 🔹 Filter by search
-  const handleSearch = () => {
-    if (!search.trim()) {
+  useEffect(() => {
+    const query = search.trim().toLowerCase();
+    if (!query) {
       setFilteredRows(rows);
     } else {
-      const lower = search.toLowerCase();
-      setFilteredRows(
-        rows.filter(
-          r =>
-            r.indicador.toLowerCase().includes(lower) ||
-            r.alcance.toLowerCase().includes(lower)
-        )
+      const filtered = rows.filter(
+        r =>
+          r.indicador.toLowerCase().includes(query) ||
+          r.alcance.toLowerCase().includes(query)
       );
+      setFilteredRows(filtered);
     }
-  };
+  }, [search, rows]);
 
   if (loading) return <div className="p-12 text-center">Cargando datos...</div>;
   if (error)
@@ -132,16 +136,9 @@ export default function IndicadoresTable() {
             type="text"
             value={search}
             onChange={e => setSearch(e.target.value)}
-            placeholder="Buscar por indicador o alcance"
+            placeholder="Buscar por codigo u oficina"
             className="border w-[300px] px-2 py-1"
           />
-          <button
-            onClick={handleSearch}
-            className="action-button flex gap-2 items-center justify-center cursor-pointer"
-          >
-            Buscar
-            <IoSearch />
-          </button>
         </div>
         <div className="flex gap-4">
           {Object.keys(editedRows).length > 0 && (

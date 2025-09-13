@@ -34,15 +34,19 @@ export default function CuposTable() {
     load();
   }, []);
 
-  const handleSearch = () => {
-    const query = search.toLowerCase();
-    const filtered = rows.filter(
-      r =>
-        r.cuenta?.toLowerCase().includes(query) ||
-        r.entidadFinanciera?.toLowerCase().includes(query)
-    );
-    setFilteredRows(filtered);
-  };
+  useEffect(() => {
+    const query = search.trim().toLowerCase();
+    if (!query) {
+      setFilteredRows(rows);
+    } else {
+      const filtered = rows.filter(
+        r =>
+          r.cuenta?.toLowerCase().includes(query) ||
+          r.entidadFinanciera?.toLowerCase().includes(query)
+      );
+      setFilteredRows(filtered);
+    }
+  }, [search, rows]);
 
   const handleChange = (id, field, value) => {
     const updateRow = row => (row.id === id ? { ...row, [field]: value } : row);
@@ -125,16 +129,9 @@ export default function CuposTable() {
             type="text"
             value={search}
             onChange={e => setSearch(e.target.value)}
-            placeholder="Buscar por cuenta o entidad"
+            placeholder="Buscar por codigo u oficina"
             className="border w-[300px] px-2 py-1"
           />
-          <button
-            onClick={handleSearch}
-            className="action-button flex gap-2 items-center justify-center cursor-pointer"
-          >
-            Buscar
-            <IoSearch />
-          </button>
         </div>
         <div className="flex gap-4">
           {Object.keys(editedRows).length > 0 && (
