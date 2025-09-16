@@ -37,6 +37,7 @@ function mapCreditRow(r) {
   return {
     id: r.id ?? r.cupo_id,
     fechaRenovado: fmtDate(r.fecha_renovado ?? r.renewed_at),
+    fechaRenovadoRaw: r.fechaRenovado ?? r.renewed_at,
     cuenta: str(r.cuenta ?? r.account ?? r.account_number),
     entidadFinanciera: str(r.entidad_financiera ?? r.bank ?? r.bank_name),
     cupoAsignado: asignado,

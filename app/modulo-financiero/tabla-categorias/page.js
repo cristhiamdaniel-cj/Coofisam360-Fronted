@@ -17,11 +17,13 @@ export default function CategoriasTable() {
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
   const [saving, setSaving] = useState(false);
+  const [selectedYear, setSelectedYear] = useState();
+  const [selectedMonth, setSelectedMonth] = useState();
 
   async function loadData() {
     setLoading(true);
     try {
-      const data = await listCategoriesQuota({ limit: 200 });
+      const data = await listCategoriesQuota({ limit: 900 });
       setRows(data);
       setFilteredRows(data);
       setError("");
@@ -39,17 +41,19 @@ export default function CategoriasTable() {
   // Live search (reactive as you type)
   useEffect(() => {
     const query = search.trim().toLowerCase();
-    if (!query) {
-      setFilteredRows(rows);
-    } else {
-      const filtered = rows.filter(
-        r =>
-          r.nombre?.toLowerCase().includes(query) ||
-          r.codigo?.toLowerCase().includes(query)
-      );
-      setFilteredRows(filtered);
-    }
-  }, [search, rows]);
+    const filtered = rows.filter(r => {
+      const matchesSearch =
+        !query ||
+        r.indicador.toLowerCase().includes(query) ||
+        r.alcance.toLowerCase().includes(query);
+
+      const matchesYear = !selectedYear || r.anio === Number(selectedYear);
+      const matchesMonth = !selectedMonth || r.mes === Number(selectedMonth);
+
+      return matchesSearch && matchesYear && matchesMonth;
+    });
+    setFilteredRows(filtered);
+  }, [search, rows, selectedYear, selectedMonth]);
 
   const handleChange = (id, field, value) => {
     setRows(prev =>
@@ -108,16 +112,38 @@ export default function CategoriasTable() {
   }
 
   const handleDownload = () => {
-    const worksheet = XLSX.utils.json_to_sheet(rows);
+    const worksheet = XLSX.utils.json_to_sheet(filteredRows);
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Cupos Credito");
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Categoria de Oficinas");
     const excelBuffer = XLSX.write(workbook, {
       bookType: "xlsx",
       type: "array",
     });
     const data = new Blob([excelBuffer], { type: "application/octet-stream" });
-    saveAs(data, "Cupos_Credito.xlsx");
+    saveAs(data, "Categoria_Oficinas.xlsx");
   };
+
+  const uniqueYears = [...new Set(rows.map(r => r.anio).filter(Boolean))];
+  const uniqueMonths = [...new Set(rows.map(r => r.mes).filter(Boolean))];
+
+  const monthNames = [
+    "Enero",
+    "Febrero",
+    "Marzo",
+    "Abril",
+    "Mayo",
+    "Junio",
+    "Julio",
+    "Agosto",
+    "Septiembre",
+    "Octubre",
+    "Noviembre",
+    "Diciembre",
+  ];
+
+  const availableMonths = monthNames
+    .map((name, index) => ({ name, number: index + 1 }))
+    .filter(m => uniqueMonths.includes(m.number));
 
   return (
     <main className="pt-12 pb-0 px-12 overflow-auto">
@@ -133,6 +159,30 @@ export default function CategoriasTable() {
             placeholder="Buscar por codigo u oficina"
             className="border w-[300px] px-2 py-1"
           />
+          <select
+            value={selectedYear}
+            onChange={e => setSelectedYear(e.target.value)}
+            className="border px-2 py-1"
+          >
+            <option value="">Todos los años</option>
+            {uniqueYears.map(y => (
+              <option key={y} value={y}>
+                {y}
+              </option>
+            ))}
+          </select>
+          <select
+            value={selectedMonth}
+            onChange={e => setSelectedMonth(e.target.value)}
+            className="border px-2 py-1"
+          >
+            <option value="">Todos los meses</option>
+            {availableMonths.map(m => (
+              <option key={m.number} value={m.number}>
+                {m.name}
+              </option>
+            ))}
+          </select>
         </div>
         <div className="flex gap-4">
           {Object.keys(editedRows).length > 0 && (
