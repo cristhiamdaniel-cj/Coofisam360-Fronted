@@ -67,7 +67,7 @@ export default function IndicadoresTable() {
 
   async function load() {
     try {
-      const data = await listIndicatorsQuota({ limit: 400 });
+      const data = await listIndicatorsQuota({ limit: 1000 });
       const rows = Array.isArray(data) ? data : data?.items || [];
       const mapped = rows.map(mapRow);
       setRows(mapped);

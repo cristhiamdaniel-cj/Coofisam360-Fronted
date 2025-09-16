@@ -24,8 +24,14 @@ export default function CategoriasTable() {
     setLoading(true);
     try {
       const data = await listCategoriesQuota({ limit: 900 });
-      setRows(data);
-      setFilteredRows(data);
+
+      // Sort by codigo numerically
+      const sorted = [...data].sort(
+        (a, b) => Number(a.codigo) - Number(b.codigo)
+      );
+
+      setRows(sorted);
+      setFilteredRows(sorted);
       setError("");
     } catch (e) {
       setError(e.message || "Error cargando datos");
@@ -41,17 +47,20 @@ export default function CategoriasTable() {
   // Live search (reactive as you type)
   useEffect(() => {
     const query = search.trim().toLowerCase();
-    const filtered = rows.filter(r => {
-      const matchesSearch =
-        !query ||
-        r.indicador.toLowerCase().includes(query) ||
-        r.alcance.toLowerCase().includes(query);
+    const filtered = rows
+      .filter(r => {
+        const matchesSearch =
+          !query ||
+          r.indicador.toLowerCase().includes(query) ||
+          r.alcance.toLowerCase().includes(query);
 
-      const matchesYear = !selectedYear || r.anio === Number(selectedYear);
-      const matchesMonth = !selectedMonth || r.mes === Number(selectedMonth);
+        const matchesYear = !selectedYear || r.anio === Number(selectedYear);
+        const matchesMonth = !selectedMonth || r.mes === Number(selectedMonth);
 
-      return matchesSearch && matchesYear && matchesMonth;
-    });
+        return matchesSearch && matchesYear && matchesMonth;
+      })
+      .sort((a, b) => Number(a.codigo) - Number(b.codigo));
+
     setFilteredRows(filtered);
   }, [search, rows, selectedYear, selectedMonth]);
 
@@ -240,8 +249,8 @@ export default function CategoriasTable() {
               <tr key={row.id}>
                 <td>{row.codigo}</td>
                 <td>{row.nombre}</td>
-                <td>{row.ctaPuc14}</td>
-                <td>{row.ctaPuc21}</td>
+                <td>${row.ctaPuc14}</td>
+                <td>${row.ctaPuc21}</td>
                 <td>{row.asociados}</td>
                 <td>{row.fecha}</td>
                 <td>
