@@ -285,10 +285,10 @@ export default function IndicadoresTable() {
                 <td className="border p-2">{r.fecha}</td>
                 <td className="border p-2">{r.indicador}</td>
                 <td className="border p-2">{r.alcance}</td>
-                <td className="border p-2">{r.mes2a}</td>
-                <td className="border p-2">{r.mes1a}</td>
-                <td className="border p-2">{r.diciembre1a}</td>
-                <td className="border p-2">{r.mesActual}</td>
+                <td className="border p-2">{r.mes2a}%</td>
+                <td className="border p-2">{r.mes1a}%</td>
+                <td className="border p-2">{r.diciembre1a}%</td>
+                <td className="border p-2">{r.mesActual}%</td>
                 <td className="border p-2">
                   <input
                     type="text"
