@@ -11,126 +11,234 @@ import { FiDownload } from "react-icons/fi";
 const initialRows = [
   {
     id: 1,
-    nombreCampaña:
-      "Condiciones de Crédito para Microempresarios Convenio Interinstitucional con Cámara de Comercio del Huila",
-    numeroCircular: "CIGG-046 de 2024",
-    modalidad: "Camara de Comercio",
-    codigo: "CCH",
-    vigenciaDesde: "",
-    vigenciaHasta: "30/11/2025",
-    recursosDisponibles: "80.000.000",
-    numeroOp: "",
-    valorDesembolsos: "26.281.521",
-    porcentajeAvance: "33%",
-    estado: "Abierta",
-    recursosDisponiblesFinal: "53.718.479",
+    cod: 1,
+    oficina: "GARZON",
+    cch: "15.694.000",
+    cchCantidad: "",
+    cViv: "458.000.000",
+    cVivCantidad: "",
+    cTyC: "0",
+    cTyCCantidad: "",
+    cLibCIGG: "1.295.740.000",
+    cLibCIGGCantidad: "",
+    cMayorMonto: "292.940.000",
+    cMayorMontoCantidad: "",
+    cCCart: "0",
+    cCCartCantidad: "",
+    fngEmp255: "0",
+    fngEmp255Cantidad: "",
+    fngEmp285: "56.385.000",
+    fngEmp285Cantidad: "",
   },
   {
     id: 2,
-    nombreCampaña: "Campaña especial de credito Tu vivienda una realidad",
-    numeroCircular: "CIGG-067 de 2024",
-    modalidad: "Compra de Vivienda",
-    codigo: "C_VIV",
-    vigenciaDesde: "30/12/2024",
-    vigenciaHasta: "",
-    recursosDisponibles: "1.500.000.000",
-    numeroOp: "6",
-    valorDesembolsos: "787.000.000",
-    porcentajeAvance: "52%",
-    estado: "Abierta",
-    recursosDisponiblesFinal: "713.000.000",
+    cod: 2,
+    oficina: "GUADALUPE",
+    cch: "5.600.000",
+    cchCantidad: "",
+    cViv: "149.000.000",
+    cVivCantidad: "",
+    cTyC: "0",
+    cTyCCantidad: "",
+    cLibCIGG: "239.000.000",
+    cLibCIGGCantidad: "",
+    cMayorMonto: "278.600.000",
+    cMayorMontoCantidad: "",
+    cCCart: "36.000.000",
+    cCCartCantidad: "",
+    fngEmp255: "0",
+    fngEmp255Cantidad: "",
+    fngEmp285: "0",
+    fngEmp285Cantidad: "",
   },
   {
     id: 3,
-    nombreCampaña:
-      "Condiciones de Crédito para Microempresarios de los Departamentos de Tolima y Caquetá",
-    numeroCircular: "CIGG-013 de 2025",
-    modalidad: "Campaña Tolima y Caquetá",
-    codigo: "C_T&C",
-    vigenciaDesde: "04/03/2025",
-    vigenciaHasta: "31/12/2025",
-    recursosDisponibles: "2.000.000.000",
-    numeroOp: "19",
-    valorDesembolsos: "126.823.000",
-    porcentajeAvance: "6%",
-    estado: "Abierta",
-    recursosDisponiblesFinal: "1.873.177.000",
+    cod: 3,
+    oficina: "PITAL",
+    cch: "0",
+    cchCantidad: "",
+    cViv: "0",
+    cVivCantidad: "",
+    cTyC: "0",
+    cTyCCantidad: "",
+    cLibCIGG: "28.000.000",
+    cLibCIGGCantidad: "",
+    cMayorMonto: "56.000.000",
+    cMayorMontoCantidad: "",
+    cCCart: "21.530.000",
+    cCCartCantidad: "",
+    fngEmp255: "0",
+    fngEmp255Cantidad: "",
+    fngEmp285: "0",
+    fngEmp285Cantidad: "",
   },
   {
     id: 4,
-    nombreCampaña: "Condiciones Campaña Especial de Libranza",
-    numeroCircular: "CIGG-027 de 2025",
-    modalidad: "Convenio de Libranza",
-    codigo: "C_LibCIGG",
-    vigenciaDesde: "05/05/2025",
-    vigenciaHasta: "",
-    recursosDisponibles: "6.500.000.000",
-    numeroOp: "195",
-    valorDesembolsos: "6.422.474.000",
-    porcentajeAvance: "99%",
-    estado: "Abierta",
-    recursosDisponiblesFinal: "77.526.000",
+    cod: 4,
+    oficina: "GIGANTE",
+    cch: "0",
+    cchCantidad: "",
+    cViv: "0",
+    cVivCantidad: "",
+    cTyC: "0",
+    cTyCCantidad: "",
+    cLibCIGG: "504.500.000",
+    cLibCIGGCantidad: "",
+    cMayorMonto: "161.600.000",
+    cMayorMontoCantidad: "",
+    cCCart: "72.500.000",
+    cCCartCantidad: "",
+    fngEmp255: "0",
+    fngEmp255Cantidad: "",
+    fngEmp285: "0",
+    fngEmp285Cantidad: "",
   },
   {
     id: 5,
-    nombreCampaña:
-      "Campaña Especial Crédito a tu medida, Toma el control de tus Deudas 2025",
-    numeroCircular: "CIGG-34 de 2025",
-    modalidad: "Productivo Mayor Monto",
-    codigo: "C>Monto",
-    vigenciaDesde: "05/06/2026",
-    vigenciaHasta: "31/08/2025",
-    recursosDisponibles: "2.000.000.000",
-    numeroOp: "46",
-    valorDesembolsos: "2.112.325.000",
-    porcentajeAvance: "106%",
-    estado: "Abierta",
-    recursosDisponiblesFinal: "-112.325.000",
+    cod: 5,
+    oficina: "ACEVEDO",
+    cch: "10.000.000",
+    cchCantidad: "",
+    cViv: "0",
+    cVivCantidad: "",
+    cTyC: "0",
+    cTyCCantidad: "",
+    cLibCIGG: "93.300.000",
+    cLibCIGGCantidad: "",
+    cMayorMonto: "153.940.000",
+    cMayorMontoCantidad: "",
+    cCCart: "71.070.000",
+    cCCartCantidad: "",
+    fngEmp255: "0",
+    fngEmp255Cantidad: "",
+    fngEmp285: "0",
+    fngEmp285Cantidad: "",
   },
   {
     id: 6,
-    nombreCampaña: "",
-    numeroCircular: "",
-    modalidad: "Compra de Cartera",
-    codigo: "C_CCart",
-    vigenciaDesde: "",
-    vigenciaHasta: "31/08/2025",
-    recursosDisponibles: "3.000.000.000",
-    numeroOp: "19",
-    valorDesembolsos: "452.975.000",
-    porcentajeAvance: "15%",
-    estado: "Abierta",
-    recursosDisponiblesFinal: "2.547.025.000",
+    cod: 6,
+    oficina: "TARQUI",
+    cch: "0",
+    cchCantidad: "",
+    cViv: "0",
+    cVivCantidad: "",
+    cTyC: "0",
+    cTyCCantidad: "",
+    cLibCIGG: "60.000.000",
+    cLibCIGGCantidad: "",
+    cMayorMonto: "0",
+    cMayorMontoCantidad: "",
+    cCCart: "0",
+    cCCartCantidad: "",
+    fngEmp255: "0",
+    fngEmp255Cantidad: "",
+    fngEmp285: "0",
+    fngEmp285Cantidad: "",
   },
   {
     id: 7,
-    nombreCampaña: "Garantias Avales",
-    numeroCircular: "CIGG-035 de  2025",
-    modalidad: "EMP-255",
-    codigo: "FNG - EMP255",
-    vigenciaDesde: "05/06/2026",
-    vigenciaHasta: "",
-    recursosDisponibles: "0",
-    numeroOp: "0",
-    valorDesembolsos: "0",
-    porcentajeAvance: "0%",
-    estado: "Abierta",
-    recursosDisponiblesFinal: "0",
+    cod: 7,
+    oficina: "LA PLATA",
+    cch: "0",
+    cchCantidad: "",
+    cViv: "80.000.000",
+    cVivCantidad: "",
+    cTyC: "0",
+    cTyCCantidad: "",
+    cLibCIGG: "347.900.000",
+    cLibCIGGCantidad: "",
+    cMayorMonto: "0",
+    cMayorMontoCantidad: "",
+    cCCart: "140.200.000",
+    cCCartCantidad: "",
+    fngEmp255: "0",
+    fngEmp255Cantidad: "",
+    fngEmp285: "0",
+    fngEmp285Cantidad: "",
   },
   {
     id: 8,
-    nombreCampaña: "",
-    numeroCircular: "",
-    modalidad: "EMP-285",
-    codigo: "FNG - EMP285",
-    vigenciaDesde: "05/06/2026",
-    vigenciaHasta: "",
-    recursosDisponibles: "1.500.000.000",
-    numeroOp: "8",
-    valorDesembolsos: "86.935.000",
-    porcentajeAvance: "6%",
-    estado: "Abierta",
-    recursosDisponiblesFinal: "1.413.065.000",
+    cod: 8,
+    oficina: "PITALITO",
+    cch: "3.000.000",
+    cchCantidad: "",
+    cViv: "0",
+    cVivCantidad: "",
+    cTyC: "0",
+    cTyCCantidad: "",
+    cLibCIGG: "245.000.000",
+    cLibCIGGCantidad: "",
+    cMayorMonto: "477.245.000",
+    cMayorMontoCantidad: "",
+    cCCart: "24.675.000",
+    cCCartCantidad: "",
+    fngEmp255: "0",
+    fngEmp255Cantidad: "",
+    fngEmp285: "0",
+    fngEmp285Cantidad: "",
+  },
+  {
+    id: 9,
+    cod: 9,
+    oficina: "SUAZA",
+    cch: "0",
+    cchCantidad: "",
+    cViv: "0",
+    cVivCantidad: "",
+    cTyC: "0",
+    cTyCCantidad: "",
+    cLibCIGG: "213.300.000",
+    cLibCIGGCantidad: "",
+    cMayorMonto: "0",
+    cMayorMontoCantidad: "",
+    cCCart: "0",
+    cCCartCantidad: "",
+    fngEmp255: "0",
+    fngEmp255Cantidad: "",
+    fngEmp285: "0",
+    fngEmp285Cantidad: "",
+  },
+  {
+    id: 10,
+    cod: 10,
+    oficina: "LA ARGENTINA",
+    cch: "3.350.000",
+    cchCantidad: "",
+    cViv: "0",
+    cVivCantidad: "",
+    cTyC: "0",
+    cTyCCantidad: "",
+    cLibCIGG: "562.400.000",
+    cLibCIGGCantidad: "",
+    cMayorMonto: "0",
+    cMayorMontoCantidad: "",
+    cCCart: "0",
+    cCCartCantidad: "",
+    fngEmp255: "0",
+    fngEmp255Cantidad: "",
+    fngEmp285: "30.550.000",
+    fngEmp285Cantidad: "",
+  },
+  {
+    id: 11,
+    cod: 11,
+    oficina: "NEIVA",
+    cch: "12.190.000",
+    cchCantidad: "",
+    cViv: "100.000.000",
+    cVivCantidad: "",
+    cTyC: "0",
+    cTyCCantidad: "",
+    cLibCIGG: "541.900.000",
+    cLibCIGGCantidad: "",
+    cMayorMonto: "132.000.000",
+    cMayorMontoCantidad: "",
+    cCCart: "20.000.000",
+    cCCartCantidad: "",
+    fngEmp255: "0",
+    fngEmp255Cantidad: "",
+    fngEmp285: "0",
+    fngEmp285Cantidad: "",
   },
 ];
 
@@ -191,7 +299,7 @@ export default function GestionesTable() {
   return (
     <main className="pt-12 pb-0 px-12 overflow-auto">
       <h1 className="titulo-tabla-cupos text-3xl font-semibold pb-12">
-        Seguimiento de campañas de crédito x oficinas
+        Seguimiento de campañas de crédito
       </h1>
       <div className="actions-container flex justify-between mb-4">
         <div className="search-bar flex gap-2">
@@ -225,41 +333,55 @@ export default function GestionesTable() {
         <table className="table-auto border-collapse w-full">
           <thead>
             <tr className="tabla-header">
-              <th className="p-4 border text-center whitespace-nowrap min-w-[400px]">
-                NOMBRE DE LA CAMPAÑA
+              <th className="p-4 border text-center whitespace-nowrap">COD</th>
+              <th className="p-4 border text-center whitespace-nowrap">
+                OFICINA
+              </th>
+              <th className="p-4 border text-center whitespace-nowrap">CCH</th>
+              <th className="p-4 border text-center whitespace-nowrap">
+                Cantidad
               </th>
               <th className="p-4 border text-center whitespace-nowrap">
-                N° CIRCULAR
+                C_VIV
               </th>
               <th className="p-4 border text-center whitespace-nowrap">
-                MODALIDAD
+                Cantidad
               </th>
               <th className="p-4 border text-center whitespace-nowrap">
-                CODIGO
+                C_T&amp;C
               </th>
               <th className="p-4 border text-center whitespace-nowrap">
-                VIGENCIA DESDE
+                Cantidad
               </th>
               <th className="p-4 border text-center whitespace-nowrap">
-                VIGENCIA HASTA
+                C_LibCIGG
               </th>
               <th className="p-4 border text-center whitespace-nowrap">
-                RECURSOS DISPONIBLES
+                Cantidad
               </th>
               <th className="p-4 border text-center whitespace-nowrap">
-                N° OP
+                C&gt;Monto
               </th>
               <th className="p-4 border text-center whitespace-nowrap">
-                VALOR DESEMBOLSOS
+                Cantidad
               </th>
               <th className="p-4 border text-center whitespace-nowrap">
-                % AVANCE
+                C_CCart
               </th>
               <th className="p-4 border text-center whitespace-nowrap">
-                ESTADO
+                Cantidad
               </th>
               <th className="p-4 border text-center whitespace-nowrap">
-                RECURSOS DISPONIBLES
+                FNG - EMP255
+              </th>
+              <th className="p-4 border text-center whitespace-nowrap">
+                Cantidad
+              </th>
+              <th className="p-4 border text-center whitespace-nowrap">
+                FNG - EMP285
+              </th>
+              <th className="p-4 border text-center whitespace-nowrap">
+                Cantidad
               </th>
             </tr>
           </thead>
@@ -267,21 +389,59 @@ export default function GestionesTable() {
           <tbody className="tabla-cupos-content p-4">
             {initialRows.map(r => (
               <tr key={r.id}>
-                <td className="p-2 border text-left ">{r.nombreCampaña}</td>
-                <td className="p-2 border text-left ">{r.numeroCircular}</td>
-                <td className="p-2 border text-left ">{r.modalidad}</td>
-                <td className="p-2 border text-left ">{r.codigo}</td>
-                <td className="p-2 border text-left ">{r.vigenciaDesde}</td>
-                <td className="p-2 border text-left ">{r.vigenciaHasta}</td>
-                <td className="p-2 border text-left ">
-                  {r.recursosDisponibles}
+                <td className="p-2 border text-left whitespace-nowrap">
+                  {r.cod}
                 </td>
-                <td className="p-2 border text-left ">{r.numeroOp}</td>
-                <td className="p-2 border text-left ">{r.valorDesembolsos}</td>
-                <td className="p-2 border text-left ">{r.porcentajeAvance}</td>
-                <td className="p-2 border text-left ">{r.estado}</td>
-                <td className="p-2 border text-left ">
-                  {r.recursosDisponiblesFinal}
+                <td className="p-2 border text-left whitespace-nowrap">
+                  {r.oficina}
+                </td>
+                <td className="p-2 border text-left whitespace-nowrap">
+                  {r.cch}
+                </td>
+                <td className="p-2 border text-left whitespace-nowrap">
+                  {r.cchCantidad}
+                </td>
+                <td className="p-2 border text-left whitespace-nowrap">
+                  {r.cViv}
+                </td>
+                <td className="p-2 border text-left whitespace-nowrap">
+                  {r.cVivCantidad}
+                </td>
+                <td className="p-2 border text-left whitespace-nowrap">
+                  {r.cTyC}
+                </td>
+                <td className="p-2 border text-left whitespace-nowrap">
+                  {r.cTyCCantidad}
+                </td>
+                <td className="p-2 border text-left whitespace-nowrap">
+                  {r.cLibCIGG}
+                </td>
+                <td className="p-2 border text-left whitespace-nowrap">
+                  {r.cLibCIGGCantidad}
+                </td>
+                <td className="p-2 border text-left whitespace-nowrap">
+                  {r.cMayorMonto}
+                </td>
+                <td className="p-2 border text-left whitespace-nowrap">
+                  {r.cMayorMontoCantidad}
+                </td>
+                <td className="p-2 border text-left whitespace-nowrap">
+                  {r.cCCart}
+                </td>
+                <td className="p-2 border text-left whitespace-nowrap">
+                  {r.cCCartCantidad}
+                </td>
+                <td className="p-2 border text-left whitespace-nowrap">
+                  {r.fngEmp255}
+                </td>
+                <td className="p-2 border text-left whitespace-nowrap">
+                  {r.fngEmp255Cantidad}
+                </td>
+                <td className="p-2 border text-left whitespace-nowrap">
+                  {r.fngEmp285}
+                </td>
+                <td className="p-2 border text-left whitespace-nowrap">
+                  {r.fngEmp285Cantidad}
                 </td>
               </tr>
             ))}

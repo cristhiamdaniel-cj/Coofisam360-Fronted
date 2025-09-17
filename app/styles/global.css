@@ -2,12 +2,12 @@
   --background: rgb(255, 250, 251);
   --hover-background: rgb(255, 228, 233);
   --foreground: #171717;
-  --dark-red: rgb(120, 0, 0);
-  --bright-red: rgb(184, 17, 33);
-  --light-text: rgb(255, 241, 242);
-  --dark-text: rgb(184, 184, 184);
+  --dark-red: #780000;
+  --bright-red: #b81121;
+  --light-text: #fff1f2;
+  --dark-text: rgb(132, 132, 132);
   --secundary-gold: rgb(255, 180, 0);
-  --secundary-silver: rgb(184, 184, 184);
+  --secundary-silver: rgb(141, 141, 141);
 }
 
 .main-layout {
@@ -276,5 +276,9 @@ table thead th {
 }
 
 .search-bar input {
+  border-radius: 15px;
+}
+
+.search-bar select {
   border-radius: 15px;
 }

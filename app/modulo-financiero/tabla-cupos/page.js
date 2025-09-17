@@ -227,10 +227,10 @@ export default function CuposTable() {
                 </td>
 
                 <td className="num text-right">
-                  {Intl.NumberFormat("es-CO").format(r.cupoEjecutado || 0)}
+                  ${Intl.NumberFormat("es-CO").format(r.cupoEjecutado || 0)}
                 </td>
                 <td className="num text-right">
-                  {Intl.NumberFormat("es-CO").format(r.disponible || 0)}
+                  ${Intl.NumberFormat("es-CO").format(r.disponible || 0)}
                 </td>
 
                 <td>

@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import { FaRegSave } from "react-icons/fa";
 import { IoSearch } from "react-icons/io5";
 import { FiDownload } from "react-icons/fi";
@@ -19,17 +19,59 @@ export default function IndicadoresTable() {
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
   const [saving, setSaving] = useState(false);
+  const [selectedYear, setSelectedYear] = useState();
+  const [selectedMonth, setSelectedMonth] = useState();
 
   // Load data on mount
   useEffect(() => {
     load();
   }, []);
 
+  function mapRow(r) {
+    // Backend devuelve: nombre_indicador, anio, mes, periodo, valor_indicador, dic_anterior, mes_1a, mes_2a, analisis
+    const indicador = String(
+      r.indicador ?? r.nombre_indicador ?? r.nombre ?? ""
+    );
+    const anio = Number(r.anio ?? 0) || undefined;
+    const mes = Number(r.mes ?? 0) || undefined;
+    const periodo =
+      r.periodo ||
+      (anio && mes ? `${anio}-${String(mes).padStart(2, "0")}` : undefined);
+    const fecha = periodo ? `${periodo}-01` : r.fecha || "";
+    const id = `${indicador}|${periodo || ""}`;
+    const toNum = v => {
+      if (v == null || v === "") return 0;
+      const n = Number(String(v).replace(/\./g, "").replace(/,/g, "."));
+      return Number.isFinite(n) ? n : 0;
+    };
+    return {
+      id,
+      indicador,
+      anio,
+      mes,
+      periodo,
+      fecha,
+      alcance: String(r.alcance ?? r.descripcion ?? r.scope ?? ""),
+      mes2a: toNum(r.mes2a ?? r.mes_2a),
+      mes1a: toNum(r.mes1a ?? r.mes_1a),
+      diciembre1a: toNum(
+        r.diciembre1a ??
+          r.dic_anterior ??
+          r.anio_menos_1_dic ??
+          r.mes_de_diciembre_fijo
+      ),
+      mesActual: toNum(r.mesActual ?? r.valor_indicador),
+      analisis: String(r.analisis ?? r.analysis ?? ""),
+    };
+  }
+
   async function load() {
     try {
-      const data = await listIndicatorsQuota({ limit: 200 });
-      setRows(data);
-      setFilteredRows(data);
+      const data = await listIndicatorsQuota({ limit: 1000 });
+      const rows = Array.isArray(data) ? data : data?.items || [];
+      const mapped = rows.map(mapRow);
+      setRows(mapped);
+      setFilteredRows(mapped);
       setError("");
     } catch (e) {
       console.error("ERROR LOADING INDICATORS", e.response?.data || e);
@@ -55,20 +97,16 @@ export default function IndicadoresTable() {
     setSaving(true);
     try {
       const updates = Object.entries(editedRows).map(async ([id, changes]) => {
-        const fullRow = rows.find(r => r.id === Number(id));
+        const fullRow = rows.find(r => String(r.id) === String(id));
         if (!fullRow) return;
 
-        // ✅ build proper backend payload
+        // Backend espera: nombre_indicador, anio, mes, periodo (YYYY-MM, opcional), analisis
         const payload = {
-          id: Number(id),
-          fecha: fullRow.fecha,
-          indicador: fullRow.indicador,
-          alcance: fullRow.alcance,
-          mes2a: fullRow.mes2a,
-          mes1a: fullRow.mes1a,
-          diciembre1a: fullRow.diciembre1a,
-          mesActual: fullRow.mesActual,
-          analisis: changes.analisis ?? fullRow.analisis,
+          nombre_indicador: fullRow.indicador,
+          anio: Number(fullRow.anio),
+          mes: Number(fullRow.mes),
+          periodo: fullRow.periodo,
+          analisis: (changes.analisis ?? fullRow.analisis) || "",
         };
 
         await saveIndicatorQuota(payload);
@@ -89,7 +127,7 @@ export default function IndicadoresTable() {
   };
 
   const handleDownload = () => {
-    const worksheet = XLSX.utils.json_to_sheet(rows);
+    const worksheet = XLSX.utils.json_to_sheet(filteredRows);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(
       workbook,
@@ -107,21 +145,45 @@ export default function IndicadoresTable() {
 
   useEffect(() => {
     const query = search.trim().toLowerCase();
-    if (!query) {
-      setFilteredRows(rows);
-    } else {
-      const filtered = rows.filter(
-        r =>
-          r.indicador.toLowerCase().includes(query) ||
-          r.alcance.toLowerCase().includes(query)
-      );
-      setFilteredRows(filtered);
-    }
-  }, [search, rows]);
+    const filtered = rows.filter(r => {
+      const matchesSearch =
+        !query ||
+        r.indicador.toLowerCase().includes(query) ||
+        r.alcance.toLowerCase().includes(query);
+
+      const matchesYear = !selectedYear || r.anio === Number(selectedYear);
+      const matchesMonth = !selectedMonth || r.mes === Number(selectedMonth);
+
+      return matchesSearch && matchesYear && matchesMonth;
+    });
+    setFilteredRows(filtered);
+  }, [search, rows, selectedYear, selectedMonth]);
 
   if (loading) return <div className="p-12 text-center">Cargando datos...</div>;
   if (error)
     return <div className="p-12 text-center text-red-500">{error}</div>;
+
+  const uniqueYears = [...new Set(rows.map(r => r.anio).filter(Boolean))];
+  const uniqueMonths = [...new Set(rows.map(r => r.mes).filter(Boolean))];
+
+  const monthNames = [
+    "Enero",
+    "Febrero",
+    "Marzo",
+    "Abril",
+    "Mayo",
+    "Junio",
+    "Julio",
+    "Agosto",
+    "Septiembre",
+    "Octubre",
+    "Noviembre",
+    "Diciembre",
+  ];
+
+  const availableMonths = monthNames
+    .map((name, index) => ({ name, number: index + 1 }))
+    .filter(m => uniqueMonths.includes(m.number));
 
   return (
     <main className="pt-12 pb-0 px-12 overflow-auto">
@@ -139,6 +201,31 @@ export default function IndicadoresTable() {
             placeholder="Buscar por codigo u oficina"
             className="border w-[300px] px-2 py-1"
           />
+          <select
+            value={selectedYear}
+            onChange={e => setSelectedYear(e.target.value)}
+            className="border px-2 py-1"
+          >
+            <option value="">Todos los años</option>
+            {uniqueYears.map(y => (
+              <option key={y} value={y}>
+                {y}
+              </option>
+            ))}
+          </select>
+
+          <select
+            value={selectedMonth}
+            onChange={e => setSelectedMonth(e.target.value)}
+            className="border px-2 py-1"
+          >
+            <option value="">Todos los meses</option>
+            {availableMonths.map(m => (
+              <option key={m.number} value={m.number}>
+                {m.name}
+              </option>
+            ))}
+          </select>
         </div>
         <div className="flex gap-4">
           {Object.keys(editedRows).length > 0 && (
