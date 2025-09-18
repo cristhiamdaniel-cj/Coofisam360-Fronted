@@ -4,12 +4,12 @@ import api from "./api";
 /* ========= CONTROL DISCIPLINARIO ========= */
 
 export async function listControlDisciplinario(params = {}) {
-  const { data } = await api.get("/api/v1/talento/control-disciplinario/", { params });
+  const { data } = await api.get("/api/v1/talento//", { params });
   return data?.items ?? data;
 }
 
 export async function getControlDisciplinario(id, params = {}) {
-  const { data } = await api.get("/api/v1/talento/control-disciplinario/", {
+  const { data } = await api.get("/api/v1/talento//", {
     params: { ...params, id },
   });
   const items = data?.items ?? [];
@@ -17,6 +17,6 @@ export async function getControlDisciplinario(id, params = {}) {
 }
 
 export async function saveControlDisciplinario(payload) {
-  const { data } = await api.post("/api/v1/talento/control-disciplinario/", payload);
+  const { data } = await api.post("/api/v1/talento//", payload);
   return data;
 }
