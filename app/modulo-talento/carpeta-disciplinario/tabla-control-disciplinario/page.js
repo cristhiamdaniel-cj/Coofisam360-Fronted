@@ -7,6 +7,9 @@ import { IoSearch } from "react-icons/io5";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import { FiDownload } from "react-icons/fi";
+import { FaFileUpload, FaRegFolderOpen } from "react-icons/fa";
+import { FaPlay } from "react-icons/fa";
+import { TbUpload } from "react-icons/tb";
 
 const initialRows = [
   {
@@ -380,6 +383,51 @@ export default function GestionesTable() {
     saveAs(data, "cupos.xlsx");
   };
 
+  const motivos = [
+    "ADULTERACIÓN CONSULTA EN CENTRALES DE RIESGOS E INCUMPLIMIENTO PROCESO DE TRÁMITES DE SOLICITUDES DE CRÉDITOS",
+    "ADULTERACION Y ENTREGA DE CONTRATOS DE COMPRAVENTA FALSOS PARA TRAMITES DE CRÉDITOS",
+    "ALTERACION DE DOCUMENTOS DE CRÉDITO",
+    "APROPIACIÓN DE DINERO",
+    "AUTORIZACION DE USUARIOS A TERCEROS",
+    "COBRO DE CERTIFICADOS DE LIBERTAD Y TRADICION",
+    "CONFLICTO DE INTERES",
+    "ENTREGA DE INFORMACIÓN CONFIDENCIAL A TERCERO",
+    "ENTREGA DE INFORMACIÓN CONFIDENCIAL A TERCERO Y OMISIÓN EN VALIDACIÓN DE CONSIGNACIONES BANCARIAS",
+    "ESTADO DE EMBRIAGUEZ",
+    "FALSIFICACION DE INCAPACIDAD MÉDICA",
+    "FRAUDE INTERNO",
+    "INASISTENCIA LABORAL INJUSTIFICADA",
+    "INCORRECTO CONTROL DE ARQUEO",
+    "INCORRECTO TRAMITE DE VERIFICACION DE IDENTIDAD DE ASOCIADO",
+    "INCUMPLIMIENTO DEL DESEMPEÑO DE LAS FUNCIONES DEL CARGO",
+    "INCUMPLIMIENTO E IRREGULARIDAD EN LA ENTREGA DE RECIBOS PROVISIONALES",
+    "INCUMPLIMIENTO EN APLICACIÓN Y CONTROL DE PROCESOS DE CRÉDITOS",
+    "INCUMPLIMIENTO JORNADA LABORAL",
+    "INCUMPLIMIENTO MANUAL DE FUNCIONES",
+    "INCUMPLIMIENTO PROCESO DE RETIRO DINERO DE CAJA",
+    "INDEBIDA APLICACIÓN DE TRANSACCIÓN",
+    "INDEBIDA CANCELACIÓN DE CRÉDITO",
+    "INDEBIDA RECOLECCION EN SOLICITUD DE CRÉDITO",
+    "INDEBIDA VERIFICACIÓN DE IDENTIDAD PARA TRANSACCIÓN",
+    "INDEBIDO CONTROL DE CANCELACIÓN DE CRÉDITO",
+    "INDEBIDO CONTROL DE DESEMBOLSO",
+    "INDEBIDO CONTROL DE PROCESO DE ARQUEO DE CAJA",
+    "INDEBIDO CONTROL DE PROCESOS DE VINCULACIÓN",
+    "INDEBIDO PROCESO DE APLICACIÓN DE CONSIGNACIONES BANCARIAS",
+    "INDEBIDO PROCESO DE ARQUEO DE CAJA",
+    "INDEBIDO PROCESO DE ARQUEO DE CAJA - AFECTACIÓN CUENTA CONTABLE",
+    "INDEBIDO PROCESO DE SOLICITUD DE PERMISO LABORAL",
+    "INDEBIDO PROCESO DE TRÁMITE DE SOLICITUDES DE CRÉDITO",
+    "INDEBIDO PROCESOS DE VINCULACIÓN",
+    "INDEBIDO TRÁMITE DE SOLICITUD DE CRÉDITO",
+    "IRRESPETO A SUS SUPERIORES Y COMPAÑEROS",
+    "OMISIÓN CONTROL DE DESEMBOLSO",
+    "OMISIÓN EN VALIDACIÓN DE CONSIGNACIONES BANCARIAS",
+    "OMISIÓN VALIDACIÓN DE IDENTIDAD",
+    "UTILIZACIÓN DE DINERO FALTANTE PARA CUADRE DE CAJA",
+    "UTILIZACIÓN DE USUARIOS DE TERCEROS",
+  ];
+
   return (
     <main className="pt-12 pb-0 px-12 overflow-auto">
       <h1 className="titulo-tabla-cupos text-3xl font-semibold pb-12">
@@ -392,7 +440,23 @@ export default function GestionesTable() {
             Buscar
             <IoSearch />
           </button>
+          <label className="action-button flex gap-2 items-center justify-center cursor-pointer">
+            Cargar Reporte
+            <TbUpload />
+            <input type="file" accept=".xlsx,.csv" className="hidden" />
+          </label>
+          <label className="action-button flex gap-2 items-center justify-center cursor-pointer">
+            Explorar
+            <FaRegFolderOpen />
+            <input type="file" accept=".xlsx,.csv" className="hidden" />
+          </label>
+          <label className="action-button flex gap-2 items-center justify-center cursor-pointer">
+            Ejecutar
+            <FaPlay />
+            <input type="file" accept=".xlsx,.csv" className="hidden" />
+          </label>
         </div>
+
         <div className="flex gap-4">
           {Object.keys(editedRows).length > 0 && (
             <button
@@ -420,16 +484,16 @@ export default function GestionesTable() {
               <th className="p-4 border text-center whitespace-nowrap">
                 TRABAJADOR
               </th>
-              <th className="p-4 border text-center whitespace-nowrap">
+              <th className="p-4 border text-center whitespace-nowrap min-w-[200px]">
                 OFICINA
               </th>
-              <th className="p-4 border text-center whitespace-nowrap">
+              <th className="p-4 border text-center whitespace-nowrap min-w-[300px]">
                 CARGO
               </th>
               <th className="p-4 border text-center whitespace-nowrap">
                 ANTIGÜEDAD
               </th>
-              <th className="p-4 border text-center whitespace-nowrap">
+              <th className="p-4 border text-center whitespace-nowrap min-w-[550px]">
                 MOTIVO
               </th>
               <th className="p-4 border text-center whitespace-nowrap">
@@ -441,7 +505,7 @@ export default function GestionesTable() {
               <th className="p-4 border text-center whitespace-nowrap">
                 FECHA NOTIFICACIÓN
               </th>
-              <th className="p-4 border text-center whitespace-nowrap">
+              <th className="p-4 border text-center whitespace-nowrap uppercase">
                 Inicio de proceso x Día
               </th>
               <th className="p-4 border text-center whitespace-nowrap">
@@ -462,10 +526,10 @@ export default function GestionesTable() {
               <th className="p-4 border text-center whitespace-nowrap">
                 SANCION PRIMERA INSTANCIA
               </th>
-              <th className="p-4 border text-center whitespace-nowrap">
+              <th className="p-4 border text-center whitespace-nowrap uppercase">
                 Duracion Proceso Inicial
               </th>
-              <th className="p-4 border text-center whitespace-nowrap">
+              <th className="p-4 border text-center whitespace-nowrap min-w-[300px]">
                 RECURSO
               </th>
               <th className="p-4 border text-center whitespace-nowrap">
@@ -492,7 +556,7 @@ export default function GestionesTable() {
               <th className="p-4 border text-center whitespace-nowrap">
                 FECHA DE DECISIÓN SEGUNDA INSTANCIA
               </th>
-              <th className="p-4 border text-center whitespace-nowrap">
+              <th className="p-4 border text-center whitespace-nowrap uppercase">
                 Duración Proceso x 2 Instancia
               </th>
               <th className="p-4 border text-center whitespace-nowrap">
@@ -504,16 +568,16 @@ export default function GestionesTable() {
               <th className="p-4 border text-center whitespace-nowrap">
                 ESTADO DEL EMPLEADO
               </th>
-              <th className="p-4 border text-center whitespace-nowrap">
+              <th className="p-4 border text-center whitespace-nowrap uppercase">
                 Diferencia x Día
               </th>
-              <th className="p-4 border text-center whitespace-nowrap">
+              <th className="p-4 border text-center whitespace-nowrap uppercase">
                 Total Vinculación x Año y Día
               </th>
-              <th className="p-4 border text-center whitespace-nowrap">
+              <th className="p-4 border text-center whitespace-nowrap min-w-[200px] uppercase">
                 Tipo de Impacto
               </th>
-              <th className="p-4 border text-center whitespace-nowrap">
+              <th className="p-4 border text-center whitespace-nowrap uppercase">
                 Duración total del proceso
               </th>
             </tr>
@@ -533,7 +597,7 @@ export default function GestionesTable() {
                       newRows[idx].OFICINA = e.target.value;
                       setRows(newRows);
                     }}
-                    className="border rounded p-1"
+                    className="border rounded p-1 w-full"
                   >
                     {[
                       "GARZON",
@@ -571,7 +635,7 @@ export default function GestionesTable() {
                       newRows[idx].CARGO = e.target.value;
                       setRows(newRows);
                     }}
-                    className="border rounded p-1"
+                    className="border rounded p-1 w-full"
                   >
                     {[
                       "ASESOR COMERCIAL",
@@ -596,8 +660,22 @@ export default function GestionesTable() {
                 <td className="p-2 border text-left whitespace-nowrap">
                   {r.ANTIGÜEDAD}
                 </td>
-                <td className="p-2 border text-left whitespace-nowrap">
-                  {r.MOTIVO}
+                <td className="p-2 border text-left ">
+                  <select
+                    value={r.MOTIVO}
+                    onChange={e => {
+                      const newRows = [...rows];
+                      newRows[idx].MOTIVO = e.target.value;
+                      setRows(newRows);
+                    }}
+                    className="border rounded p-1 w-full"
+                  >
+                    {motivos.map((m, index) => (
+                      <option key={index} value={m}>
+                        {m}
+                      </option>
+                    ))}
+                  </select>
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
                   {r.FECHA_EN_QUE_SUCEDIERON_LOS_HECHOS}
@@ -631,7 +709,7 @@ export default function GestionesTable() {
                       newRows[idx].GRAVEDAD_PRIMERA_INSTANCIA = e.target.value;
                       setRows(newRows);
                     }}
-                    className="border rounded p-1"
+                    className="border rounded p-1 w-full"
                   >
                     {["GRAVE", "LEVE", "GRAVISIMA"].map(opt => (
                       <option key={opt} value={opt}>
@@ -648,7 +726,7 @@ export default function GestionesTable() {
                       newRows[idx].SANCION_PRIMERA_INSTANCIA = e.target.value;
                       setRows(newRows);
                     }}
-                    className="border rounded p-1"
+                    className="border rounded p-1 w-full"
                   >
                     {[
                       "SUSPENSION",
@@ -656,7 +734,6 @@ export default function GestionesTable() {
                       "LLAMADO DE ATENCIÓN",
                       "TERMINACION DE CONTRATO",
                       "ARCHIVADO",
-                      "LLAMADO DE ATENCION",
                     ].map(opt => (
                       <option key={opt} value={opt}>
                         {opt}
@@ -668,7 +745,26 @@ export default function GestionesTable() {
                   {r.Duracion_Proceso_Inicial}
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
-                  {r.RECURSO}
+                  <select
+                    value={r.RECURSO}
+                    onChange={e => {
+                      const newRows = [...rows];
+                      newRows[idx].RECURSO = e.target.value;
+                      setRows(newRows);
+                    }}
+                    className="border rounded p-1 w-full"
+                  >
+                    {[
+                      "NO INTERPUESTO",
+                      "APELACIÓN",
+                      "PROCESO NO CONCLUIDO",
+                      "REPOSICIÓN",
+                    ].map(opt => (
+                      <option key={opt} value={opt}>
+                        {opt}
+                      </option>
+                    ))}
+                  </select>
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
                   {r.FECHA_INTERPOSICION_RECURSO}
@@ -677,16 +773,60 @@ export default function GestionesTable() {
                   {r.FECHA_DECISIÓN_RECURSO_PRIMERA_INSTANCIA}
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
-                  {r.DECISIÓN_RECURSO_PRIMERA_INSTANCIA}
+                  <select
+                    value={r.DECISIÓN_RECURSO_PRIMERA_INSTANCIA}
+                    onChange={e => {
+                      const newRows = [...rows];
+                      newRows[idx].DECISIÓN_RECURSO_PRIMERA_INSTANCIA =
+                        e.target.value;
+                      setRows(newRows);
+                    }}
+                    className="border rounded p-1 w-full"
+                  >
+                    {["CONFIRMA", "MODIFICA", "REVOCA"].map(opt => (
+                      <option key={opt} value={opt}>
+                        {opt}
+                      </option>
+                    ))}
+                  </select>
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
                   {r.Duración_Proceso_x_1_Instancia}
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
-                  {r.DECISIÓN_RECURSO_SEGUNDA_INSTANCIA}
+                  <select
+                    value={r.DECISIÓN_RECURSO_SEGUNDA_INSTANCIA}
+                    onChange={e => {
+                      const newRows = [...rows];
+                      newRows[idx].DECISIÓN_RECURSO_SEGUNDA_INSTANCIA =
+                        e.target.value;
+                      setRows(newRows);
+                    }}
+                    className="border rounded p-1 w-full"
+                  >
+                    {["CONFIRMA", "MODIFICA", "REVOCA"].map(opt => (
+                      <option key={opt} value={opt}>
+                        {opt}
+                      </option>
+                    ))}
+                  </select>
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
-                  {r.GRAVEDAD_SEGUNDA_INSTANCIA}
+                  <select
+                    value={r.GRAVEDAD_SEGUNDA_INSTANCIA}
+                    onChange={e => {
+                      const newRows = [...rows];
+                      newRows[idx].GRAVEDAD_SEGUNDA_INSTANCIA = e.target.value;
+                      setRows(newRows);
+                    }}
+                    className="border rounded p-1 w-full"
+                  >
+                    {["GRAVE", "LEVE", "GRAVISIMA"].map(opt => (
+                      <option key={opt} value={opt}>
+                        {opt}
+                      </option>
+                    ))}
+                  </select>
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
                   <select
@@ -696,7 +836,7 @@ export default function GestionesTable() {
                       newRows[idx].GRAVEDAD_PRIMERA_INSTANCIA = e.target.value;
                       setRows(newRows);
                     }}
-                    className="border rounded p-1"
+                    className="border rounded p-1 w-full"
                   >
                     {["GRAVE", "LEVE", "GRAVISIMA"].map(opt => (
                       <option key={opt} value={opt}>
@@ -715,10 +855,38 @@ export default function GestionesTable() {
                   {r.TIEMPO_DE_SUSPENSION}
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
-                  {r.ETAPA_DEL_PROCESO}
+                  <select
+                    value={r.ETAPA_DEL_PROCESO}
+                    onChange={e => {
+                      const newRows = [...rows];
+                      newRows[idx].ETAPA_DEL_PROCESO = e.target.value;
+                      setRows(newRows);
+                    }}
+                    className="border rounded p-1 w-full"
+                  >
+                    {["TERMINADO", "EN PROCESO"].map(opt => (
+                      <option key={opt} value={opt}>
+                        {opt}
+                      </option>
+                    ))}
+                  </select>
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
-                  {r.ESTADO_DEL_EMPLEADO}
+                  <select
+                    value={r.ESTADO_DEL_EMPLEADO}
+                    onChange={e => {
+                      const newRows = [...rows];
+                      newRows[idx].ESTADO_DEL_EMPLEADO = e.target.value;
+                      setRows(newRows);
+                    }}
+                    className="border rounded p-1 w-full"
+                  >
+                    {["RETIRADO", "ACTIVO", "RENUNCIA"].map(opt => (
+                      <option key={opt} value={opt}>
+                        {opt}
+                      </option>
+                    ))}
+                  </select>
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
                   {r.Diferencia_x_Día}
@@ -727,7 +895,27 @@ export default function GestionesTable() {
                   {r.Total_Vinculación_x_Año_y_Día}
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
-                  {r.Tipo_de_Impacto}
+                  <select
+                    value={r.Tipo_de_Impacto}
+                    onChange={e => {
+                      const newRows = [...rows];
+                      newRows[idx].Tipo_de_Impacto = e.target.value;
+                      setRows(newRows);
+                    }}
+                    className="border rounded p-1 w-full"
+                  >
+                    {[
+                      "LEGAL",
+                      "ECONÓMICO",
+                      "REPUTACIONAL",
+                      "OPERACIONAL",
+                      "SIN IMPACTO",
+                    ].map(opt => (
+                      <option key={opt} value={opt}>
+                        {opt}
+                      </option>
+                    ))}
+                  </select>
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
                   {r.Duración_total_del_proceso}

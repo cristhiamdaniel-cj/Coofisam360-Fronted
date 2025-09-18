@@ -12,7 +12,7 @@ const initialRows = [
   {
     Año: 2024,
     Mes: "ABRIL",
-    TotalGastosTransferencia: "$2.940.000",
+    TotalGastosTransferencia: 2940000,
     TrabajadoresCapacitados: 2,
     CostoPorTrabajador: "$1.470.000",
     Modalidad: "Presencial",
@@ -230,7 +230,7 @@ export default function GestionesTable() {
               <th className="p-4 border text-center whitespace-nowrap">
                 Costo x Trabajador Formado
               </th>
-              <th className="p-4 border text-center whitespace-nowrap">
+              <th className="p-4 border text-center whitespace-nowrap min-w-[150px]">
                 Modalidad
               </th>
               <th className="p-4 border text-center whitespace-nowrap">
@@ -248,8 +248,21 @@ export default function GestionesTable() {
                 <td className="p-2 border text-left whitespace-nowrap">
                   {r.Mes}
                 </td>
-                <td className="p-2 border text-left whitespace-nowrap">
-                  {r.TotalGastosTransferencia}
+                <td className="p-1 border text-left whitespace-nowrap w-full">
+                  $
+                  <input
+                    type="number"
+                    value={r.TotalGastosTransferencia}
+                    onChange={e => {
+                      const newRows = [...rows]; // hacemos copia del array
+                      newRows[idx] = {
+                        ...newRows[idx], // copiamos la fila
+                        TotalGastosTransferencia: e.target.value, // actualizamos solo este campo
+                      };
+                      setRows(newRows);
+                    }}
+                    className="w-full min-h-[35px] ml-1"
+                  />
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
                   {r.TrabajadoresCapacitados}
@@ -258,10 +271,38 @@ export default function GestionesTable() {
                   {r.CostoPorTrabajador}
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
-                  {r.Modalidad}
+                  <select
+                    value={r.Modalidad}
+                    onChange={e => {
+                      const newRows = [...rows];
+                      newRows[idx].Modalidad = e.target.value;
+                      setRows(newRows);
+                    }}
+                    className="border rounded p-1 w-full"
+                  >
+                    {["Virtual", "Presencial"].map(opt => (
+                      <option key={opt} value={opt}>
+                        {opt}
+                      </option>
+                    ))}
+                  </select>
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
-                  {r.Rentabilidad}
+                  <select
+                    value={r.Rentabilidad}
+                    onChange={e => {
+                      const newRows = [...rows];
+                      newRows[idx].Rentabilidad = e.target.value;
+                      setRows(newRows);
+                    }}
+                    className="border rounded p-1 w-full"
+                  >
+                    {["Baja", "Alta"].map(opt => (
+                      <option key={opt} value={opt}>
+                        {opt}
+                      </option>
+                    ))}
+                  </select>
                 </td>
               </tr>
             ))}
