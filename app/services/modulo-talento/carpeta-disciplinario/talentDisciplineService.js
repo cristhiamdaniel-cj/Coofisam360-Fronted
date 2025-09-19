@@ -11,6 +11,7 @@ export async function listControlDisciplinario(params = {}) {
 export async function getControlDisciplinario(id, params = {}) {
   const { data } = await api.get("/api/v1/talento//", {
     params: { ...params, id },
+  /*const { data } = await api.get(`/api/v1/talento//${encodeURIComponent(id)}/`,{ params }*/
   });
   const items = data?.items ?? [];
   return items[0] || null;
