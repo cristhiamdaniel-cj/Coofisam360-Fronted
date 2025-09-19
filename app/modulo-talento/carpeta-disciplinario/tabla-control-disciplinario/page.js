@@ -1,9 +1,9 @@
 "use client";
 import { useEffect, useState } from "react";
 import {
-  listControlDisciplinario,
-  saveControlDisciplinario,
-} from "../../../services/modulo-talento/carpeta-disciplinario/talentDisciplineService";
+  listControlRows,
+  saveControlRow,
+} from "../../../services/modulo-talento/carpeta-disciplinario/controlDiscipline";
 import { IoSearch } from "react-icons/io5";
 import { FiDownload } from "react-icons/fi";
 import { FaRegSave, FaRegFolderOpen, FaPlay } from "react-icons/fa";
@@ -13,18 +13,27 @@ import { saveAs } from "file-saver";
 
 export default function GestionesTable() {
   const [rows, setRows] = useState([]);
+  const [filteredRows, setFilteredRows] = useState([]);
   const [editedRows, setEditedRows] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [search, setSearch] = useState("");
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    async function fetchData() {
+    async function load() {
       try {
-        const data = await listControlDisciplinario();
-        setRows(data || []);
-      } catch (err) {
-        console.error("Error al cargar datos:", err);
+        const data = await listControlRows();
+        setRows(data);
+        //setFilteredRows(data);
+        setError("");
+      } catch (e) {
+        setError(e.message || "Error cargando datos");
+      } finally {
+        setLoading(false);
       }
     }
-    fetchData();
+    load();
   }, []);
 
   const handleChange = (index, field, value) => {
@@ -45,7 +54,7 @@ export default function GestionesTable() {
       // Convertimos el objeto editedRows en un array de filas
       const updates = Object.values(editedRows);
       for (const row of updates) {
-        await saveControlDisciplinario(row);
+        await saveControlRow(row);
       }
       setEditedRows({});
       alert("Cambios guardados correctamente");
@@ -268,14 +277,14 @@ export default function GestionesTable() {
           </thead>
 
           <tbody className="tabla-cupos-content p-4">
-            {rows.map((r, idx) => (
-              <tr key={idx}>
+            {rows.map((r, i) => (
+              <tr key={r.i || i}>
                 <td className="p-2 border text-left whitespace-nowrap">
-                  {r.TRABAJADOR}
+                  {r.trabajador}
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
                   <select
-                    value={r.OFICINA}
+                    value={r.oficina}
                     onChange={e => {
                       handleChange(idx, "OFICINA", e.target.value);
                     }}
