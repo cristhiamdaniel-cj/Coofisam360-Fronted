@@ -215,14 +215,15 @@ export default function CuposTable() {
                 <td>{r.cuenta}</td>
                 <td>{r.entidadFinanciera}</td>
 
-                <td>
+                <td className="text-left flex items-center">
+                  $
                   <input
                     type="number"
                     value={r.cupoAsignado || ""}
                     onChange={e =>
                       handleChange(r.id, "cupoAsignado", e.target.value)
                     }
-                    className="px-2 py-1 w-full text-right border"
+                    className="px-2 py-1 w-full text-left border ml-1"
                   />
                 </td>
 

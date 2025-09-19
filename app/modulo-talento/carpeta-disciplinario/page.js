@@ -4,8 +4,8 @@ import Link from "next/link";
 
 export default function FinancieroDashboard() {
   return (
-    <main className="container-financiero flex-col p-12">
-      <h1 className="text-3xl font-semibold uppercase titulo-modulo">
+    <main className="container-financiero flex-col p-12 pt-4">
+      <h1 className="text-3xl font-semibold uppercase titulo-modulo pl-8">
         Formularios
       </h1>
 

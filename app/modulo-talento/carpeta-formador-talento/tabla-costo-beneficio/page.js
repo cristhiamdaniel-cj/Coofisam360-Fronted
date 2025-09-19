@@ -132,16 +132,20 @@ export default function GestionesTable() {
   const [rows, setRows] = useState(initialRows);
   const [editedRows, setEditedRows] = useState([]);
 
-  const handleChange = (id, field, value) => {
-    // update rows state immediately
-    setRows(prev =>
-      prev.map(row => (row.id === id ? { ...row, [field]: value } : row))
-    );
+  const handleChange = (index, field, value) => {
+    // Convertir a número si es campo numérico
 
-    // mark this row as edited
+    // Actualizar rows usando el índice
+    setRows(prev => {
+      const newRows = [...prev];
+      newRows[index] = { ...newRows[index], [field]: value };
+      return newRows;
+    });
+
+    // Actualizar editedRows
     setEditedRows(prev => ({
       ...prev,
-      [id]: { ...prev[id], [field]: value },
+      [index]: { ...prev[index], [field]: value },
     }));
   };
 
@@ -183,8 +187,8 @@ export default function GestionesTable() {
   };
 
   return (
-    <main className="pt-12 pb-0 px-12 overflow-auto">
-      <h1 className="titulo-tabla-cupos text-3xl font-semibold pb-12">
+    <main className="pt-4 pb-0 px-12 overflow-auto">
+      <h1 className="titulo-tabla-cupos text-3xl font-semibold pb-4">
         Costo/Beneficio
       </h1>
       <div className="actions-container flex justify-between mb-4">
@@ -254,14 +258,13 @@ export default function GestionesTable() {
                     type="number"
                     value={r.TotalGastosTransferencia}
                     onChange={e => {
-                      const newRows = [...rows]; // hacemos copia del array
-                      newRows[idx] = {
-                        ...newRows[idx], // copiamos la fila
-                        TotalGastosTransferencia: e.target.value, // actualizamos solo este campo
-                      };
-                      setRows(newRows);
+                      handleChange(
+                        idx,
+                        "TotalGastosTransferencia",
+                        e.target.value
+                      );
                     }}
-                    className="w-full min-h-[35px] ml-1"
+                    className="px-2 py-1 w-full text-left border ml-1"
                   />
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
@@ -274,9 +277,7 @@ export default function GestionesTable() {
                   <select
                     value={r.Modalidad}
                     onChange={e => {
-                      const newRows = [...rows];
-                      newRows[idx].Modalidad = e.target.value;
-                      setRows(newRows);
+                      handleChange(idx, "Modalidad", e.target.value);
                     }}
                     className="border rounded p-1 w-full"
                   >
@@ -291,9 +292,7 @@ export default function GestionesTable() {
                   <select
                     value={r.Rentabilidad}
                     onChange={e => {
-                      const newRows = [...rows];
-                      newRows[idx].Rentabilidad = e.target.value;
-                      setRows(newRows);
+                      handleChange(idx, "Rentabilidad", e.target.value);
                     }}
                     className="border rounded p-1 w-full"
                   >

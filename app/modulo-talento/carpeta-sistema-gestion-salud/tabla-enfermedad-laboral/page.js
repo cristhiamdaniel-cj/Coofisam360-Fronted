@@ -354,7 +354,19 @@ export default function GestionesTable() {
                   {row.constante}
                 </td>
                 <td className="p-2 border text-center whitespace-nowrap">
-                  {row.indicador}
+                  <select
+                    value={row.indicador}
+                    onChange={e => {
+                      handleChange(row.id, "indicador", e.target.value);
+                    }}
+                    className="border rounded p-1 w-full"
+                  >
+                    {["P-EL", "I-EL"].map(opt => (
+                      <option key={opt} value={opt}>
+                        {opt}
+                      </option>
+                    ))}
+                  </select>
                 </td>
                 <td className="p-2 border text-center whitespace-nowrap">
                   {row.resultado}

@@ -125,16 +125,20 @@ export default function GestionesTable() {
   const [rows, setRows] = useState(initialRows);
   const [editedRows, setEditedRows] = useState([]);
 
-  const handleChange = (id, field, value) => {
-    // update rows state immediately
-    setRows(prev =>
-      prev.map(row => (row.id === id ? { ...row, [field]: value } : row))
-    );
+  const handleChange = (index, field, value) => {
+    // Convertir a número si es campo numérico
 
-    // mark this row as edited
+    // Actualizar rows usando el índice
+    setRows(prev => {
+      const newRows = [...prev];
+      newRows[index] = { ...newRows[index], [field]: value };
+      return newRows;
+    });
+
+    // Actualizar editedRows
     setEditedRows(prev => ({
       ...prev,
-      [id]: { ...prev[id], [field]: value },
+      [index]: { ...prev[index], [field]: value },
     }));
   };
 
@@ -176,8 +180,8 @@ export default function GestionesTable() {
   };
 
   return (
-    <main className="pt-12 pb-0 px-12 overflow-auto">
-      <h1 className="titulo-tabla-cupos text-3xl font-semibold pb-8">
+    <main className="pt-4 pb-0 px-12 overflow-auto">
+      <h1 className="titulo-tabla-cupos text-3xl font-semibold pb-4">
         Ausentismo
       </h1>
       <div className="actions-container flex justify-between mb-4">
@@ -248,10 +252,28 @@ export default function GestionesTable() {
                   {r.Mes}
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
-                  {r.DiasAusenciaPropios}
+                  <input
+                    type="number"
+                    value={r.DiasAusenciaPropios}
+                    onChange={e => {
+                      handleChange(idx, "DiasAusenciaPropios", e.target.value);
+                    }}
+                    className="px-2 py-1 w-full text-left border ml-1"
+                  />
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
-                  {r.DiasAusenciaContratistas}
+                  <input
+                    type="number"
+                    value={r.DiasAusenciaContratistas}
+                    onChange={e => {
+                      handleChange(
+                        idx,
+                        "DiasAusenciaContratistas",
+                        e.target.value
+                      );
+                    }}
+                    className="px-2 py-1 w-full text-left border ml-1"
+                  />
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
                   {r.TotalDiasIncapacidad}

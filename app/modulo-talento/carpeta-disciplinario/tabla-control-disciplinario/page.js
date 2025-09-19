@@ -1,386 +1,70 @@
 "use client";
 import { useEffect, useState } from "react";
-//import { getFinancialRecords } from "@/services/financial";
-import { FaRegSave } from "react-icons/fa";
-import { FaFileDownload } from "react-icons/fa";
+import {
+  listControlDisciplinario,
+  saveControlDisciplinario,
+} from "../../../services/modulo-talento/carpeta-disciplinario/talentDisciplineService";
 import { IoSearch } from "react-icons/io5";
+import { FiDownload } from "react-icons/fi";
+import { FaRegSave, FaRegFolderOpen, FaPlay } from "react-icons/fa";
+import { TbUpload } from "react-icons/tb";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
-import { FiDownload } from "react-icons/fi";
-import { FaFileUpload, FaRegFolderOpen } from "react-icons/fa";
-import { FaPlay } from "react-icons/fa";
-import { TbUpload } from "react-icons/tb";
-
-const initialRows = [
-  {
-    TRABAJADOR: "CARLOS FERNANDO GONZALEZ",
-    OFICINA: "DIRECCIÓN GENERAL",
-    CARGO: "SUBGERENTE COMERCIAL",
-    ANTIGÜEDAD: "02/12/20",
-    MOTIVO: "INCUMPLIMIENTO MANUAL DE FUNCIONES",
-    FECHA_EN_QUE_SUCEDIERON_LOS_HECHOS: "26/11/2024",
-    FECHA_DE_CONOCIMIENTO_DE_LOS_HECHOS: "13/01/2025",
-    FECHA_NOTIFICACIÓN: "20/01/2025",
-    Inicio_de_proceso_x_Día: "7",
-    POSIBLE_SANCION: "SUSPENSION",
-    GRAVEDAD_NOTIFICADA: "GRAVE",
-    FECHA_DESCARGOS: "23/01/2025",
-    FECHA_DESICIÓN_PRIMERA_INSTANCIA: "19/02/2025",
-    GRAVEDAD_PRIMERA_INSTANCIA: "GRAVE",
-    SANCION_PRIMERA_INSTANCIA: "SUSPENSION",
-    Duracion_Proceso_Inicial: "30",
-    RECURSO: "NO",
-    FECHA_INTERPOSICION_RECURSO: "",
-    FECHA_DECISIÓN_RECURSO_PRIMERA_INSTANCIA: "",
-    DECISIÓN_RECURSO_PRIMERA_INSTANCIA: "",
-    Duración_Proceso_x_1_Instancia: "0",
-    DECISIÓN_RECURSO_SEGUNDA_INSTANCIA: "",
-    GRAVEDAD_SEGUNDA_INSTANCIA: "",
-    SANCION_SEGUNDA_INSTANCIA: "",
-    FECHA_DE_DECISIÓN_SEGUNDA_INSTANCIA: "",
-    Duración_Proceso_x_2_Instancia: "0",
-    TIEMPO_DE_SUSPENSION: "4 DÍAS",
-    ETAPA_DEL_PROCESO: "TERMINADO",
-    ESTADO_DEL_EMPLEADO: "ACTIVO",
-    Diferencia_x_Día: "1455",
-    Total_Vinculación_x_Año_y_Día: "4,0",
-    Tipo_de_Impacto: "Operacional",
-    Duración_total_del_proceso: "30",
-  },
-  {
-    TRABAJADOR: "FRANCY LUPITA ORTIZ MENDOZA",
-    OFICINA: "NEIVA",
-    CARGO: "ASESOR MICROFINANZAS URBANO",
-    ANTIGÜEDAD: "04/09/23",
-    MOTIVO: "INCUMPLIMIENTO JORNADA LABORAL",
-    FECHA_EN_QUE_SUCEDIERON_LOS_HECHOS: "04/01/2025",
-    FECHA_DE_CONOCIMIENTO_DE_LOS_HECHOS: "08/01/2025",
-    FECHA_NOTIFICACIÓN: "27/01/2025",
-    Inicio_de_proceso_x_Día: "19",
-    POSIBLE_SANCION: "SUSPENSION",
-    GRAVEDAD_NOTIFICADA: "GRAVE",
-    FECHA_DESCARGOS: "",
-    FECHA_DESICIÓN_PRIMERA_INSTANCIA: "03/02/2025",
-    GRAVEDAD_PRIMERA_INSTANCIA: "",
-    SANCION_PRIMERA_INSTANCIA: "",
-    Duracion_Proceso_Inicial: "7",
-    RECURSO: "PROCESO NO CONCLUIDO",
-    FECHA_INTERPOSICION_RECURSO: "",
-    FECHA_DECISIÓN_RECURSO_PRIMERA_INSTANCIA: "",
-    DECISIÓN_RECURSO_PRIMERA_INSTANCIA: "",
-    Duración_Proceso_x_1_Instancia: "0",
-    DECISIÓN_RECURSO_SEGUNDA_INSTANCIA: "",
-    GRAVEDAD_SEGUNDA_INSTANCIA: "",
-    SANCION_SEGUNDA_INSTANCIA: "",
-    FECHA_DE_DECISIÓN_SEGUNDA_INSTANCIA: "",
-    Duración_Proceso_x_2_Instancia: "0",
-    TIEMPO_DE_SUSPENSION: "",
-    ETAPA_DEL_PROCESO: "TERMINADO",
-    ESTADO_DEL_EMPLEADO: "RETIRADO",
-    Diferencia_x_Día: "488",
-    Total_Vinculación_x_Año_y_Día: "1,4",
-    Tipo_de_Impacto: "Operacional",
-    Duración_total_del_proceso: "7",
-  },
-  {
-    TRABAJADOR: "SEIDY MARCELA ROBAYO CAMACHO",
-    OFICINA: "GUADALUPE",
-    CARGO: "ASESOR COMERCIAL",
-    ANTIGÜEDAD: "04/04/22",
-    MOTIVO: "INCUMPLIMIENTO JORNADA LABORAL",
-    FECHA_EN_QUE_SUCEDIERON_LOS_HECHOS: "07/01/2025",
-    FECHA_DE_CONOCIMIENTO_DE_LOS_HECHOS: "08/01/2025",
-    FECHA_NOTIFICACIÓN: "09/01/2025",
-    Inicio_de_proceso_x_Día: "1",
-    POSIBLE_SANCION: "LLAMADO DE ATENCIÓN",
-    GRAVEDAD_NOTIFICADA: "LEVE",
-    FECHA_DESCARGOS: "13/01/2025",
-    FECHA_DESICIÓN_PRIMERA_INSTANCIA: "17/01/2025",
-    GRAVEDAD_PRIMERA_INSTANCIA: "LEVE",
-    SANCION_PRIMERA_INSTANCIA: "LLAMADO DE ATENCION",
-    Duracion_Proceso_Inicial: "8",
-    RECURSO: "NO",
-    FECHA_INTERPOSICION_RECURSO: "",
-    FECHA_DECISIÓN_RECURSO_PRIMERA_INSTANCIA: "",
-    DECISIÓN_RECURSO_PRIMERA_INSTANCIA: "",
-    Duración_Proceso_x_1_Instancia: "0",
-    DECISIÓN_RECURSO_SEGUNDA_INSTANCIA: "",
-    GRAVEDAD_SEGUNDA_INSTANCIA: "",
-    SANCION_SEGUNDA_INSTANCIA: "",
-    FECHA_DE_DECISIÓN_SEGUNDA_INSTANCIA: "",
-    Duración_Proceso_x_2_Instancia: "0",
-    TIEMPO_DE_SUSPENSION: "",
-    ETAPA_DEL_PROCESO: "TERMINADO",
-    ESTADO_DEL_EMPLEADO: "ACTIVO",
-    Diferencia_x_Día: "1009",
-    Total_Vinculación_x_Año_y_Día: "2,8",
-    Tipo_de_Impacto: "Operacional",
-    Duración_total_del_proceso: "8",
-  },
-  {
-    TRABAJADOR: "JOSE EDGAR VARGAS LOSADA",
-    OFICINA: "GARZON",
-    CARGO: "ASESOR MICROFINANZAS URBANO",
-    ANTIGÜEDAD: "25/09/20",
-    MOTIVO: "FRAUDE INTERNO",
-    FECHA_EN_QUE_SUCEDIERON_LOS_HECHOS: "09/12/2023",
-    FECHA_DE_CONOCIMIENTO_DE_LOS_HECHOS: "22/01/2025",
-    FECHA_NOTIFICACIÓN: "07/02/2025",
-    Inicio_de_proceso_x_Día: "16",
-    POSIBLE_SANCION: "TERMINACION DE CONTRATO",
-    GRAVEDAD_NOTIFICADA: "GRAVISIMA",
-    FECHA_DESCARGOS: "07/02/2025",
-    FECHA_DESICIÓN_PRIMERA_INSTANCIA: "07/02/2025",
-    GRAVEDAD_PRIMERA_INSTANCIA: "GRAVISIMA",
-    SANCION_PRIMERA_INSTANCIA: "TERMINACION DE CONTRATO",
-    Duracion_Proceso_Inicial: "0",
-    RECURSO: "NO",
-    FECHA_INTERPOSICION_RECURSO: "",
-    FECHA_DECISIÓN_RECURSO_PRIMERA_INSTANCIA: "",
-    DECISIÓN_RECURSO_PRIMERA_INSTANCIA: "",
-    Duración_Proceso_x_1_Instancia: "0",
-    DECISIÓN_RECURSO_SEGUNDA_INSTANCIA: "",
-    GRAVEDAD_SEGUNDA_INSTANCIA: "",
-    SANCION_SEGUNDA_INSTANCIA: "",
-    FECHA_DE_DECISIÓN_SEGUNDA_INSTANCIA: "",
-    Duración_Proceso_x_2_Instancia: "0",
-    TIEMPO_DE_SUSPENSION: "",
-    ETAPA_DEL_PROCESO: "TERMINADO",
-    ESTADO_DEL_EMPLEADO: "RETIRADO",
-    Diferencia_x_Día: "1170",
-    Total_Vinculación_x_Año_y_Día: "3,3",
-    Tipo_de_Impacto: "Económico",
-    Duración_total_del_proceso: "0",
-  },
-  {
-    TRABAJADOR: "ANA MARIA HERRERA CALDERÓN",
-    OFICINA: "GARZON",
-    CARGO: "ASESOR COMERCIAL",
-    ANTIGÜEDAD: "12/02/23",
-    MOTIVO: "OMISIÓN CONTROL DE DESEMBOLSO",
-    FECHA_EN_QUE_SUCEDIERON_LOS_HECHOS: "18/01/2025",
-    FECHA_DE_CONOCIMIENTO_DE_LOS_HECHOS: "22/01/2025",
-    FECHA_NOTIFICACIÓN: "27/02/2025",
-    Inicio_de_proceso_x_Día: "36",
-    POSIBLE_SANCION: "TERMINACION DE CONTRATO",
-    GRAVEDAD_NOTIFICADA: "GRAVISIMA",
-    FECHA_DESCARGOS: "27/02/2025",
-    FECHA_DESICIÓN_PRIMERA_INSTANCIA: "27/02/2025",
-    GRAVEDAD_PRIMERA_INSTANCIA: "GRAVISIMA",
-    SANCION_PRIMERA_INSTANCIA: "TERMINACION DE CONTRATO",
-    Duracion_Proceso_Inicial: "0",
-    RECURSO: "NO",
-    FECHA_INTERPOSICION_RECURSO: "",
-    FECHA_DECISIÓN_RECURSO_PRIMERA_INSTANCIA: "",
-    DECISIÓN_RECURSO_PRIMERA_INSTANCIA: "",
-    Duración_Proceso_x_1_Instancia: "0",
-    DECISIÓN_RECURSO_SEGUNDA_INSTANCIA: "",
-    GRAVEDAD_SEGUNDA_INSTANCIA: "",
-    SANCION_SEGUNDA_INSTANCIA: "",
-    FECHA_DE_DECISIÓN_SEGUNDA_INSTANCIA: "",
-    Duración_Proceso_x_2_Instancia: "0",
-    TIEMPO_DE_SUSPENSION: "",
-    ETAPA_DEL_PROCESO: "TERMINADO",
-    ESTADO_DEL_EMPLEADO: "RETIRADO",
-    Diferencia_x_Día: "706",
-    Total_Vinculación_x_Año_y_Día: "2,0",
-    Tipo_de_Impacto: "Operacional",
-    Duración_total_del_proceso: "0",
-  },
-  {
-    TRABAJADOR: "JOSE ALEXIS PEÑA VALENCIA",
-    OFICINA: "GARZON",
-    CARGO: "JEFE DE OPERACIONES",
-    ANTIGÜEDAD: "01/04/18",
-    MOTIVO: "OMISIÓN CONTROL DE DESEMBOLSO",
-    FECHA_EN_QUE_SUCEDIERON_LOS_HECHOS: "18/01/2025",
-    FECHA_DE_CONOCIMIENTO_DE_LOS_HECHOS: "13/02/2025",
-    FECHA_NOTIFICACIÓN: "05/03/2025",
-    Inicio_de_proceso_x_Día: "20",
-    POSIBLE_SANCION: "SUSPENSION",
-    GRAVEDAD_NOTIFICADA: "GRAVE",
-    FECHA_DESCARGOS: "06/03/2025",
-    FECHA_DESICIÓN_PRIMERA_INSTANCIA: "31/03/2025",
-    GRAVEDAD_PRIMERA_INSTANCIA: "GRAVE",
-    SANCION_PRIMERA_INSTANCIA: "SUSPENSION",
-    Duracion_Proceso_Inicial: "26",
-    RECURSO: "NO",
-    FECHA_INTERPOSICION_RECURSO: "",
-    FECHA_DECISIÓN_RECURSO_PRIMERA_INSTANCIA: "",
-    DECISIÓN_RECURSO_PRIMERA_INSTANCIA: "",
-    Duración_Proceso_x_1_Instancia: "0",
-    DECISIÓN_RECURSO_SEGUNDA_INSTANCIA: "",
-    GRAVEDAD_SEGUNDA_INSTANCIA: "",
-    SANCION_SEGUNDA_INSTANCIA: "",
-    FECHA_DE_DECISIÓN_SEGUNDA_INSTANCIA: "",
-    Duración_Proceso_x_2_Instancia: "0",
-    TIEMPO_DE_SUSPENSION: "6 DÍAS",
-    ETAPA_DEL_PROCESO: "TERMINADO",
-    ESTADO_DEL_EMPLEADO: "ACTIVO",
-    Diferencia_x_Día: "2484",
-    Total_Vinculación_x_Año_y_Día: "6,9",
-    Tipo_de_Impacto: "Económico",
-    Duración_total_del_proceso: "26",
-  },
-  {
-    TRABAJADOR: "CLAUDIA PATRICIA MONTES RODRIGUEZ",
-    OFICINA: "GARZON",
-    CARGO: "ASESOR COMERCIAL",
-    ANTIGÜEDAD: "25/07/18",
-    MOTIVO: "OMISIÓN CONTROL DE DESEMBOLSO",
-    FECHA_EN_QUE_SUCEDIERON_LOS_HECHOS: "14/08/2024",
-    FECHA_DE_CONOCIMIENTO_DE_LOS_HECHOS: "03/03/2025",
-    FECHA_NOTIFICACIÓN: "04/04/2025",
-    Inicio_de_proceso_x_Día: "32",
-    POSIBLE_SANCION: "SUSPENSION",
-    GRAVEDAD_NOTIFICADA: "GRAVE",
-    FECHA_DESCARGOS: "07/04/2025",
-    FECHA_DESICIÓN_PRIMERA_INSTANCIA: "22/04/2025",
-    GRAVEDAD_PRIMERA_INSTANCIA: "LEVE",
-    SANCION_PRIMERA_INSTANCIA: "LLAMADO DE ATENCION",
-    Duracion_Proceso_Inicial: "18",
-    RECURSO: "NO",
-    FECHA_INTERPOSICION_RECURSO: "",
-    FECHA_DECISIÓN_RECURSO_PRIMERA_INSTANCIA: "",
-    DECISIÓN_RECURSO_PRIMERA_INSTANCIA: "",
-    Duración_Proceso_x_1_Instancia: "0",
-    DECISIÓN_RECURSO_SEGUNDA_INSTANCIA: "",
-    GRAVEDAD_SEGUNDA_INSTANCIA: "",
-    SANCION_SEGUNDA_INSTANCIA: "",
-    FECHA_DE_DECISIÓN_SEGUNDA_INSTANCIA: "",
-    Duración_Proceso_x_2_Instancia: "0",
-    TIEMPO_DE_SUSPENSION: "",
-    ETAPA_DEL_PROCESO: "TERMINADO",
-    ESTADO_DEL_EMPLEADO: "ACTIVO",
-    Diferencia_x_Día: "2212",
-    Total_Vinculación_x_Año_y_Día: "6,1",
-    Tipo_de_Impacto: "Económico",
-    Duración_total_del_proceso: "18",
-  },
-  {
-    TRABAJADOR: "KAREN DAYANNA CERQUERA CABRERA",
-    OFICINA: "GARZON",
-    CARGO: "ASESOR MICROFINANZAS URBANO",
-    ANTIGÜEDAD: "11/01/23",
-    MOTIVO: "OMISIÓN VALIDACIÓN DE IDENTIDAD",
-    FECHA_EN_QUE_SUCEDIERON_LOS_HECHOS: "07/01/2025",
-    FECHA_DE_CONOCIMIENTO_DE_LOS_HECHOS: "24/01/2025",
-    FECHA_NOTIFICACIÓN: "04/04/2025",
-    Inicio_de_proceso_x_Día: "70",
-    POSIBLE_SANCION: "SUSPENSION",
-    GRAVEDAD_NOTIFICADA: "GRAVE",
-    FECHA_DESCARGOS: "07/04/2025",
-    FECHA_DESICIÓN_PRIMERA_INSTANCIA: "22/04/2025",
-    GRAVEDAD_PRIMERA_INSTANCIA: "LEVE",
-    SANCION_PRIMERA_INSTANCIA: "LLAMADO DE ATENCION",
-    Duracion_Proceso_Inicial: "18",
-    RECURSO: "NO",
-    FECHA_INTERPOSICION_RECURSO: "",
-    FECHA_DECISIÓN_RECURSO_PRIMERA_INSTANCIA: "",
-    DECISIÓN_RECURSO_PRIMERA_INSTANCIA: "",
-    Duración_Proceso_x_1_Instancia: "0",
-    DECISIÓN_RECURSO_SEGUNDA_INSTANCIA: "",
-    GRAVEDAD_SEGUNDA_INSTANCIA: "",
-    SANCION_SEGUNDA_INSTANCIA: "",
-    FECHA_DE_DECISIÓN_SEGUNDA_INSTANCIA: "",
-    Duración_Proceso_x_2_Instancia: "0",
-    TIEMPO_DE_SUSPENSION: "",
-    ETAPA_DEL_PROCESO: "TERMINADO",
-    ESTADO_DEL_EMPLEADO: "ACTIVO",
-    Diferencia_x_Día: "727",
-    Total_Vinculación_x_Año_y_Día: "2,0",
-    Tipo_de_Impacto: "Operacional",
-    Duración_total_del_proceso: "18",
-  },
-  {
-    TRABAJADOR: "LEIDY YOHANNA GUTIERREZ PERDOMO",
-    OFICINA: "GARZON",
-    CARGO: "ASESOR COMERCIAL",
-    ANTIGÜEDAD: "04/01/21",
-    MOTIVO: "OMISIÓN CONTROL DE DESEMBOLSO",
-    FECHA_EN_QUE_SUCEDIERON_LOS_HECHOS: "14/08/2024",
-    FECHA_DE_CONOCIMIENTO_DE_LOS_HECHOS: "25/01/2025",
-    FECHA_NOTIFICACIÓN: "04/04/2025",
-    Inicio_de_proceso_x_Día: "69",
-    POSIBLE_SANCION: "SUSPENSION",
-    GRAVEDAD_NOTIFICADA: "GRAVE",
-    FECHA_DESCARGOS: "08/04/2025",
-    FECHA_DESICIÓN_PRIMERA_INSTANCIA: "22/04/2025",
-    GRAVEDAD_PRIMERA_INSTANCIA: "LEVE",
-    SANCION_PRIMERA_INSTANCIA: "LLAMADO DE ATENCION",
-    Duracion_Proceso_Inicial: "14",
-    RECURSO: "NO",
-    FECHA_INTERPOSICION_RECURSO: "",
-    FECHA_DECISIÓN_RECURSO_PRIMERA_INSTANCIA: "",
-    DECISIÓN_RECURSO_PRIMERA_INSTANCIA: "",
-    Duración_Proceso_x_1_Instancia: "0",
-    DECISIÓN_RECURSO_SEGUNDA_INSTANCIA: "",
-    GRAVEDAD_SEGUNDA_INSTANCIA: "",
-    SANCION_SEGUNDA_INSTANCIA: "",
-    FECHA_DE_DECISIÓN_SEGUNDA_INSTANCIA: "",
-    Duración_Proceso_x_2_Instancia: "0",
-    TIEMPO_DE_SUSPENSION: "",
-    ETAPA_DEL_PROCESO: "TERMINADO",
-    ESTADO_DEL_EMPLEADO: "ACTIVO",
-    Diferencia_x_Día: "1346",
-    Total_Vinculación_x_Año_y_Día: "4,3",
-    Tipo_de_Impacto: "Económico",
-    Duración_total_del_proceso: "14",
-  },
-];
 
 export default function GestionesTable() {
-  const [rows, setRows] = useState(initialRows);
-  const [editedRows, setEditedRows] = useState([]);
+  const [rows, setRows] = useState([]);
+  const [editedRows, setEditedRows] = useState({});
 
-  const handleChange = (id, field, value) => {
-    // update rows state immediately
-    setRows(prev =>
-      prev.map(row => (row.id === id ? { ...row, [field]: value } : row))
-    );
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const data = await listControlDisciplinario();
+        setRows(data || []);
+      } catch (err) {
+        console.error("Error al cargar datos:", err);
+      }
+    }
+    fetchData();
+  }, []);
 
-    // mark this row as edited
+  const handleChange = (index, field, value) => {
+    setRows(prev => {
+      const newRows = [...prev];
+      newRows[index] = { ...newRows[index], [field]: value };
+      return newRows;
+    });
+
     setEditedRows(prev => ({
       ...prev,
-      [id]: { ...prev[id], [field]: value },
+      [index]: { ...prev[index], [field]: value },
     }));
   };
 
   const handleSave = async () => {
-    console.log("Saving edits:", editedRows);
-
-    // Example: send to backend
-    /*
-    await fetch("https://coofisam360.ngrok.io/api/update-records/", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(editedRows),
-    });
-    */
-
-    // clear edited state after saving
-    setEditedRows({});
+    try {
+      // Convertimos el objeto editedRows en un array de filas
+      const updates = Object.values(editedRows);
+      for (const row of updates) {
+        await saveControlDisciplinario(row);
+      }
+      setEditedRows({});
+      alert("Cambios guardados correctamente");
+    } catch (err) {
+      console.error("Error guardando cambios:", err);
+      alert("Error al guardar cambios");
+    }
   };
 
   const handleDownload = () => {
-    // Convert JSON to worksheet
     const worksheet = XLSX.utils.json_to_sheet(rows);
-
-    // Create a new workbook
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(
-      workbook,
-      worksheet,
-      "Indicadores Financieros"
-    );
-
-    // Write workbook and save
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Control Disciplinario");
     const excelBuffer = XLSX.write(workbook, {
       bookType: "xlsx",
       type: "array",
     });
     const data = new Blob([excelBuffer], { type: "application/octet-stream" });
-    saveAs(data, "cupos.xlsx");
+    saveAs(data, "control-disciplinario.xlsx");
   };
 
   const motivos = [
@@ -429,8 +113,8 @@ export default function GestionesTable() {
   ];
 
   return (
-    <main className="pt-12 pb-0 px-12 overflow-auto">
-      <h1 className="titulo-tabla-cupos text-3xl font-semibold pb-12">
+    <main className="pt-4 pb-0 px-12 overflow-auto">
+      <h1 className="titulo-tabla-cupos text-3xl font-semibold pb-4">
         Control Disciplinario
       </h1>
       <div className="actions-container flex justify-between mb-4">
@@ -593,9 +277,7 @@ export default function GestionesTable() {
                   <select
                     value={r.OFICINA}
                     onChange={e => {
-                      const newRows = [...rows];
-                      newRows[idx].OFICINA = e.target.value;
-                      setRows(newRows);
+                      handleChange(idx, "OFICINA", e.target.value);
                     }}
                     className="border rounded p-1 w-full"
                   >

@@ -186,8 +186,8 @@ export default function IndicadoresTable() {
     .filter(m => uniqueMonths.includes(m.number));
 
   return (
-    <main className="pt-12 pb-0 px-12 overflow-auto">
-      <h1 className="titulo-tabla-cupos text-3xl font-semibold pb-12">
+    <main className="pt-4 pb-0 px-12 overflow-auto">
+      <h1 className="titulo-tabla-cupos text-3xl font-semibold pb-4">
         Indicadores Financieros
       </h1>
 
@@ -247,7 +247,7 @@ export default function IndicadoresTable() {
       </div>
 
       {/* 🔹 Table */}
-      <div className="overflow-auto max-w-full table-container h-[65vh]">
+      <div className="overflow-auto max-w-full table-container h-[62vh]">
         <table className="table-auto border-collapse w-full">
           <thead className="tabla-cupos-header">
             <tr>
