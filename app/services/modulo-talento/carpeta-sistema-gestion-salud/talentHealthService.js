@@ -11,6 +11,8 @@ export async function getAccidentalidad(id, params = {}) {
   });
   const items = data?.items ?? [];
   return items[0] || null;
+  /*const { data } = await api.get(`/api/v1/talento//${encodeURIComponent(id)}/`, { params });
+  return data*/
 }
 export async function saveAccidentalidad(payload) {
   const { data } = await api.post("/api/v1/talento///", payload);
@@ -28,6 +30,8 @@ export async function getAusentismo(id, params = {}) {
   });
   const items = data?.items ?? [];
   return items[0] || null;
+  /*const { data } = await api.get(`/api/v1/talento//${encodeURIComponent(id)}/`, { params });
+  return data*/
 }
 export async function saveAusentismo(payload) {
   const { data } = await api.post("/api/v1/talento///", payload);
@@ -45,6 +49,9 @@ export async function getEnfermedadLaboral(id, params = {}) {
   });
   const items = data?.items ?? [];
   return items[0] || null;
+
+/*const { data } = await api.get(`/api/v1/talento//${encodeURIComponent(id)}/`, { params });
+  return data;*/
 }
 export async function saveEnfermedadLaboral(payload) {
   const { data } = await api.post("/api/v1/talento///", payload);
@@ -69,6 +76,8 @@ export async function getReporteMinisterio(id, params = {}) {
   });
   const items = data?.items ?? [];
   return items[0] || null;
+  /*const { data } = await api.get(`/api/v1/talento//${encodeURIComponent(id)}/`, { params });
+  return data; */
 }
 export async function saveReporteMinisterio(payload) {
   const { data } = await api.post("/api/v1/talento///", payload);
@@ -86,6 +95,8 @@ export async function getRestriccionLaboral(id, params = {}) {
   });
   const items = data?.items ?? [];
   return items[0] || null;
+  /*const { data } = await api.get(`/api/v1/talento//${encodeURIComponent(id)}/`, { params });
+  return data; */
 }
 export async function saveRestriccionLaboral(payload) {
   const { data } = await api.post("/api/v1/talento///", payload);
