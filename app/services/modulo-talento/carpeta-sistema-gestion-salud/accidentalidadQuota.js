@@ -3,27 +3,21 @@ import {
   getAccidentalidad as getRaw,
   saveAccidentalidad as saveRaw,
 } from "./talentHealthService";
-import {
-  num,
-  str,
-  toMonthNumber,
-  fmtDate,
-  dateToIso,
-  makeIdAccidentalidad,
-} from "./healthHelpers";
+import { num, str, toMonthNumber, makeIdAccidentalidad } from "./healthHelpers";
 
 export async function listAccidentalidadRows(params = {}) {
   const raw = await listRaw(params);
   const rows = Array.isArray(raw) ? raw : raw?.items || raw?.data || [];
   return rows.map(fromApi);
 }
+
 export async function getAccidentalidadRow(id, params = {}) {
   const r = await getRaw(id, params);
   return r ? fromApi(r) : null;
 }
+
 export async function saveAccidentalidadRow(uiRow) {
   const body = toApi(uiRow);
-  if (uiRow?.id) return await updateRaw(uiRow.id, body);
   return await saveRaw(body);
 }
 
@@ -43,9 +37,9 @@ function fromApi(r) {
   };
   return { ...ui, id: ui.id ?? makeIdAccidentalidad(ui) };
 }
+
 function toApi(u) {
   return {
-    id: u.id,
     anio: num(u.Año),
     mes: toMonthNumber(u.Mes),
     tipo_vinculacion: str(u.TipoVinculacion),

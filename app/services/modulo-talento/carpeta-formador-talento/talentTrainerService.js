@@ -11,7 +11,7 @@ export async function listCostoBeneficio(params = {}) {
 }
 
 export async function getCostoBeneficio(id, params = {}) {
-  const { data } = await api.get("//api/v1/talento/capacitacion-mensual/", {
+  const { data } = await api.get("/api/v1/talento/capacitacion-mensual/", {
     params: { ...(params || {}), id },
   });
   // Alternativa:

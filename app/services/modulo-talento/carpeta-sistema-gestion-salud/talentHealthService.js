@@ -6,7 +6,7 @@ export async function listAccidentalidad(params = {}) {
   return data?.items ?? data;
 }
 export async function getAccidentalidad(id, params = {}) {
-  const { data } = await api.get("//api/v1/talento/accidentalidad/", {
+  const { data } = await api.get("/api/v1/talento/accidentalidad/", {
     params: { ...params, id },
   });
   const items = data?.items ?? [];
