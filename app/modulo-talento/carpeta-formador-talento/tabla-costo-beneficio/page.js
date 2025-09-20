@@ -11,6 +11,7 @@ import {
   listCostoBeneficioQuota,
   saveCostoBeneficioQuota,
 } from "../../../services/modulo-talento/carpeta-formador-talento/costoBeneficioQuota";
+import { toMonthNumber } from "@/app/services/modulo-talento/carpeta-formador-talento/talentHelpers";
 
 export default function GestionesTable() {
   const [rows, setRows] = useState([]);
@@ -37,37 +38,82 @@ export default function GestionesTable() {
     load();
   }, []);
 
-  const handleChange = (index, field, value) => {
-    // Convertir a número si es campo numérico
-
-    // Actualizar rows usando el índice
-    setRows(prev => {
-      const newRows = [...prev];
-      newRows[index] = { ...newRows[index], [field]: value };
-      return newRows;
-    });
-
-    // Actualizar editedRows
+  const handleChange = (id, field, value) => {
+    setRows(prev =>
+      prev.map(row => (row.id === id ? { ...row, [field]: value } : row))
+    );
+    setFilteredRows(prev =>
+      prev.map(row => (row.id === id ? { ...row, [field]: value } : row))
+    );
     setEditedRows(prev => ({
       ...prev,
-      [index]: { ...prev[index], [field]: value },
+      [id]: { ...prev[id], [field]: value },
     }));
   };
 
+  useEffect(() => {
+    const query = search.trim().toLowerCase();
+    if (!query) {
+      setFilteredRows(rows);
+    } else {
+      const filtered = rows.filter(
+        r =>
+          r.Mes?.toUpperCase().includes(query) ||
+          r.Modalidad?.toLowerCase().includes(query)
+      );
+      setFilteredRows(filtered);
+    }
+  }, [search, rows]);
+
   const handleSave = async () => {
-    console.log("Saving edits:", editedRows);
+    setSaving(true);
+    try {
+      console.log(">>> editedRows:", editedRows);
 
-    // Example: send to backend
-    /*
-    await fetch("https://coofisam360.ngrok.io/api/update-records/", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(editedRows),
-    });
-    */
+      const updates = Object.entries(editedRows).map(async ([id, changes]) => {
+        console.log(">>> Iterando row:", id, changes);
 
-    // clear edited state after saving
-    setEditedRows({});
+        const fullRow = rows.find(r => String(r.id) === String(id));
+        if (!fullRow) {
+          console.warn("⚠️ No se encontró la fila con id:", id);
+          return;
+        }
+
+        if (!fullRow) return;
+
+        const payload = {
+          id: fullRow.id,
+          anio: Number(fullRow.Año),
+          mes: toMonthNumber(fullRow.Mes),
+          total_gastos:
+            Number(
+              changes.TotalGastosTransferencia ??
+                fullRow.TotalGastosTransferencia
+            ) || 0,
+          trabajadores_capacitados:
+            Number(
+              changes.TrabajadoresCapacitados ?? fullRow.TrabajadoresCapacitados
+            ) || 0,
+          costo_por_trabajador: Number(fullRow.CostoPorTrabajador) || 0,
+          modalidad: changes.Modalidad ?? fullRow.Modalidad ?? "",
+          rentabilidad: changes.Rentabilidad ?? fullRow.Rentabilidad ?? "",
+        };
+
+        console.log(">>> Payload enviado al backend:", payload);
+
+        await saveCostoBeneficioQuota(payload);
+      });
+
+      await Promise.all(updates);
+
+      alert("Cambios guardados correctamente ✅");
+      setEditedRows({});
+    } catch (err) {
+      console.error("Error guardando cambios:", err);
+      alert("Error guardando cambios ❌");
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleDownload = () => {
@@ -98,11 +144,15 @@ export default function GestionesTable() {
       </h1>
       <div className="actions-container flex justify-between mb-4">
         <div className="search-bar flex gap-2">
-          <input type="text" className="border w-[300px]" />
-          <button className="action-button flex gap-2 items-center justify-center cursor-pointer">
-            Buscar
-            <IoSearch />
-          </button>
+          <div className="search-bar flex gap-2">
+            <input
+              type="text"
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              placeholder="Buscar por codigo u oficina"
+              className="border w-[300px] px-2 py-1"
+            />
+          </div>
         </div>
         <div className="flex gap-4">
           {Object.keys(editedRows).length > 0 && (
@@ -149,8 +199,8 @@ export default function GestionesTable() {
           </thead>
 
           <tbody className="tabla-cupos-content p-4">
-            {rows.map((r, idx) => (
-              <tr key={idx}>
+            {rows.map(r => (
+              <tr key={r.id}>
                 <td className="p-2 border text-left whitespace-nowrap">
                   {r.Año}
                 </td>
@@ -164,7 +214,7 @@ export default function GestionesTable() {
                     value={r.TotalGastosTransferencia}
                     onChange={e => {
                       handleChange(
-                        idx,
+                        r.id,
                         "TotalGastosTransferencia",
                         e.target.value
                       );
@@ -173,7 +223,18 @@ export default function GestionesTable() {
                   />
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
-                  {r.TrabajadoresCapacitados}
+                  <input
+                    type="number"
+                    value={r.TrabajadoresCapacitados}
+                    onChange={e => {
+                      handleChange(
+                        r.id,
+                        "TrabajadoresCapacitados",
+                        e.target.value
+                      );
+                    }}
+                    className="px-2 py-1 w-full text-left border ml-1"
+                  />
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
                   {r.CostoPorTrabajador}
@@ -182,7 +243,7 @@ export default function GestionesTable() {
                   <select
                     value={r.Modalidad}
                     onChange={e => {
-                      handleChange(idx, "Modalidad", e.target.value);
+                      handleChange(r.id, "Modalidad", e.target.value);
                     }}
                     className="border rounded p-1 w-full"
                   >
@@ -197,7 +258,7 @@ export default function GestionesTable() {
                   <select
                     value={r.Rentabilidad}
                     onChange={e => {
-                      handleChange(idx, "Rentabilidad", e.target.value);
+                      handleChange(r.id, "Rentabilidad", e.target.value);
                     }}
                     className="border rounded p-1 w-full"
                   >

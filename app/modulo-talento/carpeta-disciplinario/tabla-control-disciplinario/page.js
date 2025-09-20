@@ -133,21 +133,6 @@ export default function GestionesTable() {
             Buscar
             <IoSearch />
           </button>
-          <label className="action-button flex gap-2 items-center justify-center cursor-pointer">
-            Cargar Reporte
-            <TbUpload />
-            <input type="file" accept=".xlsx,.csv" className="hidden" />
-          </label>
-          <label className="action-button flex gap-2 items-center justify-center cursor-pointer">
-            Explorar
-            <FaRegFolderOpen />
-            <input type="file" accept=".xlsx,.csv" className="hidden" />
-          </label>
-          <label className="action-button flex gap-2 items-center justify-center cursor-pointer">
-            Ejecutar
-            <FaPlay />
-            <input type="file" accept=".xlsx,.csv" className="hidden" />
-          </label>
         </div>
 
         <div className="flex gap-4">
