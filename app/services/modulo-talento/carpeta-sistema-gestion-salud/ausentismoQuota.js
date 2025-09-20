@@ -2,7 +2,6 @@ import {
   listAusentismo as listRaw,
   getAusentismo as getRaw,
   saveAusentismo as saveRaw,
-  updateAusentismo as updateRaw,
 } from "./talentHealthService";
 import { num, str, toMonthNumber, makeIdAusentismo } from "./healthHelpers";
 
@@ -11,13 +10,14 @@ export async function listAusentismoRows(params = {}) {
   const rows = Array.isArray(raw) ? raw : raw?.items || raw?.data || [];
   return rows.map(fromApi);
 }
+
 export async function getAusentismoRow(id, params = {}) {
   const r = await getRaw(id, params);
   return r ? fromApi(r) : null;
 }
+
 export async function saveAusentismoRow(uiRow) {
   const body = toApi(uiRow);
-  if (uiRow?.id) return await updateRaw(uiRow.id, body);
   return await saveRaw(body);
 }
 
@@ -36,9 +36,9 @@ function fromApi(r) {
   };
   return { ...ui, id: ui.id ?? makeIdAusentismo(ui) };
 }
+
 function toApi(u) {
   return {
-    id: u.id,
     anio: num(u.Año),
     mes: toMonthNumber(u.Mes),
     dias_ausencia_propios: num(u.DiasAusenciaPropios),
