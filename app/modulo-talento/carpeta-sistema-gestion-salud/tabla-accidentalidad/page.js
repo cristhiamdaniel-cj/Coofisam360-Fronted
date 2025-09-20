@@ -7,6 +7,7 @@ import { IoSearch } from "react-icons/io5";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import { FiDownload } from "react-icons/fi";
+import { FaArrowDownWideShort } from "react-icons/fa6";
 import {
   listAccidentalidadRows,
   saveAccidentalidadRow,
@@ -85,7 +86,26 @@ export default function GestionesTable() {
     const data = new Blob([excelBuffer], { type: "application/octet-stream" });
     saveAs(data, "cupos.xlsx");
   };
-  console.log(rows);
+
+  const handleAddRow = () => {
+    const newRow = {
+      id: `new-${Date.now()}`, // id único temporal
+      Año: new Date().getFullYear(),
+      Mes: "ENERO",
+      TipoVinculacion: "Propios",
+      NumeroTrabajadores: 0, // solo lectura, se puede calcular después
+      AccidentesTrabajo: 0,
+      AtMortales: 0,
+      DiasIncapacidad: 0, // solo lectura
+      DiasCargados: 0,
+      Indicador: "I.S",
+      Resultado: 0, // solo lectura
+      isNew: true,
+    };
+
+    setRows(prev => [newRow, ...prev]); // agregamos al inicio
+  };
+
   return (
     <main className="pt-4 pb-0 px-12">
       <h1 className="titulo-tabla-cupos text-3xl font-semibold pb-4">
@@ -93,11 +113,15 @@ export default function GestionesTable() {
       </h1>
       <div className="actions-container flex justify-between mb-4">
         <div className="search-bar flex gap-2">
-          <input type="text" className="border w-[300px]" />
-          <button className="action-button flex gap-2 items-center justify-center cursor-pointer">
-            Buscar
-            <IoSearch />
-          </button>
+          <div className="search-bar flex gap-2">
+            <input
+              type="text"
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              placeholder="Buscar por codigo u oficina"
+              className="border w-[300px] px-2 py-1"
+            />
+          </div>
         </div>
         <div className="flex gap-4">
           {Object.keys(editedRows).length > 0 && (
@@ -115,6 +139,13 @@ export default function GestionesTable() {
           >
             Descargar
             <FiDownload />
+          </button>
+          <button
+            className="action-button flex gap-2 items-center justify-center cursor-pointer"
+            onClick={handleAddRow}
+          >
+            Añadir fila
+            <FaArrowDownWideShort />
           </button>
         </div>
       </div>
@@ -215,7 +246,18 @@ export default function GestionesTable() {
                   </select>
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
-                  {r.NumeroTrabajadores}
+                  {r.isNew ? (
+                    <input
+                      type="number"
+                      value={r.NumeroTrabajadores}
+                      onChange={e =>
+                        handleChange(r.id, "NumeroTrabajadores", e.target.value)
+                      }
+                      className="px-2 py-1 w-full border"
+                    />
+                  ) : (
+                    r.NumeroTrabajadores
+                  )}
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
                   <input
@@ -238,7 +280,18 @@ export default function GestionesTable() {
                   />
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
-                  {r.DiasIncapacidad}
+                  {r.isNew ? (
+                    <input
+                      type="number"
+                      value={r.DiasIncapacidad}
+                      onChange={e =>
+                        handleChange(r.id, "DiasIncapacidad", e.target.value)
+                      }
+                      className="px-2 py-1 w-full border"
+                    />
+                  ) : (
+                    r.DiasIncapacidad
+                  )}
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
                   <input
@@ -266,7 +319,18 @@ export default function GestionesTable() {
                   </select>
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
-                  {r.Resultado}
+                  {r.isNew ? (
+                    <input
+                      type="number"
+                      value={r.Resultado}
+                      onChange={e =>
+                        handleChange(r.id, "Resultado", e.target.value)
+                      }
+                      className="px-2 py-1 w-full border"
+                    />
+                  ) : (
+                    r.Resultado
+                  )}
                 </td>
               </tr>
             ))}

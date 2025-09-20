@@ -7,6 +7,7 @@ import { IoSearch } from "react-icons/io5";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import { FiDownload } from "react-icons/fi";
+import { FaArrowDownWideShort } from "react-icons/fa6";
 import {
   listCostoBeneficioQuota,
   saveCostoBeneficioQuota,
@@ -137,6 +138,29 @@ export default function GestionesTable() {
     saveAs(data, "cupos.xlsx");
   };
 
+  const handleAddRow = () => {
+    const newRow = {
+      id: crypto.randomUUID(), // genera un id único
+      Año: new Date().getFullYear(),
+      Mes: new Date().getMonth(), // o podrías poner el mes actual
+      TotalGastosTransferencia: 0,
+      TrabajadoresCapacitados: 0,
+      CostoPorTrabajador: 0,
+      Modalidad: "",
+      Rentabilidad: "",
+      isNew: true,
+    };
+
+    setRows(prev => [newRow, ...prev]);
+    setFilteredRows(prev => [newRow, ...prev]);
+
+    // opcional: marcarla como editada inmediatamente
+    setEditedRows(prev => ({
+      ...prev,
+      [newRow.id]: newRow,
+    }));
+  };
+
   return (
     <main className="pt-4 pb-0 px-12 overflow-auto">
       <h1 className="titulo-tabla-cupos text-3xl font-semibold pb-4">
@@ -171,6 +195,13 @@ export default function GestionesTable() {
             Descargar
             <FiDownload />
           </button>
+          <button
+            className="action-button flex gap-2 items-center justify-center cursor-pointer"
+            onClick={handleAddRow}
+          >
+            Añadir fila
+            <FaArrowDownWideShort />
+          </button>
         </div>
       </div>
 
@@ -178,7 +209,9 @@ export default function GestionesTable() {
         <table className="table-auto border-collapse w-full">
           <thead>
             <tr className="tabla-header">
-              <th className="p-4 border text-center whitespace-nowrap">Año</th>
+              <th className="p-4 border text-center whitespace-nowrap min-w-[120px]">
+                Año
+              </th>
               <th className="p-4 border text-center whitespace-nowrap">Mes</th>
               <th className="p-4 border text-center whitespace-nowrap">
                 Total gastos en la transferencia de los conocimientos
@@ -202,11 +235,49 @@ export default function GestionesTable() {
             {rows.map(r => (
               <tr key={r.id}>
                 <td className="p-2 border text-left whitespace-nowrap">
-                  {r.Año}
+                  {r.isNew ? (
+                    <input
+                      type="number"
+                      value={r.Año}
+                      onChange={e => handleChange(r.id, "Año", e.target.value)}
+                      className="px-2 py-1 w-full border"
+                    />
+                  ) : (
+                    r.Año
+                  )}
                 </td>
+
                 <td className="p-2 border text-left whitespace-nowrap">
-                  {r.Mes}
+                  {r.isNew ? (
+                    <select
+                      value={r.Mes}
+                      onChange={e => handleChange(r.id, "Mes", e.target.value)}
+                      className="border rounded p-1 w-full"
+                    >
+                      {[
+                        "ENERO",
+                        "FEBRERO",
+                        "MARZO",
+                        "ABRIL",
+                        "MAYO",
+                        "JUNIO",
+                        "JULIO",
+                        "AGOSTO",
+                        "SEPTIEMBRE",
+                        "OCTUBRE",
+                        "NOVIEMBRE",
+                        "DICIEMBRE",
+                      ].map(m => (
+                        <option key={m} value={m}>
+                          {m}
+                        </option>
+                      ))}
+                    </select>
+                  ) : (
+                    r.Mes
+                  )}
                 </td>
+
                 <td className="p-1 border text-left whitespace-nowrap w-full">
                   $
                   <input
@@ -237,7 +308,18 @@ export default function GestionesTable() {
                   />
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
-                  {r.CostoPorTrabajador}
+                  {r.isNew ? (
+                    <input
+                      type="number"
+                      value={r.CostoPorTrabajador}
+                      onChange={e =>
+                        handleChange(r.id, "CostoPorTrabajador", e.target.value)
+                      }
+                      className="px-2 py-1 w-full border"
+                    />
+                  ) : (
+                    r.CostoPorTrabajador
+                  )}
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
                   <select

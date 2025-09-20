@@ -11,23 +11,7 @@ export default function FinancieroDashboard() {
       <h1 className="text-3xl font-semibold uppercase titulo-modulo pl-8">
         Formularios
       </h1>
-      <div className="actions-container flex gap-4 pt-4">
-        <label className="action-button flex gap-2 items-center justify-center cursor-pointer">
-          Cargar Balance
-          <TbUpload />
-          <input type="file" accept=".xlsx,.csv" className="hidden" />
-        </label>
-        <label className="action-button flex gap-2 items-center justify-center cursor-pointer">
-          Explorar
-          <FaRegFolderOpen />
-          <input type="file" accept=".xlsx,.csv" className="hidden" />
-        </label>
-        <label className="action-button flex gap-2 items-center justify-center cursor-pointer">
-          Ejecutar
-          <FaPlay />
-          <input type="file" accept=".xlsx,.csv" className="hidden" />
-        </label>
-      </div>
+
       <div className="separator-modulo"></div>
       <div className="dashboard-financiero">
         <Link

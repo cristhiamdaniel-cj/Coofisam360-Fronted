@@ -11,6 +11,7 @@ import {
   listAusentismoRows,
   saveAusentismoRow,
 } from "../../../services/modulo-talento/carpeta-sistema-gestion-salud/ausentismoQuota";
+import { FaArrowDownWideShort } from "react-icons/fa6";
 
 export default function GestionesTable() {
   const [rows, setRows] = useState([]);
@@ -91,6 +92,24 @@ export default function GestionesTable() {
     saveAs(data, "cupos.xlsx");
   };
 
+  const handleAddRow = () => {
+    const newRow = {
+      id: `new-${Date.now()}`, // id único temporal
+      Año: new Date().getFullYear(),
+      Mes: "ENERO",
+      DiasAusenciaPropios: 0,
+      DiasAusenciaContratistas: 0,
+      TotalDiasIncapacidad: 0, // solo lectura
+      DiasLaboralesMes: 0, // solo lectura
+      NumeroTrabajadores: 0, // solo lectura
+      DiasTrabajoProgramados: 0, // solo lectura
+      AusentismoLaboral: 0, // solo lectura
+      isNew: true,
+    };
+
+    setRows(prev => [newRow, ...prev]); // agregamos al inicio de la tabla
+  };
+
   return (
     <main className="pt-4 pb-0 px-12 overflow-auto">
       <h1 className="titulo-tabla-cupos text-3xl font-semibold pb-4">
@@ -98,11 +117,15 @@ export default function GestionesTable() {
       </h1>
       <div className="actions-container flex justify-between mb-4">
         <div className="search-bar flex gap-2">
-          <input type="text" className="border w-[300px]" />
-          <button className="action-button flex gap-2 items-center justify-center cursor-pointer">
-            Buscar
-            <IoSearch />
-          </button>
+          <div className="search-bar flex gap-2">
+            <input
+              type="text"
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              placeholder="Buscar por codigo u oficina"
+              className="border w-[300px] px-2 py-1"
+            />
+          </div>
         </div>
         <div className="flex gap-4">
           {Object.keys(editedRows).length > 0 && (
@@ -121,6 +144,13 @@ export default function GestionesTable() {
             Descargar
             <FiDownload />
           </button>
+          <button
+            className="action-button flex gap-2 items-center justify-center cursor-pointer"
+            onClick={handleAddRow}
+          >
+            Añadir fila
+            <FaArrowDownWideShort />
+          </button>
         </div>
       </div>
 
@@ -128,8 +158,12 @@ export default function GestionesTable() {
         <table className="table-auto border-collapse w-full">
           <thead>
             <tr className="tabla-header">
-              <th className="p-4 border text-center whitespace-nowrap">Año</th>
-              <th className="p-4 border text-center whitespace-nowrap">Mes</th>
+              <th className="p-4 border text-center whitespace-nowrap min-w-[120px]">
+                Año
+              </th>
+              <th className="p-4 border text-center whitespace-nowrap min-w-[100px]">
+                Mes
+              </th>
               <th className="p-4 border text-center whitespace-nowrap">
                 Días Ausencia Propios
               </th>
@@ -158,11 +192,49 @@ export default function GestionesTable() {
             {rows.map((r, idx) => (
               <tr key={idx}>
                 <td className="p-2 border text-left whitespace-nowrap">
-                  {r.Año}
+                  {r.isNew ? (
+                    <input
+                      type="number"
+                      value={r.Año}
+                      onChange={e => handleChange(idx, "Año", e.target.value)}
+                      className="px-2 py-1 w-full border"
+                    />
+                  ) : (
+                    r.Año
+                  )}
                 </td>
+
                 <td className="p-2 border text-left whitespace-nowrap">
-                  {r.Mes}
+                  {r.isNew ? (
+                    <select
+                      value={r.Mes}
+                      onChange={e => handleChange(idx, "Mes", e.target.value)}
+                      className="border rounded p-1 w-full"
+                    >
+                      {[
+                        "1",
+                        "2",
+                        "3",
+                        "4",
+                        "5",
+                        "6",
+                        "7",
+                        "8",
+                        "9",
+                        "10",
+                        "11",
+                        "12",
+                      ].map(m => (
+                        <option key={m} value={m}>
+                          {m}
+                        </option>
+                      ))}
+                    </select>
+                  ) : (
+                    r.Mes
+                  )}
                 </td>
+
                 <td className="p-2 border text-left whitespace-nowrap">
                   <input
                     type="number"
@@ -188,19 +260,82 @@ export default function GestionesTable() {
                   />
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
-                  {r.TotalDiasIncapacidad}
+                  {r.isNew ? (
+                    <input
+                      type="number"
+                      value={r.TotalDiasIncapacidad}
+                      onChange={e =>
+                        handleChange(
+                          idx,
+                          "TotalDiasIncapacidad",
+                          e.target.value
+                        )
+                      }
+                      className="px-2 py-1 w-full border"
+                    />
+                  ) : (
+                    r.TotalDiasIncapacidad
+                  )}
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
-                  {r.DiasLaboralesMes}
+                  {r.isNew ? (
+                    <input
+                      type="number"
+                      value={r.DiasLaboralesMes}
+                      onChange={e =>
+                        handleChange(idx, "DioasLaboralesMes", e.target.value)
+                      }
+                      className="px-2 py-1 w-full border"
+                    />
+                  ) : (
+                    r.DiasLaboralesMes
+                  )}
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
-                  {r.NumeroTrabajadores}
+                  {r.isNew ? (
+                    <input
+                      type="number"
+                      value={r.NumeroTrabajadores}
+                      onChange={e =>
+                        handleChange(idx, "NumeroTrabajadores", e.target.value)
+                      }
+                      className="px-2 py-1 w-full border"
+                    />
+                  ) : (
+                    r.NumeroTrabajadores
+                  )}
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
-                  {r.DiasTrabajoProgramados}
+                  {r.isNew ? (
+                    <input
+                      type="number"
+                      value={r.DiasTrabajoProgramados}
+                      onChange={e =>
+                        handleChange(
+                          idx,
+                          "DiasTrabajoProgramados",
+                          e.target.value
+                        )
+                      }
+                      className="px-2 py-1 w-full border"
+                    />
+                  ) : (
+                    r.DiasTrabajoProgramados
+                  )}
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
-                  {r.AusentismoLaboral}
+                  {r.isNew ? (
+                    <input
+                      type="number"
+                      value={r.AusentismoLaboral}
+                      onChange={e =>
+                        handleChange(idx, "AusentismoLaboral", e.target.value)
+                      }
+                      className="px-2 py-1 w-full border"
+                    />
+                  ) : (
+                    r.AusentismoLaboral
+                  )}
                 </td>
               </tr>
             ))}

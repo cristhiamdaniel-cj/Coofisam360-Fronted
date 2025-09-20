@@ -24,8 +24,8 @@ export async function saveControlRow(uiRow = {}) {
 export function mapApiToUi(a = {}) {
   return {
     TRABAJADOR: str(a.trabajador),
-    OFICINA: str(a.oficina),
-    CARGO: str(a.cargo),
+    OFICINA: str(a.oficina_nombre),
+    CARGO: str(a.cargo_nombre),
     ANTIGÜEDAD: str(a.antiguedad),
 
     MOTIVO: str(a.motivo),
@@ -39,23 +39,21 @@ export function mapApiToUi(a = {}) {
     GRAVEDAD_NOTIFICADA: str(a.gravedad_notificada),
 
     FECHA_DESCARGOS: fmtDate(a.fecha_descargos),
-    FECHA_DESICIÓN_PRIMERA_INSTANCIA: fmtDate(a.fecha_decision_1inst),
-    GRAVEDAD_PRIMERA_INSTANCIA: str(a.gravedad_1inst),
-    SANCION_PRIMERA_INSTANCIA: str(a.sancion_1inst),
+    FECHA_DESICIÓN_PRIMERA_INSTANCIA: fmtDate(a.fecha_decision_1),
+    GRAVEDAD_PRIMERA_INSTANCIA: str(a.gravedad_1),
+    SANCION_PRIMERA_INSTANCIA: str(a.sancion_1),
     Duracion_Proceso_Inicial: num(a.duracion_inicial_dias),
 
     RECURSO: str(a.recurso),
     FECHA_INTERPOSICION_RECURSO: fmtDate(a.fecha_interposicion_recurso),
-    FECHA_DECISIÓN_RECURSO_PRIMERA_INSTANCIA: fmtDate(
-      a.fecha_decision_recurso_1inst
-    ),
-    DECISIÓN_RECURSO_PRIMERA_INSTANCIA: str(a.decision_recurso_1inst),
+    FECHA_DECISIÓN_RECURSO_PRIMERA_INSTANCIA: fmtDate(a.fecha_decision_recurso),
+    DECISIÓN_RECURSO_PRIMERA_INSTANCIA: str(a.decision_recurso),
     Duración_Proceso_x_1_Instancia: num(a.duracion_1inst_dias),
 
     DECISIÓN_RECURSO_SEGUNDA_INSTANCIA: str(a.decision_recurso_2inst),
-    GRAVEDAD_SEGUNDA_INSTANCIA: str(a.gravedad_2inst),
-    SANCION_SEGUNDA_INSTANCIA: str(a.sancion_2inst),
-    FECHA_DE_DECISIÓN_SEGUNDA_INSTANCIA: fmtDate(a.fecha_decision_2inst),
+    GRAVEDAD_SEGUNDA_INSTANCIA: str(a.gravedad_2),
+    SANCION_SEGUNDA_INSTANCIA: str(a.sancion_2),
+    FECHA_DE_DECISIÓN_SEGUNDA_INSTANCIA: fmtDate(a.fecha_decision_2),
     Duración_Proceso_x_2_Instancia: num(a.duracion_2inst_dias),
 
     TIEMPO_DE_SUSPENSION: str(a.tiempo_suspension),

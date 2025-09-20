@@ -7,6 +7,7 @@ import { IoSearch } from "react-icons/io5";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import { FiDownload } from "react-icons/fi";
+import { FaArrowDownWideShort } from "react-icons/fa6";
 import {
   listRestriccionesRows,
   saveRestriccionRow,
@@ -190,6 +191,22 @@ export default function GestionesTable() {
     saveAs(data, "cupos.xlsx");
   };
 
+  // Función para agregar una nueva fila al inicio de la tabla
+  const handleAddRow = () => {
+    const newRow = {
+      id: `new-${Date.now()}`, // ID único temporal
+      anio: new Date().getFullYear(), // Año actual
+      oficina: oficinas[0] || "", // primera opción por defecto
+      cargo: cargos[0] || "", // primera opción por defecto
+      patologia: "",
+      restricciones: "",
+      isNew: true, // marca que es una fila nueva
+    };
+
+    // Agregar al inicio de la tabla
+    setRows(prev => [newRow, ...prev]);
+  };
+
   return (
     <main className="pt-4 pb-0 px-12 overflow-auto">
       <h1 className="titulo-tabla-cupos text-3xl font-semibold pb-4">
@@ -197,11 +214,15 @@ export default function GestionesTable() {
       </h1>
       <div className="actions-container flex justify-between mb-4">
         <div className="search-bar flex gap-2">
-          <input type="text" className="border w-[300px]" />
-          <button className="action-button flex gap-2 items-center justify-center cursor-pointer">
-            Buscar
-            <IoSearch />
-          </button>
+          <div className="search-bar flex gap-2">
+            <input
+              type="text"
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              placeholder="Buscar por codigo u oficina"
+              className="border w-[300px] px-2 py-1"
+            />
+          </div>
         </div>
         <div className="flex gap-4">
           {Object.keys(editedRows).length > 0 && (
@@ -220,6 +241,13 @@ export default function GestionesTable() {
             Descargar
             <FiDownload />
           </button>
+          <button
+            className="action-button flex gap-2 items-center justify-center cursor-pointer"
+            onClick={handleAddRow}
+          >
+            Añadir fila
+            <FaArrowDownWideShort />
+          </button>
         </div>
       </div>
 
@@ -227,7 +255,9 @@ export default function GestionesTable() {
         <table className="table-auto border-collapse w-full">
           <thead>
             <tr className="tabla-header">
-              <th className="p-4 border text-center whitespace-nowrap">Año</th>
+              <th className="p-4 border text-center whitespace-nowrap min-w-[120px]">
+                Año
+              </th>
               <th className="p-4 border text-center whitespace-nowrap min-w-[200px]">
                 Oficina
               </th>
@@ -247,7 +277,16 @@ export default function GestionesTable() {
             {rows.map((r, idx) => (
               <tr key={idx}>
                 <td className="p-2 border text-center whitespace-nowrap">
-                  {r.anio}
+                  {r.isNew ? (
+                    <input
+                      type="number"
+                      value={r.anio}
+                      onChange={e => handleChange(idx, "anio", e.target.value)}
+                      className="px-2 py-1 w-full text-left border ml-1"
+                    />
+                  ) : (
+                    r.anio
+                  )}
                 </td>
                 <td className="p-2 border text-center whitespace-nowrap">
                   <select

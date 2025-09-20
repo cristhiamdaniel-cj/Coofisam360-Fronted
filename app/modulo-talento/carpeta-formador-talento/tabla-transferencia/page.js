@@ -7,6 +7,7 @@ import { IoSearch } from "react-icons/io5";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import { FiDownload } from "react-icons/fi";
+import { FaArrowDownWideShort } from "react-icons/fa6";
 import {
   listTransferenciaQuota,
   saveTransferenciaQuota,
@@ -91,6 +92,24 @@ export default function GestionesTable() {
     saveAs(data, "cupos.xlsx");
   };
 
+  const handleAddRow = () => {
+    const newRow = {
+      id: crypto.randomUUID(),
+      Año: new Date().getFullYear(),
+      Mes: "", // editable, se selecciona luego
+      Comprension: 0,
+      Practica: 0,
+      RetencionConocimiento: 0,
+      ValoracionDesempeno: 0,
+      SatisfaccionTrabajador: 0,
+      Total: 0, // calculado
+      EfectividadTransferencia: 0, // calculado
+      isNew: true,
+    };
+
+    setRows(prev => [newRow, ...prev]);
+  };
+
   return (
     <main className="pt-4 pb-0 px-12 overflow-auto">
       <h1 className="titulo-tabla-cupos text-3xl font-semibold pb-4">
@@ -98,11 +117,15 @@ export default function GestionesTable() {
       </h1>
       <div className="actions-container flex justify-between mb-4">
         <div className="search-bar flex gap-2">
-          <input type="text" className="border w-[300px]" />
-          <button className="action-button flex gap-2 items-center justify-center cursor-pointer">
-            Buscar
-            <IoSearch />
-          </button>
+          <div className="search-bar flex gap-2">
+            <input
+              type="text"
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              placeholder="Buscar por codigo u oficina"
+              className="border w-[300px] px-2 py-1"
+            />
+          </div>
         </div>
         <div className="flex gap-4">
           {Object.keys(editedRows).length > 0 && (
@@ -121,6 +144,13 @@ export default function GestionesTable() {
             Descargar
             <FiDownload />
           </button>
+          <button
+            className="action-button flex gap-2 items-center justify-center cursor-pointer"
+            onClick={handleAddRow}
+          >
+            Añadir fila
+            <FaArrowDownWideShort />
+          </button>
         </div>
       </div>
 
@@ -128,8 +158,12 @@ export default function GestionesTable() {
         <table className="table-auto border-collapse w-full">
           <thead>
             <tr className="tabla-header">
-              <th className="p-4 border text-center whitespace-nowrap">Año</th>
-              <th className="p-4 border text-center whitespace-nowrap">Mes</th>
+              <th className="p-4 border text-center whitespace-nowrap min-w-[120px]">
+                Año
+              </th>
+              <th className="p-4 border text-center whitespace-nowrap min-w-[160px]">
+                Mes
+              </th>
               <th className="p-4 border text-center whitespace-nowrap">
                 Comprensión
               </th>
@@ -145,7 +179,7 @@ export default function GestionesTable() {
               <th className="p-4 border text-center whitespace-nowrap">
                 Satisfacción del Trabajador
               </th>
-              <th className="p-4 border text-center whitespace-nowrap">
+              <th className="p-4 border text-center whitespace-nowrap min-w-[100px]">
                 Total
               </th>
               <th className="p-4 border text-center whitespace-nowrap">
@@ -158,11 +192,49 @@ export default function GestionesTable() {
             {rows.map((r, idx) => (
               <tr key={idx}>
                 <td className="p-2 border text-left whitespace-nowrap">
-                  {r.Año}
+                  {r.isNew ? (
+                    <input
+                      type="number"
+                      value={r.Año}
+                      onChange={e => handleChange(idx, "Año", e.target.value)}
+                      className="px-2 py-1 w-full border"
+                    />
+                  ) : (
+                    r.Año
+                  )}
                 </td>
+
                 <td className="p-2 border text-left whitespace-nowrap">
-                  {r.Mes}
+                  {r.isNew ? (
+                    <select
+                      value={r.Mes}
+                      onChange={e => handleChange(idx, "Mes", e.target.value)}
+                      className="border rounded p-1 w-full"
+                    >
+                      {[
+                        "ENERO",
+                        "FEBRERO",
+                        "MARZO",
+                        "ABRIL",
+                        "MAYO",
+                        "JUNIO",
+                        "JULIO",
+                        "AGOSTO",
+                        "SEPTIEMBRE",
+                        "OCTUBRE",
+                        "NOVIEMBRE",
+                        "DICIEMBRE",
+                      ].map(m => (
+                        <option key={m} value={m}>
+                          {m}
+                        </option>
+                      ))}
+                    </select>
+                  ) : (
+                    r.Mes
+                  )}
                 </td>
+
                 <td className="p-2 border text-left whitespace-nowrap">
                   <input
                     type="number"
@@ -231,10 +303,34 @@ export default function GestionesTable() {
                   />
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
-                  {r.Total}
+                  {r.isNew ? (
+                    <input
+                      type="number"
+                      value={r.Total}
+                      onChange={e => handleChange(idx, "Total", e.target.value)}
+                      className="px-2 py-1 w-full border"
+                    />
+                  ) : (
+                    r.Total
+                  )}
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
-                  {r.EfectividadTransferencia}
+                  {r.isNew ? (
+                    <input
+                      type="number"
+                      value={r.EfectividadTransferencia}
+                      onChange={e =>
+                        handleChange(
+                          idx,
+                          "EfectividadTransferencia",
+                          e.target.value
+                        )
+                      }
+                      className="px-2 py-1 w-full border"
+                    />
+                  ) : (
+                    r.EfectividadTransferencia
+                  )}
                 </td>
               </tr>
             ))}
