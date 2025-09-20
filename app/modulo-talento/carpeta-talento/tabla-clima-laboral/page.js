@@ -137,17 +137,22 @@ const initialRows = [
 export default function GestionesTable() {
   const [rows, setRows] = useState(initialRows);
   const [editedRows, setEditedRows] = useState([]);
+  const [search, setSearch] = useState("");
 
-  const handleChange = (id, field, value) => {
-    // update rows state immediately
-    setRows(prev =>
-      prev.map(row => (row.id === id ? { ...row, [field]: value } : row))
-    );
+  const handleChange = (index, field, value) => {
+    // Convertir a número si es campo numérico
 
-    // mark this row as edited
+    // Actualizar rows usando el índice
+    setRows(prev => {
+      const newRows = [...prev];
+      newRows[index] = { ...newRows[index], [field]: value };
+      return newRows;
+    });
+
+    // Actualizar editedRows
     setEditedRows(prev => ({
       ...prev,
-      [id]: { ...prev[id], [field]: value },
+      [index]: { ...prev[index], [field]: value },
     }));
   };
 
@@ -189,17 +194,21 @@ export default function GestionesTable() {
   };
 
   return (
-    <main className="pt-12 pb-0 px-12 overflow-auto">
-      <h1 className="titulo-tabla-cupos text-3xl font-semibold pb-12">
+    <main className="pt-4 pb-0 px-12 overflow-auto">
+      <h1 className="titulo-tabla-cupos text-3xl font-semibold pb-4">
         Clima Laboral
       </h1>
       <div className="actions-container flex justify-between mb-4">
         <div className="search-bar flex gap-2">
-          <input type="text" className="border w-[300px]" />
-          <button className="action-button flex gap-2 items-center justify-center cursor-pointer">
-            Buscar
-            <IoSearch />
-          </button>
+          <div className="search-bar flex gap-2">
+            <input
+              type="text"
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              placeholder="Buscar por codigo u oficina"
+              className="border w-[300px] px-2 py-1"
+            />
+          </div>
         </div>
         <div className="flex gap-4">
           {Object.keys(editedRows).length > 0 && (
@@ -221,7 +230,7 @@ export default function GestionesTable() {
         </div>
       </div>
 
-      <div className="overflow-auto max-w-full table-container h-[65vh]">
+      <div className="overflow-auto max-w-full table-container h-[60vh]">
         <table className="table-auto border-collapse w-full">
           <thead>
             <tr className="tabla-header">
@@ -232,9 +241,38 @@ export default function GestionesTable() {
           </thead>
 
           <tbody className="tabla-cupos-content">
-            {rows.map((row, i) => (
-              <tr key={i}>
-                <td className="p-2 border text-center">{row.DIMENSION}</td>
+            {rows.map((row, idx) => (
+              <tr key={idx}>
+                <td className="p-2 border text-center">
+                  <select
+                    value={row.DIMENSION}
+                    onChange={e => {
+                      handleChange(idx, "DIMENSION", e.target.value);
+                    }}
+                    className="border rounded p-1 w-full"
+                  >
+                    {[
+                      "DIMENSION",
+                      "COMPENSACION",
+                      "PARTICIPACION",
+                      "ORGANIZACIÓN Y APOYO",
+                      "TRABAJO EN EQUIPO",
+                      "LIDERAZGO",
+                      "MOTIVACION Y SATISFACCION",
+                      "COMUNICACIÓN",
+                      "DESARROLLO PROFESIONAL",
+                      "SENTIDO DE PERTENENCIA",
+                      "ESTRUCTURA ORGANIZACIONAL",
+                      "CONDICIONES DE TRABAJO",
+                      "INTEGRIDAD",
+                    ].map(opt => (
+                      <option key={opt} value={opt}>
+                        {opt}
+                      </option>
+                    ))}
+                  </select>
+                </td>
+
                 <td className="p-2 border text-center">
                   {row["% DE CUMPLIMIENTO"]}
                 </td>

@@ -3,72 +3,108 @@
 import "../styles/global.css";
 import Image from "next/image";
 import Link from "next/link";
-import { logout } from "../lib/auth";
-import { usePathname } from "next/navigation";
+import { useAuth } from "../lib/authContext";
 import { useState } from "react";
 
 export default function Navbar() {
-  const [isOpen, setIsOpen] = useState(false);
-  const pathname = usePathname();
+  const [isModulesOpen, setIsModulesOpen] = useState(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const { user, logout } = useAuth();
+
+  const modules = [
+    { name: "Financiera", href: "/modulo-financiero" },
+    { name: "Talento y Cultura", href: "/modulo-talento" },
+    { name: "Cartera", href: "/modulo-cartera" },
+    { name: "Crédito", href: "/modulo-credito" },
+    { name: "Comercial", href: "/modulo-comercial" },
+    { name: "Gestión Documental", href: "/modulo-gestion" },
+    { name: "Ingeniería Organizacional", href: "/modulo-ingenieria" },
+    { name: "Jurídico", href: "/modulo-juridico" },
+    { name: "Oficial de Cumplimiento", href: "/modulo-cumplimiento" },
+  ];
+
+  const handleModuleClick = () => setIsModulesOpen(false);
+
+  const getInitials = name => {
+    if (!name) return "";
+    return name
+      .split(" ")
+      .map(n => n[0])
+      .join("")
+      .toUpperCase();
+  };
 
   return (
-    <nav className="navbar-container px-12">
+    <nav className="navbar-container px-12 flex items-center justify-between h-16 bg-white shadow-md relative">
+      {/* Logo */}
       <div className="logo">
         <Image
-          src="/logo-coofisam.png" // Path relative to /public
-          className="logo-image"
+          src="/logo-coofisam.png"
           alt="Company Logo"
-          width={100} // required
-          height={30} // required
-          priority // loads immediately
+          width={150}
+          height={50}
+          priority
         />
       </div>
-      <div className="relative">
-        <button
-          onClick={() => setIsOpen(!isOpen)}
-          className="navbar-title flex items-center"
-        >
-          Módulos
-        </button>
 
-        {isOpen && (
-          <div className="absolute flex flex-col gap-2 top-full  bg-white shadow-lg rounded-md py-2 z-10 min-w-[200px] module-dropdown">
-            <Link href="/modulo-financiero" className="navbar-link">
-              Financiera
+      {/* Módulos */}
+      <div className="flex gap-4 items-center">
+        <div className="relative">
+          <button
+            onClick={() => setIsModulesOpen(!isModulesOpen)}
+            className="navbar-title flex items-center px-4 py-2 rounded hover:bg-gray-100"
+          >
+            Módulos
+          </button>
+
+          {isModulesOpen && (
+            <div className="absolute flex flex-col gap-2 top-full mt-2 bg-white shadow-lg rounded-md py-2 z-20 min-w-[200px] module-dropdown">
+              {modules.map(mod => (
+                <Link
+                  key={mod.name}
+                  href={mod.href}
+                  className="navbar-link px-4 py-2 hover:bg-gray-100 rounded"
+                  onClick={handleModuleClick}
+                >
+                  {mod.name}
+                </Link>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* User menu / login */}
+        <div className="relative">
+          {user ? (
+            <>
+              <button
+                onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                className="w-10 h-10 rounded-full bg-gray-300 text-white flex items-center justify-center font-bold"
+              >
+                {getInitials(user.name)}
+              </button>
+
+              {isUserMenuOpen && (
+                <div className="absolute right-0 top-full mt-2 bg-white shadow-lg rounded-md py-2 z-20 min-w-[150px] flex flex-col">
+                  <button
+                    onClick={logout}
+                    className="px-4 py-2 hover:bg-gray-100 text-left rounded"
+                  >
+                    Salir
+                  </button>
+                </div>
+              )}
+            </>
+          ) : (
+            <Link
+              href="/login"
+              className="px-4 py-2 rounded-xl bg-gray-300 text-red-700 hover:bg-yellow-500"
+            >
+              Ingresar
             </Link>
-            <Link href="/modulo-talento" className="navbar-link">
-              Talento y Cultura
-            </Link>
-            <Link href="/modulo-cartera" className="navbar-link">
-              Cartera
-            </Link>
-            <Link href="/modulo-credito" className="navbar-link">
-              Crédito
-            </Link>
-            <Link href="/modulo-financiero" className="navbar-link">
-              Comercial
-            </Link>
-            <Link href="/modulo-financiero" className="navbar-link">
-              Gestión Documental
-            </Link>
-            <Link href="/modulo-financiero" className="navbar-link">
-              Ingenieria Organizacional
-            </Link>
-            <Link href="/modulo-financiero" className="navbar-link">
-              Jurídico
-            </Link>
-            <Link href="/modulo-financiero" className="navbar-link">
-              Oficial de Cumplimiento
-            </Link>
-          </div>
-        )}
+          )}
+        </div>
       </div>
-
-      {/*<div className="flex gap-8 mt-8">
-        <button onClick={logout} className="navbar-link">
-          Salir
-        </button>
-      </div>*/}
     </nav>
   );
 }

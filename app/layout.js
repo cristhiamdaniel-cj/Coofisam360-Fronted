@@ -6,6 +6,7 @@ import "./globals.css";
 import Navbar from "./componentes/navbar";
 import Footer from "./componentes/footer";
 import BackButton from "./componentes/back-button";
+import { AuthProvider } from "./lib/authContext";
 
 import "./globals.css";
 import { Grand_Hotel, Urbanist } from "next/font/google";
@@ -28,7 +29,6 @@ export default function RootLayout({ children }) {
   const router = useRouter();
   const pathname = usePathname();
 
-  // Check if current route is /login
   const isLoginRoute = pathname === "/login";
 
   useEffect(() => {
@@ -41,19 +41,20 @@ export default function RootLayout({ children }) {
   return (
     <html lang="es" className={`${grandHotel.variable} ${urbanist.variable}`}>
       <body className="main-layout">
-        {isLoginRoute ? (
-          // Render login page without navbar/footer
-          <div className="login-container">{children}</div>
-        ) : (
-          <>
-            <div className="main-container">
-              <Navbar />
-              <BackButton />
-              {children}
-            </div>
-            <Footer />
-          </>
-        )}
+        <AuthProvider>
+          {isLoginRoute ? (
+            <div className="login-container">{children}</div>
+          ) : (
+            <>
+              <div className="main-container">
+                <Navbar />
+                <BackButton />
+                {children}
+              </div>
+              <Footer />
+            </>
+          )}
+        </AuthProvider>
       </body>
     </html>
   );

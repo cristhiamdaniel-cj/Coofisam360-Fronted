@@ -87,7 +87,7 @@ export default function GestionesTable() {
   return (
     <main className="pt-4 pb-0 px-12 overflow-auto">
       <h1 className="titulo-tabla-cupos text-3xl font-semibold pb-4">
-        Plan de Trabajo
+        Plan de Trabajo Anual
       </h1>
       <div className="actions-container flex justify-between mb-4">
         <div className="flex gap-4">
@@ -151,7 +151,7 @@ export default function GestionesTable() {
               ].map(m => (
                 <th
                   colSpan="2"
-                  className="border text-center p-2 text-[10px] min-w-[80px]  bg-white z-20"
+                  className="border text-center p-2 text-[10px] min-w-[80px] text-white  bg-white z-20"
                   key={m}
                 >
                   {m}
@@ -161,24 +161,28 @@ export default function GestionesTable() {
               <th
                 rowSpan="2"
                 colSpan="1"
-                className="border text-center p-2 min-w-[150px] bg-white z-20"
+                className="border text-center p-2 min-w-[150px] bg-white text-white z-20"
               >
                 admin
               </th>
               <th
                 rowSpan="2"
                 colSpan="1"
-                className="border text-center p-2 min-w-[150px] bg-white z-20"
+                className="border text-center p-2 min-w-[150px] bg-white text-white z-20"
               >
                 finan
               </th>
             </tr>
 
             <tr>
-              {Array.from({ length: 24 }).map((_, i) => (
+              {Array.from({ length: 12 }).map((_, i) => (
                 <React.Fragment key={i}>
-                  <th className="border text-center p-2 bg-white z-20">P</th>
-                  <th className="border text-center p-2 bg-white z-20">E</th>
+                  <th className="border text-center p-2 bg-white z-20 text-white">
+                    P
+                  </th>
+                  <th className="border text-center p-2 bg-white z-20 text-white">
+                    E
+                  </th>
                 </React.Fragment>
               ))}
             </tr>

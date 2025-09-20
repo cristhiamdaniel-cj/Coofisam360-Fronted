@@ -281,9 +281,33 @@ const initialRows = [
   },
 ];
 
+const oficinas = [
+  "GARZON",
+  "GUADALUPE",
+  "PITAL",
+  "GIGANTE",
+  "ACEVEDO",
+  "TARQUI",
+  "LA PLATA",
+  "PITALITO",
+  "SUAZA",
+  "LA ARGENTINA",
+  "NEIVA",
+  "RIVERA",
+  "HOBO",
+  "IQUIRA",
+  "SALADOBLANCO",
+  "ESPINAL",
+  "PLANADAS",
+  "CHAPARRAL",
+  "FLORENCIA",
+  "DIRECCION GENERAL",
+];
+
 export default function GestionesTable() {
   const [rows, setRows] = useState(initialRows);
   const [editedRows, setEditedRows] = useState([]);
+  const [search, setSearch] = useState("");
 
   const handleChange = (id, field, value) => {
     // update rows state immediately
@@ -336,17 +360,21 @@ export default function GestionesTable() {
   };
 
   return (
-    <main className="pt-12 pb-0 px-12 overflow-auto">
-      <h1 className="titulo-tabla-cupos text-3xl font-semibold pb-12">
+    <main className="pt-4 pb-0 px-12 overflow-auto">
+      <h1 className="titulo-tabla-cupos text-3xl font-semibold pb-4">
         Egresos
       </h1>
       <div className="actions-container flex justify-between mb-4">
         <div className="search-bar flex gap-2">
-          <input type="text" className="border w-[300px]" />
-          <button className="action-button flex gap-2 items-center justify-center cursor-pointer">
-            Buscar
-            <IoSearch />
-          </button>
+          <div className="search-bar flex gap-2">
+            <input
+              type="text"
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              placeholder="Buscar por codigo u oficina"
+              className="border w-[300px] px-2 py-1"
+            />
+          </div>
         </div>
         <div className="flex gap-4">
           {Object.keys(editedRows).length > 0 && (
@@ -385,13 +413,49 @@ export default function GestionesTable() {
               <tr key={row.id}>
                 <td className="p-2 border text-center">{row.AÑO}</td>
                 <td className="p-2 border text-center">{row.MES}</td>
-                <td className="p-2 border text-center">{row.OFICINA}</td>
+                <td className="p-2 border text-center">
+                  <select
+                    value={row.OFICINA}
+                    onChange={e => {
+                      handleChange(row.id, "OFICINA", e.target.value);
+                    }}
+                    className="border rounded p-1 w-full"
+                  >
+                    {oficinas.map(loc => (
+                      <option key={loc} value={loc}>
+                        {loc}
+                      </option>
+                    ))}
+                  </select>
+                </td>
 
                 <td className="p-2 border text-center">{row.CARGO}</td>
 
                 <td className="p-2 border text-center">{row.CANTIDAD}</td>
 
-                <td className="p-2 border text-center">{row.MOTIVO}</td>
+                <td className="p-2 border text-center">
+                  <select
+                    value={row.MOTIVO}
+                    onChange={e => {
+                      handleChange(row.id, "MOTIVO", e.target.value);
+                    }}
+                    className="border rounded p-1 w-full"
+                  >
+                    {[
+                      "RENUNCIA VOLUNTARIA",
+                      "TERMINACION DE CONTRATO",
+                      "TERMINACION DE CONTRATO EN PERIODO DE PRUEBA",
+                      "TERMINACION DE CONTRATO SIN JUSTA CAUSA",
+                      "TERMINACION DE CONTRATO CON JUSTA CAUSA",
+                      "VENCIMIENTO DE CONTRATO DE APRENDIZAJE",
+                      "VENCIMIENTO DE CONTRATO",
+                    ].map(tipo => (
+                      <option key={tipo} value={tipo}>
+                        {tipo}
+                      </option>
+                    ))}
+                  </select>
+                </td>
               </tr>
             ))}
           </tbody>

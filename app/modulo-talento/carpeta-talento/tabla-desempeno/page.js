@@ -119,9 +119,36 @@ const initialRows = [
   },
 ];
 
+const oficinas = [
+  "GARZON",
+  "GUADALUPE",
+  "PITAL",
+  "ACEVEDO",
+  "TARQUI",
+  "LA PLATA",
+  "PITALITO",
+  "SUAZA",
+  "ARGENTINA",
+  "NEIVA",
+  "RIVERA",
+  "HOBO",
+  "IQUIRA",
+  "SALADOBLANCO",
+  "ESPINAL",
+  "PLANADAS",
+  "CHAPARRRAL",
+  "FLORENCIA",
+  "SUBGERENCIA INNOVACION EMPRESARIAL",
+  "SUBGERENCIA COMERCIAL",
+  "SUBGERENCIA CREDITO Y CARTERA",
+  "SUBGERENCIA FINANCIERA",
+  "GERENCIA",
+];
+
 export default function GestionesTable() {
   const [rows, setRows] = useState(initialRows);
   const [editedRows, setEditedRows] = useState([]);
+  const [search, setSearch] = useState("");
 
   const handleChange = (id, field, value) => {
     // update rows state immediately
@@ -174,17 +201,21 @@ export default function GestionesTable() {
   };
 
   return (
-    <main className="pt-12 pb-0 px-12 overflow-auto">
-      <h1 className="titulo-tabla-cupos text-3xl font-semibold pb-12">
+    <main className="pt-4 pb-0 px-12 overflow-auto">
+      <h1 className="titulo-tabla-cupos text-3xl font-semibold pb-4">
         Desempeño
       </h1>
       <div className="actions-container flex justify-between mb-4">
         <div className="search-bar flex gap-2">
-          <input type="text" className="border w-[300px]" />
-          <button className="action-button flex gap-2 items-center justify-center cursor-pointer">
-            Buscar
-            <IoSearch />
-          </button>
+          <div className="search-bar flex gap-2">
+            <input
+              type="text"
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              placeholder="Buscar por codigo u oficina"
+              className="border w-[300px] px-2 py-1"
+            />
+          </div>
         </div>
         <div className="flex gap-4">
           {Object.keys(editedRows).length > 0 && (
@@ -206,7 +237,7 @@ export default function GestionesTable() {
         </div>
       </div>
 
-      <div className="overflow-auto max-w-full table-container h-[65vh]">
+      <div className="overflow-auto max-w-full table-container h-[60vh]">
         <table className="table-auto border-collapse w-full">
           <thead>
             <tr className="tabla-header">
@@ -219,7 +250,23 @@ export default function GestionesTable() {
             {rows.map(row => (
               <tr key={row.id}>
                 <td className="p-2 border text-center">
-                  {row["OFICINA O SUBGERENCIA"]}
+                  <select
+                    value={row["OFICINA O SUBGERENCIA"]} // o la propiedad que tengas para la fila
+                    onChange={e => {
+                      handleChange(
+                        row.id,
+                        "OFICINA O SUBGERENCIA",
+                        e.target.value
+                      );
+                    }}
+                    className="border rounded p-1 w-full"
+                  >
+                    {oficinas.map(loc => (
+                      <option key={loc} value={loc}>
+                        {loc}
+                      </option>
+                    ))}
+                  </select>
                 </td>
                 <td className="p-2 border text-center">{row["% DESEMPEÑO"]}</td>
                 <td className="p-2 border text-center">{row["AÑO"]}</td>
