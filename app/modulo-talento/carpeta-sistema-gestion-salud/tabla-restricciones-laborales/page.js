@@ -7,183 +7,149 @@ import { IoSearch } from "react-icons/io5";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import { FiDownload } from "react-icons/fi";
+import {
+  listRestriccionesRows,
+  saveRestriccionRow,
+} from "../../../services/modulo-talento/carpeta-sistema-gestion-salud/restriccionesQuota";
 
-const initialRows = [
-  {
-    id: 1,
-    anio: 2025,
-    oficina: "Neiva",
-    cargo: "Director Oficina",
-    patologia:
-      "M469- Espondilopatia inflamatoria, no especificada; M109- Gota no especificada; Hipertensión",
-    restricciones:
-      "Control y seguimiento por EPS con reumatología y psicología",
-  },
-  {
-    id: 2,
-    anio: 2025,
-    oficina: "Dirección General",
-    cargo: "Coordinadora TH",
-    patologia: "Diabetes, Nefropatia, enfermedad coronaria, crohn",
-    restricciones:
-      "Control y seguimiento por eps, descanso, bajar de peso, toma de medicamento de por vida para la diabetes y la neuropia por perdidas de visión constantes, pausas activas visuales",
-  },
-  {
-    id: 3,
-    anio: 2025,
-    oficina: "Garzón",
-    cargo: "Gestor Cartera",
-    patologia: "Cardiopatia",
-    restricciones: "Control con eps",
-  },
-  {
-    id: 4,
-    anio: 2025,
-    oficina: "Dirección General",
-    cargo: "Auxiliar Auditoria",
-    patologia: "Dorsalgia no especificada",
-    restricciones: "Proceso de diagnostico y recomendaciones",
-  },
-  {
-    id: 5,
-    anio: 2025,
-    oficina: "Dirección General",
-    cargo: "Gestor Comercial",
-    patologia: "Depresión y ansiedad",
-    restricciones: "Control con psiquiatria y continuar con la medicaciones",
-  },
-  {
-    id: 6,
-    anio: 2025,
-    oficina: "Dirección General",
-    cargo: "Gestor Cartera",
-    patologia:
-      "Fistula Epigastrica, Dermatitis esponguitica cronica, hernia discal LS-S1",
-    restricciones: "Proceso de  reconocimiento  por parte de la ARL",
-  },
-  {
-    id: 7,
-    anio: 2025,
-    oficina: "Suaza",
-    cargo: "Cajero",
-    patologia: "Cardiopatia",
-    restricciones: "Control por EPS",
-  },
-  {
-    id: 8,
-    anio: 2025,
-    oficina: "Suaza",
-    cargo: "Jefe Operaciones",
-    patologia: "J46X Estado asmático",
-    restricciones: "Control por EPS",
-  },
-  {
-    id: 9,
-    anio: 2025,
-    oficina: "Dirección General",
-    cargo: "Subgerencia Financiera",
-    patologia: "M771 – Epicondilitis lateral, bilateral",
-    restricciones:
-      "Enfermedad laboral reconocida por la ARL, con recomendaciones especificas",
-  },
-  {
-    id: 10,
-    anio: 2025,
-    oficina: "Dirección General",
-    cargo: "Formador TH",
-    patologia:
-      "Hernia discal L5 y S2; M518-Otros tratornos especificos de los discos intervertebrales; M624- contractura muscular; R522- otro dolor crónico",
-    restricciones:
-      "Control por EPS, con recomendaciones constantes de hernia y medicación por psiquiatria",
-  },
-  {
-    id: 11,
-    anio: 2025,
-    oficina: "Tarqui",
-    cargo: "Jefe Operaciones",
-    patologia: "M329-Lupus eritematoso sistémico sin otra especificación",
-    restricciones: "Control por EPS",
-  },
-  {
-    id: 12,
-    anio: 2025,
-    oficina: "Acevedo",
-    cargo: "Jefe Operaciones",
-    patologia: "G560- Síndrome del tunel carpiano",
-    restricciones:
-      "Terapias por reumatologia, sin restricciones, solo pausas activas",
-  },
-  {
-    id: 13,
-    anio: 2025,
-    oficina: "Neiva",
-    cargo: "Jefe Operaciones",
-    patologia:
-      "M551- Síndrome de manguito rotatario; M552- Tendinitis de biceps; F412 Trastorno mixto de ansiedad y depresión; K210- Enfermedad del reflujo gastroesofagico con esofagitis; R490- Disfonía",
-    restricciones:
-      "Con recomendaciones por especialistas en las patologias reportadas y por reintegro laboral",
-  },
-  {
-    id: 14,
-    anio: 2025,
-    oficina: "Garzón",
-    cargo: "Asesor Comercial",
-    patologia: "I442- Bloqueo auriculoventricular completo",
-    restricciones: "No salida de campo , ni acercamientos a equipos eléctricos",
-  },
-  {
-    id: 15,
-    anio: 2025,
-    oficina: "Dirección General",
-    cargo: "Director Juridico",
-    patologia:
-      "Hipertension; Cateterismo cardiaco; Sospecha del tunel del Carpo",
-    restricciones:
-      "Estricto cumplimiento a las recomendaciones del médico tratante en los exámenes periódicos de control de P.P. en dónde se le trata, Hipertensión, así mismo del médico urólogo y cardiologo.",
-  },
-  {
-    id: 16,
-    anio: 2025,
-    oficina: "Gigante",
-    cargo: "Director Oficina",
-    patologia: "K210- Enfermedad del reflujo gastroesofagico con esofagitis",
-    restricciones: "No salida de campo",
-  },
-  {
-    id: 17,
-    anio: 2025,
-    oficina: "La plata",
-    cargo: "Asesor Microfinanzas Urbano",
-    patologia:
-      "M545- Lumbago no especificado; M512- Otros desplazamientos especificados de disco intervertebral; K648- Otras hemorroides especificadas; K641- Hemorroides de segundo grado",
-    restricciones:
-      "Salida a zonas uniformes, no uso de motocicleta y control de eps",
-  },
-  {
-    id: 18,
-    anio: 2025,
-    oficina: "Guadalupe",
-    cargo: "Asesora comercial",
-    patologia: "E340- Sindrome carcinoide",
-    restricciones:
-      "La trabajadora no cree en médicos y no continuó tratamiento",
-  },
+const cargos = [
+  "ANALISTA DE CREDITO 1",
+  "ANALISTA DE RIESGOS",
+  "Analista Ingeniería Organizacional",
+  "APRENDIZ ETAPA PRODUCTIVA",
+  "ASESOR COMERCIAL AGENCIA 1",
+  "ASESOR COMERCIAL AGENCIA 2",
+  "ASESOR COMERCIAL AGENCIA 3",
+  "ASESOR COMERCIAL AGENCIA 4",
+  "ASESOR COMERCIAL CORRESPONSAL SOLIDARIO",
+  "ASESOR FINANCIERO RURAL",
+  "ASESOR MICROFINANZAS URBANO",
+  "ASISTENTE BASE DE DATOS",
+  "ASISTENTE CIENCIA DE DATOS",
+  "ASISTENTE CONTABILIDAD",
+  "AUX. SERV. GENERALES AGENCIA 1",
+  "AUX. SERV. GENERALES DIRECCIÓN GENERAL",
+  "Auxiliar Comunicaciones",
+  "AUXILIAR CONTABILIDAD 2",
+  "AUXILIAR DE AUDITORIA 1",
+  "AUXILIAR DE AUDITORIA 2",
+  "AUXILIAR DE CARTERA 1",
+  "AUXILIAR DE CARTERA 2",
+  "AUXILIAR DE CONTABILIDAD 1",
+  "AUXILIAR DE CREDITO 1",
+  "AUXILIAR DE CREDITO 2",
+  "AUXILIAR DE GESTIÓN DOCUMENTAL",
+  "AUXILIAR DE PUBLICIDAD",
+  "AUXILIAR DE TALENTO Y CULTURA",
+  "AUXILIAR JURIDICO 1",
+  "AUXILIAR JURIDICO 2",
+  "AUXILIAR OFICIAL DE CUMPLIMIENTO",
+  "Auxiliar Seguridad y Salud en el Trabajo",
+  "AUXILIAR SOCIAL MEDIA",
+  "CAJERO 1 AGENCIA 1",
+  "CAJERO 1 AGENCIA 2",
+  "CAJERO AGENCIA 3",
+  "CAJERO AGENCIA 4",
+  "CAJERO AGENCIA 4A",
+  "COORDINADOR DE CARTERA",
+  "COORDINADOR DE COMUNICACIONES",
+  "COORDINADOR DE MERCADEO",
+  "COORDINADOR DE TALENTO Y CULTURA",
+  "COORDINADOR GESTION DOCUMENTAL",
+  "DIRECTOR AGENCIA 1",
+  "DIRECTOR AGENCIA 2",
+  "DIRECTOR AGENCIA 3",
+  "DIRECTOR AGENCIA 4",
+  "DIRECTOR AGENCIA 4A",
+  "DIRECTOR AUDITORIA INTERNA",
+  "DIRECTOR COMERCIAL",
+  "DIRECTOR CONTABILIDAD",
+  "DIRECTOR CREDITO",
+  "DIRECTOR DE RIESGOS",
+  "DIRECTOR DE TEGNOLOGIA",
+  "DIRECTOR INGENIERIA ORGANIZACIONAL",
+  "DIRECTOR JURIDICO",
+  "FORMADOR DE TALENTO Y CULTURA",
+  "GERENTE GENERAL",
+  "GESTOR COMERCIAL",
+  "GESTOR DE CANALES",
+  "GESTOR DE CARTERA 1",
+  "GESTOR DE CARTERA 2",
+  "GESTOR MICROFINANZAS",
+  "JEFE OPERACIONES AGENCIA 1",
+  "JEFE OPERACIONES AGENCIA 2",
+  "JEFE OPERACIONES AGENCIA 3",
+  "JEFE OPERACIONES AGENCIA 4",
+  "JEFE OPERACIONES AGENCIA 4A",
+  "OFICIAL DE CUMPLIMIENTO",
+  "PRACTICANTE UNIVERSITARIO",
+  "SECRETARIA DE GERENCIA",
+  "SUBGERENTE COMERCIAL",
+  "SUBGERENTE DE CREDITO Y CARTERA",
+  "SUBGERENTE FINANCIERO",
+  "SUBGERENTE INNOVACION EMPRESARIAL",
+  "SUPERNUMERARIO DE OFICINA",
+  "SUPERNUMERARIO MICROFINANZAS",
+  "SUPERNUMERARIO MICROFINANZAS 1",
+  "TESORERO",
+];
+
+const oficinas = [
+  "GARZON",
+  "GUADALUPE",
+  "PITAL",
+  "GIGANTE",
+  "ACEVEDO",
+  "TARQUI",
+  "LA PLATA",
+  "PITALITO",
+  "SUAZA",
+  "LA ARGENTINA",
+  "NEIVA",
+  "RIVERA",
+  "HOBO",
+  "IQUIRA",
+  "SALADOBLANCO",
+  "ESPINAL",
+  "PLANADAS",
+  "CHAPARRAL",
+  "FLORENCIA",
+  "DIRECCION GENERAL",
 ];
 
 export default function GestionesTable() {
-  const [rows, setRows] = useState(initialRows);
-  const [editedRows, setEditedRows] = useState([]);
+  const [rows, setRows] = useState([]);
+  const [filteredRows, setFilteredRows] = useState([]);
+  const [editedRows, setEditedRows] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [search, setSearch] = useState("");
+  const [saving, setSaving] = useState(false);
 
-  const handleChange = (id, field, value) => {
-    // update rows state immediately
+  useEffect(() => {
+    async function load() {
+      try {
+        const data = await listRestriccionesRows({ limit: 500 });
+        setRows(data);
+        //setFilteredRows(data);
+        setError("");
+      } catch (e) {
+        setError(e.message || "Error cargando datos");
+      } finally {
+        setLoading(false);
+      }
+    }
+    load();
+  }, []);
+
+  const handleChange = (idx, field, value) => {
     setRows(prev =>
-      prev.map(row => (row.id === id ? { ...row, [field]: value } : row))
+      prev.map((row, i) => (i === idx ? { ...row, [field]: value } : row))
     );
 
-    // mark this row as edited
     setEditedRows(prev => ({
       ...prev,
-      [id]: { ...prev[id], [field]: value },
+      [idx]: { ...prev[idx], [field]: value },
     }));
   };
 
@@ -225,8 +191,8 @@ export default function GestionesTable() {
   };
 
   return (
-    <main className="pt-12 pb-0 px-12 overflow-auto">
-      <h1 className="titulo-tabla-cupos text-3xl font-semibold pb-12">
+    <main className="pt-4 pb-0 px-12 overflow-auto">
+      <h1 className="titulo-tabla-cupos text-3xl font-semibold pb-4">
         Reporte Ministerio
       </h1>
       <div className="actions-container flex justify-between mb-4">
@@ -262,10 +228,10 @@ export default function GestionesTable() {
           <thead>
             <tr className="tabla-header">
               <th className="p-4 border text-center whitespace-nowrap">Año</th>
-              <th className="p-4 border text-center whitespace-nowrap">
+              <th className="p-4 border text-center whitespace-nowrap min-w-[200px]">
                 Oficina
               </th>
-              <th className="p-4 border text-center whitespace-nowrap">
+              <th className="p-4 border text-center whitespace-nowrap min-w-[300px]">
                 Cargo
               </th>
               <th className="p-4 border text-center whitespace-nowrap min-w-[500px]">
@@ -278,19 +244,61 @@ export default function GestionesTable() {
           </thead>
 
           <tbody className="tabla-cupos-content p-4">
-            {rows.map(r => (
-              <tr key={r.id}>
+            {rows.map((r, idx) => (
+              <tr key={idx}>
                 <td className="p-2 border text-center whitespace-nowrap">
                   {r.anio}
                 </td>
                 <td className="p-2 border text-center whitespace-nowrap">
-                  {r.oficina}
+                  <select
+                    value={r.oficina}
+                    onChange={e => {
+                      handleChange(idx, "oficina", e.target.value);
+                    }}
+                    className="border rounded p-1 w-full"
+                  >
+                    {oficinas.map(opt => (
+                      <option key={opt} value={opt}>
+                        {opt}
+                      </option>
+                    ))}
+                  </select>
                 </td>
                 <td className="p-2 border text-center whitespace-nowrap">
-                  {r.cargo}
+                  <select
+                    value={r.cargo}
+                    onChange={e => {
+                      handleChange(idx, "cargo", e.target.value);
+                    }}
+                    className="border rounded p-1 w-full"
+                  >
+                    {cargos.map(opt => (
+                      <option key={opt} value={opt}>
+                        {opt}
+                      </option>
+                    ))}
+                  </select>
                 </td>
-                <td className="p-2 border text-center ">{r.patologia}</td>
-                <td className="p-2 border text-center ">{r.restricciones}</td>
+                <td className="p-2 border text-center ">
+                  <input
+                    type="text"
+                    value={r.patologia}
+                    onChange={e => {
+                      handleChange(idx, "patologia", e.target.value);
+                    }}
+                    className="px-2 py-1 w-full text-left border ml-1"
+                  />
+                </td>
+                <td className="p-2 border text-center ">
+                  <input
+                    type="text"
+                    value={r.restricciones}
+                    onChange={e => {
+                      handleChange(idx, "restricciones", e.target.value);
+                    }}
+                    className="px-2 py-1 w-full text-left border ml-1"
+                  />
+                </td>
               </tr>
             ))}
           </tbody>

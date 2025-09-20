@@ -7,222 +7,44 @@ import { IoSearch } from "react-icons/io5";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import { FiDownload } from "react-icons/fi";
-
-const initialRows = [
-  {
-    id: 1,
-    anio: 2025,
-    mes: "ENERO",
-    casosAntiguosEL: 0,
-    numeroTrabajadoresAnio: 217,
-    casosNuevosEL: 0,
-    constante: "100.000",
-    indicador: "P -EL",
-    resultado: "0,0",
-    codigoCIE10: "",
-    clasificacionCIE: "",
-    clasificacionEnfermedadLaboral: "",
-  },
-  {
-    id: 2,
-    anio: 2025,
-    mes: "ENERO",
-    casosAntiguosEL: 0,
-    numeroTrabajadoresAnio: 217,
-    casosNuevosEL: 0,
-    constante: "100.000",
-    indicador: "I - EL",
-    resultado: "0,0",
-    codigoCIE10: "",
-    clasificacionCIE: "",
-    clasificacionEnfermedadLaboral: "",
-  },
-  {
-    id: 3,
-    anio: 2025,
-    mes: "FEBRERO",
-    casosAntiguosEL: 0,
-    numeroTrabajadoresAnio: 233,
-    casosNuevosEL: 0,
-    constante: "100.000",
-    indicador: "P -EL",
-    resultado: "0,0",
-    codigoCIE10: "",
-    clasificacionCIE: "",
-    clasificacionEnfermedadLaboral: "",
-  },
-  {
-    id: 4,
-    anio: 2025,
-    mes: "FEBRERO",
-    casosAntiguosEL: 0,
-    numeroTrabajadoresAnio: 233,
-    casosNuevosEL: 0,
-    constante: "100.000",
-    indicador: "I - EL",
-    resultado: "0,0",
-    codigoCIE10: "",
-    clasificacionCIE: "",
-    clasificacionEnfermedadLaboral: "",
-  },
-  {
-    id: 5,
-    anio: 2025,
-    mes: "MARZO",
-    casosAntiguosEL: 0,
-    numeroTrabajadoresAnio: 208,
-    casosNuevosEL: 0,
-    constante: "100.000",
-    indicador: "P -EL",
-    resultado: "0,0",
-    codigoCIE10: "",
-    clasificacionCIE: "",
-    clasificacionEnfermedadLaboral: "",
-  },
-  {
-    id: 6,
-    anio: 2025,
-    mes: "MARZO",
-    casosAntiguosEL: 0,
-    numeroTrabajadoresAnio: 208,
-    casosNuevosEL: 0,
-    constante: "100.000",
-    indicador: "I - EL",
-    resultado: "0,0",
-    codigoCIE10: "",
-    clasificacionCIE: "",
-    clasificacionEnfermedadLaboral: "",
-  },
-  {
-    id: 7,
-    anio: 2025,
-    mes: "ABRIL",
-    casosAntiguosEL: 0,
-    numeroTrabajadoresAnio: 212,
-    casosNuevosEL: 1,
-    constante: "100.000",
-    indicador: "P -EL",
-    resultado: "471,7",
-    codigoCIE10: "M77.1",
-    clasificacionCIE: "Epicondilitis lateral, bilateral",
-    clasificacionEnfermedadLaboral:
-      "Enfermedades del sistema músculo-esquelético",
-  },
-  {
-    id: 8,
-    anio: 2025,
-    mes: "ABRIL",
-    casosAntiguosEL: 0,
-    numeroTrabajadoresAnio: 212,
-    casosNuevosEL: 1,
-    constante: "100.000",
-    indicador: "I - EL",
-    resultado: "471,7",
-    codigoCIE10: "M77.1",
-    clasificacionCIE: "Epicondilitis lateral, bilateral",
-    clasificacionEnfermedadLaboral:
-      "Enfermedades del sistema músculo-esquelético",
-  },
-  {
-    id: 9,
-    anio: 2025,
-    mes: "MAYO",
-    casosAntiguosEL: 0,
-    numeroTrabajadoresAnio: 212,
-    casosNuevosEL: 0,
-    constante: "100.000",
-    indicador: "P -EL",
-    resultado: "0,0",
-    codigoCIE10: "",
-    clasificacionCIE: "",
-    clasificacionEnfermedadLaboral: "",
-  },
-  {
-    id: 10,
-    anio: 2025,
-    mes: "MAYO",
-    casosAntiguosEL: 0,
-    numeroTrabajadoresAnio: 212,
-    casosNuevosEL: 0,
-    constante: "100.000",
-    indicador: "I - EL",
-    resultado: "0,0",
-    codigoCIE10: "",
-    clasificacionCIE: "",
-    clasificacionEnfermedadLaboral: "",
-  },
-  {
-    id: 11,
-    anio: 2025,
-    mes: "JUNIO",
-    casosAntiguosEL: 0,
-    numeroTrabajadoresAnio: 206,
-    casosNuevosEL: 0,
-    constante: "100.000",
-    indicador: "P -EL",
-    resultado: "0,0",
-    codigoCIE10: "",
-    clasificacionCIE: "",
-    clasificacionEnfermedadLaboral: "",
-  },
-  {
-    id: 12,
-    anio: 2025,
-    mes: "JUNIO",
-    casosAntiguosEL: 0,
-    numeroTrabajadoresAnio: 206,
-    casosNuevosEL: 0,
-    constante: "100.000",
-    indicador: "I - EL",
-    resultado: "0,0",
-    codigoCIE10: "",
-    clasificacionCIE: "",
-    clasificacionEnfermedadLaboral: "",
-  },
-  {
-    id: 13,
-    anio: 2025,
-    mes: "JULIO",
-    casosAntiguosEL: 0,
-    numeroTrabajadoresAnio: 206,
-    casosNuevosEL: 0,
-    constante: "100.000",
-    indicador: "P -EL",
-    resultado: "0,0",
-    codigoCIE10: "",
-    clasificacionCIE: "",
-    clasificacionEnfermedadLaboral: "",
-  },
-  {
-    id: 14,
-    anio: 2025,
-    mes: "JULIO",
-    casosAntiguosEL: 0,
-    numeroTrabajadoresAnio: 206,
-    casosNuevosEL: 0,
-    constante: "100.000",
-    indicador: "I - EL",
-    resultado: "0,0",
-    codigoCIE10: "",
-    clasificacionCIE: "",
-    clasificacionEnfermedadLaboral: "",
-  },
-];
+import {
+  listEnfermedadLaboralRows,
+  saveEnfermedadLaboralRow,
+} from "../../../services/modulo-talento/carpeta-sistema-gestion-salud/enfermedadLaboralQuota";
 
 export default function GestionesTable() {
-  const [rows, setRows] = useState(initialRows);
-  const [editedRows, setEditedRows] = useState([]);
+  const [rows, setRows] = useState([]);
+  const [filteredRows, setFilteredRows] = useState([]);
+  const [editedRows, setEditedRows] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [search, setSearch] = useState("");
+  const [saving, setSaving] = useState(false);
 
-  const handleChange = (id, field, value) => {
-    // update rows state immediately
+  useEffect(() => {
+    async function load() {
+      try {
+        const data = await listEnfermedadLaboralRows({ limit: 500 });
+        setRows(data);
+        //setFilteredRows(data);
+        setError("");
+      } catch (e) {
+        setError(e.message || "Error cargando datos");
+      } finally {
+        setLoading(false);
+      }
+    }
+    load();
+  }, []);
+
+  const handleChange = (idx, field, value) => {
     setRows(prev =>
-      prev.map(row => (row.id === id ? { ...row, [field]: value } : row))
+      prev.map((row, i) => (i === idx ? { ...row, [field]: value } : row))
     );
 
-    // mark this row as edited
     setEditedRows(prev => ({
       ...prev,
-      [id]: { ...prev[id], [field]: value },
+      [idx]: { ...prev[idx], [field]: value },
     }));
   };
 
@@ -264,8 +86,8 @@ export default function GestionesTable() {
   };
 
   return (
-    <main className="pt-12 pb-0 px-12 overflow-auto">
-      <h1 className="titulo-tabla-cupos text-3xl font-semibold pb-12">
+    <main className="pt-4 pb-0 px-12 overflow-auto">
+      <h1 className="titulo-tabla-cupos text-3xl font-semibold pb-4">
         Enfermedad Laboral
       </h1>
       <div className="actions-container flex justify-between mb-4">
@@ -333,8 +155,8 @@ export default function GestionesTable() {
           </thead>
 
           <tbody className="tabla-cupos-content p-4">
-            {rows.map(row => (
-              <tr key={row.id}>
+            {rows.map((row, idx) => (
+              <tr key={idx}>
                 <td className="p-2 border text-center whitespace-nowrap">
                   {row.anio}
                 </td>
@@ -342,13 +164,27 @@ export default function GestionesTable() {
                   {row.mes}
                 </td>
                 <td className="p-2 border text-center whitespace-nowrap">
-                  {row.casosAntiguosEL}
+                  <input
+                    type="number"
+                    value={row.casosAntiguosEL}
+                    onChange={e => {
+                      handleChange(idx, "casosAntiguosEL", e.target.value);
+                    }}
+                    className="px-2 py-1 w-full text-left border ml-1"
+                  />
                 </td>
                 <td className="p-2 border text-center whitespace-nowrap">
                   {row.numeroTrabajadoresAnio}
                 </td>
                 <td className="p-2 border text-center whitespace-nowrap">
-                  {row.casosNuevosEL}
+                  <input
+                    type="number"
+                    value={row.casosNuevosEL}
+                    onChange={e => {
+                      handleChange(idx, "casosNuevosEL", e.target.value);
+                    }}
+                    className="px-2 py-1 w-full text-left border ml-1"
+                  />
                 </td>
                 <td className="p-2 border text-center whitespace-nowrap">
                   {row.constante}
@@ -357,7 +193,7 @@ export default function GestionesTable() {
                   <select
                     value={row.indicador}
                     onChange={e => {
-                      handleChange(row.id, "indicador", e.target.value);
+                      handleChange(idx, "indicador", e.target.value);
                     }}
                     className="border rounded p-1 w-full"
                   >
@@ -372,13 +208,38 @@ export default function GestionesTable() {
                   {row.resultado}
                 </td>
                 <td className="p-2 border text-center whitespace-nowrap">
-                  {row.codigoCIE10}
+                  <input
+                    type="text"
+                    value={row.codigoCIE10}
+                    onChange={e => {
+                      handleChange(idx, "codigoCIE10", e.target.value);
+                    }}
+                    className="px-2 py-1 w-full text-left border ml-1"
+                  />
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
-                  {row.clasificacionCIE}
+                  <input
+                    type="text"
+                    value={row.clasificacionCIE}
+                    onChange={e => {
+                      handleChange(idx, "clasificacionCIE", e.target.value);
+                    }}
+                    className="px-2 py-1 w-full text-left border ml-1"
+                  />
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
-                  {row.clasificacionEnfermedadLaboral}
+                  <input
+                    type="text"
+                    value={row.clasificacionEnfermedadLaboral}
+                    onChange={e => {
+                      handleChange(
+                        idx,
+                        "clasificacionEnfermedadLaboral",
+                        e.target.value
+                      );
+                    }}
+                    className="px-2 py-1 w-full text-left border ml-1"
+                  />
                 </td>
               </tr>
             ))}

@@ -7,276 +7,10 @@ import { IoSearch } from "react-icons/io5";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import { FiDownload } from "react-icons/fi";
-
-const initialRows = [
-  {
-    Año: 2024,
-    Mes: "Abril",
-    CantidadTrabajadores: 1,
-    Oficina: "Gigante",
-    Roles: "Asesores externos y barra",
-    TemaFormacion: "Competencias básicas, técnicas y específicas",
-    TipoFormacion: "Inducción",
-    TotalParticipantes: 13,
-    TotalTrabajadores: 189,
-    PorcentajeParticipacion: "7%",
-    NumeroVecesFormado: 3,
-    Calificacion: 4,
-  },
-  {
-    Año: 2024,
-    Mes: "Abril",
-    CantidadTrabajadores: 1,
-    Oficina: "Pital",
-    Roles: "Aprendiz Sena",
-    TemaFormacion: "Competencias básicas, técnicas y específicas",
-    TipoFormacion: "Inducción",
-    TotalParticipantes: 13,
-    TotalTrabajadores: 189,
-    PorcentajeParticipacion: "7%",
-    NumeroVecesFormado: 3,
-    Calificacion: 3.9,
-  },
-  {
-    Año: 2024,
-    Mes: "Abril",
-    CantidadTrabajadores: 1,
-    Oficina: "Guadalupe",
-    Roles: "Aprendiz Sena",
-    TemaFormacion: "Competencias básicas, técnicas y específicas",
-    TipoFormacion: "Inducción",
-    TotalParticipantes: 13,
-    TotalTrabajadores: 189,
-    PorcentajeParticipacion: "7%",
-    NumeroVecesFormado: 3,
-    Calificacion: 3.9,
-  },
-  {
-    Año: 2024,
-    Mes: "Abril",
-    CantidadTrabajadores: 1,
-    Oficina: "Chaparral",
-    Roles: "Jefe de Operaciones",
-    TemaFormacion: "Competencias básicas, técnicas y específicas",
-    TipoFormacion: "Inducción",
-    TotalParticipantes: 13,
-    TotalTrabajadores: 189,
-    PorcentajeParticipacion: "7%",
-    NumeroVecesFormado: 3,
-    Calificacion: 3.9,
-  },
-  {
-    Año: 2024,
-    Mes: "Abril",
-    CantidadTrabajadores: 1,
-    Oficina: "Rivera",
-    Roles: "Cajeros",
-    TemaFormacion: "Competencias básicas, técnicas y específicas",
-    TipoFormacion: "Inducción",
-    TotalParticipantes: 13,
-    TotalTrabajadores: 189,
-    PorcentajeParticipacion: "7%",
-    NumeroVecesFormado: 3,
-    Calificacion: 3.9,
-  },
-  {
-    Año: 2024,
-    Mes: "Abril",
-    CantidadTrabajadores: 1,
-    Oficina: "Saladoblanco",
-    Roles: "Asesores externos y barra",
-    TemaFormacion: "Competencias básicas, técnicas y específicas",
-    TipoFormacion: "Inducción",
-    TotalParticipantes: 13,
-    TotalTrabajadores: 189,
-    PorcentajeParticipacion: "7%",
-    NumeroVecesFormado: 3,
-    Calificacion: 3.9,
-  },
-  {
-    Año: 2024,
-    Mes: "Abril",
-    CantidadTrabajadores: 5,
-    Oficina: "Direccion General",
-    Roles: "Gestores de Cartera",
-    TemaFormacion: "Competencias básicas, técnicas y específicas",
-    TipoFormacion: "Inducción",
-    TotalParticipantes: 13,
-    TotalTrabajadores: 189,
-    PorcentajeParticipacion: "7%",
-    NumeroVecesFormado: 3,
-    Calificacion: 3.9,
-  },
-  {
-    Año: 2024,
-    Mes: "Abril",
-    CantidadTrabajadores: 1,
-    Oficina: "Guadalupe",
-    Roles: "Asesores externos y barra",
-    TemaFormacion: "Habilidades Comerciales",
-    TipoFormacion: "Entrenamiento",
-    TotalParticipantes: 13,
-    TotalTrabajadores: 189,
-    PorcentajeParticipacion: "7%",
-    NumeroVecesFormado: 3,
-    Calificacion: 3.9,
-  },
-  {
-    Año: 2024,
-    Mes: "Abril",
-    CantidadTrabajadores: 1,
-    Oficina: "Planadas",
-    Roles: "Jefe de Operaciones",
-    TemaFormacion: "Habilidades operativas",
-    TipoFormacion: "Entrenamiento",
-    TotalParticipantes: 13,
-    TotalTrabajadores: 189,
-    PorcentajeParticipacion: "7%",
-    NumeroVecesFormado: 3,
-    Calificacion: 4.5,
-  },
-  {
-    Año: 2024,
-    Mes: "Mayo",
-    CantidadTrabajadores: 180,
-    Oficina: "Todo Coofisam",
-    Roles: "Todos los roles",
-    TemaFormacion: "Virtualcoop",
-    TipoFormacion: "Capacitación Interna",
-    TotalParticipantes: 180,
-    TotalTrabajadores: 196,
-    PorcentajeParticipacion: "92%",
-    NumeroVecesFormado: 2,
-    Calificacion: 3,
-  },
-  {
-    Año: 2024,
-    Mes: "Mayo",
-    CantidadTrabajadores: 1,
-    Oficina: "Garzón",
-    Roles: "Asesores externos y barra",
-    TemaFormacion: "Competencias básicas, técnicas y específicas",
-    TipoFormacion: "Inducción",
-    TotalParticipantes: 9,
-    TotalTrabajadores: 196,
-    PorcentajeParticipacion: "5%",
-    NumeroVecesFormado: 2,
-    Calificacion: 3,
-  },
-  {
-    Año: 2024,
-    Mes: "Mayo",
-    CantidadTrabajadores: 2,
-    Oficina: "Espinal",
-    Roles: "Cajeros",
-    TemaFormacion: "Competencias básicas, técnicas y específicas",
-    TipoFormacion: "Inducción",
-    TotalParticipantes: 9,
-    TotalTrabajadores: 196,
-    PorcentajeParticipacion: "5%",
-    NumeroVecesFormado: 2,
-    Calificacion: 3.1,
-  },
-  {
-    Año: 2024,
-    Mes: "Mayo",
-    CantidadTrabajadores: 3,
-    Oficina: "Acevedo",
-    Roles: "Aprendiz Sena",
-    TemaFormacion: "Competencias básicas, técnicas y específicas",
-    TipoFormacion: "Inducción",
-    TotalParticipantes: 9,
-    TotalTrabajadores: 196,
-    PorcentajeParticipacion: "5%",
-    NumeroVecesFormado: 2,
-    Calificacion: 3,
-  },
-  {
-    Año: 2024,
-    Mes: "Mayo",
-    CantidadTrabajadores: 1,
-    Oficina: "Dirección General",
-    Roles: "Aprendiz Sena",
-    TemaFormacion: "Competencias básicas, técnicas y específicas",
-    TipoFormacion: "Inducción",
-    TotalParticipantes: 9,
-    TotalTrabajadores: 196,
-    PorcentajeParticipacion: "5%",
-    NumeroVecesFormado: 2,
-    Calificacion: 3,
-  },
-  {
-    Año: 2024,
-    Mes: "Mayo",
-    CantidadTrabajadores: 1,
-    Oficina: "Fundacoofisam",
-    Roles: "Todos los roles",
-    TemaFormacion: "Portafolio de Servicios Coofisam y Fundacoofisam",
-    TipoFormacion: "Reinducción",
-    TotalParticipantes: 9,
-    TotalTrabajadores: 196,
-    PorcentajeParticipacion: "5%",
-    NumeroVecesFormado: 2,
-    Calificacion: 3.2,
-  },
-  {
-    Año: 2024,
-    Mes: "Mayo",
-    CantidadTrabajadores: 1,
-    Oficina: "La Plata",
-    Roles: "Asesores externos y barra",
-    TemaFormacion: "Habilidades comerciales y operativas",
-    TipoFormacion: "Entrenamiento",
-    TotalParticipantes: 9,
-    TotalTrabajadores: 196,
-    PorcentajeParticipacion: "5%",
-    NumeroVecesFormado: 2,
-    Calificacion: 3.1,
-  },
-  {
-    Año: 2024,
-    Mes: "Junio",
-    CantidadTrabajadores: 187,
-    Oficina: "Todo Coofisam",
-    Roles: "Todos los roles",
-    TemaFormacion: "Virtualcoop",
-    TipoFormacion: "Capacitación Interna",
-    TotalParticipantes: 188,
-    TotalTrabajadores: 189,
-    PorcentajeParticipacion: "99%",
-    NumeroVecesFormado: 1,
-    Calificacion: 4.5,
-  },
-  {
-    Año: 2024,
-    Mes: "Junio",
-    CantidadTrabajadores: 1,
-    Oficina: "Acevedo",
-    Roles: "Cajeros",
-    TemaFormacion: "Tips de concentración",
-    TipoFormacion: "Reinducción",
-    TotalParticipantes: 188,
-    TotalTrabajadores: 189,
-    PorcentajeParticipacion: "99%",
-    NumeroVecesFormado: 1,
-    Calificacion: 4.5,
-  },
-  {
-    Año: 2024,
-    Mes: "Julio",
-    CantidadTrabajadores: 180,
-    Oficina: "Todo Coofisam",
-    Roles: "Todos los roles",
-    TemaFormacion:
-      "Imagen Corporativa, Comunicaciones, Fortalecimiento Comercial y Crédito",
-    TipoFormacion: "Capacitación Interna",
-    TotalParticipantes: 180,
-    TotalTrabajadores: 190,
-    PorcentajeParticipacion: "95%",
-    NumeroVecesFormado: 1,
-    Calificacion: 4,
-  },
-];
+import {
+  listFormacionQuota,
+  getFormacionQuota,
+} from "../../../services/modulo-talento/carpeta-formador-talento/formacionQuota";
 
 const puestos = [
   "ANALISTA DE CREDITO 1",
@@ -361,8 +95,29 @@ const puestos = [
 ];
 
 export default function GestionesTable() {
-  const [rows, setRows] = useState(initialRows);
-  const [editedRows, setEditedRows] = useState([]);
+  const [rows, setRows] = useState([]);
+  const [filteredRows, setFilteredRows] = useState([]);
+  const [editedRows, setEditedRows] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [search, setSearch] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    async function load() {
+      try {
+        const data = await listFormacionQuota({ limit: 500 });
+        setRows(data);
+        //setFilteredRows(data);
+        setError("");
+      } catch (e) {
+        setError(e.message || "Error cargando datos");
+      } finally {
+        setLoading(false);
+      }
+    }
+    load();
+  }, []);
 
   const handleChange = (index, field, value) => {
     // Convertir a número si es campo numérico

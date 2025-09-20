@@ -7,179 +7,37 @@ import { IoSearch } from "react-icons/io5";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import { FiDownload } from "react-icons/fi";
-
-const initialRows = [
-  {
-    Año: 2024,
-    Mes: "Abril",
-    NumeroFormadoresConRecomendacion: 1,
-    TotalFormadores: 13,
-    PorcentajeSatisfaccion: "92%",
-    Formadores: "Crédito, Comercial, Cartera",
-    Recomendaciones: "Más casos prácticos",
-  },
-  {
-    Año: 2024,
-    Mes: "Mayo",
-    NumeroFormadoresConRecomendacion: 1,
-    TotalFormadores: 13,
-    PorcentajeSatisfaccion: "92%",
-    Formadores: "Crédito, Comercial, Cartera",
-    Recomendaciones: "Más casos prácticos",
-  },
-  {
-    Año: 2024,
-    Mes: "Mayo",
-    NumeroFormadoresConRecomendacion: 1,
-    TotalFormadores: 13,
-    PorcentajeSatisfaccion: "92%",
-    Formadores: "Educación Financiera",
-    Recomendaciones: "Utilizar mejores metodologías",
-  },
-  {
-    Año: 2024,
-    Mes: "Junio",
-    NumeroFormadoresConRecomendacion: 1,
-    TotalFormadores: 13,
-    PorcentajeSatisfaccion: "92%",
-    Formadores: "Riesgos",
-    Recomendaciones: "Utilizar mejores metodologías",
-  },
-  {
-    Año: 2024,
-    Mes: "Julio",
-    NumeroFormadoresConRecomendacion: 1,
-    TotalFormadores: 13,
-    PorcentajeSatisfaccion: "92%",
-    Formadores: "Comunicaciones",
-    Recomendaciones: "Utilizar videos para mayor afianzamiento",
-  },
-  {
-    Año: 2024,
-    Mes: "Agosto",
-    NumeroFormadoresConRecomendacion: 1,
-    TotalFormadores: 13,
-    PorcentajeSatisfaccion: "92%",
-    Formadores: "Comunicaciones",
-    Recomendaciones: "Utilizar mejores metodologías",
-  },
-  {
-    Año: 2024,
-    Mes: "Septiembre",
-    NumeroFormadoresConRecomendacion: 1,
-    TotalFormadores: 13,
-    PorcentajeSatisfaccion: "92%",
-    Formadores: "Sarlaft",
-    Recomendaciones: "Utilizar mejores metodologías",
-  },
-  {
-    Año: 2024,
-    Mes: "Octubre",
-    NumeroFormadoresConRecomendacion: 0,
-    TotalFormadores: 13,
-    PorcentajeSatisfaccion: "100%",
-    Formadores: "Ninguno",
-    Recomendaciones: "Ninguno",
-  },
-  {
-    Año: 2024,
-    Mes: "Noviembre",
-    NumeroFormadoresConRecomendacion: 0,
-    TotalFormadores: 13,
-    PorcentajeSatisfaccion: "100%",
-    Formadores: "Ninguno",
-    Recomendaciones: "Ninguno",
-  },
-  {
-    Año: 2024,
-    Mes: "Diciembre",
-    NumeroFormadoresConRecomendacion: 1,
-    TotalFormadores: 13,
-    PorcentajeSatisfaccion: "92%",
-    Formadores: "Auditoria",
-    Recomendaciones: "Utilizar mejores metodologías",
-  },
-  {
-    Año: 2024,
-    Mes: "Diciembre",
-    NumeroFormadoresConRecomendacion: 1,
-    TotalFormadores: 13,
-    PorcentajeSatisfaccion: "92%",
-    Formadores: "Workmanager",
-    Recomendaciones: "Más casos prácticos",
-  },
-  {
-    Año: 2025,
-    Mes: "Enero",
-    NumeroFormadoresConRecomendacion: 1,
-    TotalFormadores: 13,
-    PorcentajeSatisfaccion: "92%",
-    Formadores: "Comunicaciones",
-    Recomendaciones: "Otro",
-  },
-  {
-    Año: 2025,
-    Mes: "Enero",
-    NumeroFormadoresConRecomendacion: 1,
-    TotalFormadores: 13,
-    PorcentajeSatisfaccion: "92%",
-    Formadores: "Sarlaft",
-    Recomendaciones: "Utilizar mejores metodologías",
-  },
-  {
-    Año: 2025,
-    Mes: "Febrero",
-    NumeroFormadoresConRecomendacion: 0,
-    TotalFormadores: 13,
-    PorcentajeSatisfaccion: "100%",
-    Formadores: "Auditoria",
-    Recomendaciones: "Utilizar mejores metodologías",
-  },
-  {
-    Año: 2025,
-    Mes: "Marzo",
-    NumeroFormadoresConRecomendacion: 0,
-    TotalFormadores: 13,
-    PorcentajeSatisfaccion: "100%",
-    Formadores: "Sarlaft",
-    Recomendaciones: "Utilizar mejores metodologías",
-  },
-  {
-    Año: 2025,
-    Mes: "Abril",
-    NumeroFormadoresConRecomendacion: 1,
-    TotalFormadores: 13,
-    PorcentajeSatisfaccion: "92%",
-    Formadores: "Educación Financiera",
-    Recomendaciones: "Utilizar videos para mayor afianzamiento",
-  },
-  {
-    Año: 2025,
-    Mes: "Abril",
-    NumeroFormadoresConRecomendacion: 1,
-    TotalFormadores: 13,
-    PorcentajeSatisfaccion: "92%",
-    Formadores: "Ing. Organizacional",
-    Recomendaciones: "Utilizar videos para mayor afianzamiento",
-  },
-  {
-    Año: 2025,
-    Mes: "Mayo",
-    NumeroFormadoresConRecomendacion: 1,
-    TotalFormadores: 13,
-    PorcentajeSatisfaccion: "92%",
-    Formadores: "Ing. Organizacional",
-    Recomendaciones: "Más casos prácticos",
-  },
-];
+import {
+  listSatisfaccionQuota,
+  saveSatisfaccionQuota,
+} from "../../../services/modulo-talento/carpeta-formador-talento/satisfaccionQuota";
 
 export default function GestionesTable() {
-  const [rows, setRows] = useState(initialRows);
-  const [editedRows, setEditedRows] = useState([]);
+  const [rows, setRows] = useState([]);
+  const [filteredRows, setFilteredRows] = useState([]);
+  const [editedRows, setEditedRows] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [search, setSearch] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    async function load() {
+      try {
+        const data = await listSatisfaccionQuota({ limit: 500 });
+        setRows(data);
+        //setFilteredRows(data);
+        setError("");
+      } catch (e) {
+        setError(e.message || "Error cargando datos");
+      } finally {
+        setLoading(false);
+      }
+    }
+    load();
+  }, []);
 
   const handleChange = (index, field, value) => {
-    // Convertir a número si es campo numérico
-
     // Actualizar rows usando el índice
     setRows(prev => {
       const newRows = [...prev];

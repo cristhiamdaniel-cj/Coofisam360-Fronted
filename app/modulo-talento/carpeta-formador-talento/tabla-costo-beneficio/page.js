@@ -7,130 +7,35 @@ import { IoSearch } from "react-icons/io5";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import { FiDownload } from "react-icons/fi";
-
-const initialRows = [
-  {
-    Año: 2024,
-    Mes: "ABRIL",
-    TotalGastosTransferencia: 2940000,
-    TrabajadoresCapacitados: 2,
-    CostoPorTrabajador: "$1.470.000",
-    Modalidad: "Presencial",
-    Rentabilidad: "Baja",
-  },
-  {
-    Año: 2024,
-    Mes: "MAYO",
-    TotalGastosTransferencia: "$3.450.000",
-    TrabajadoresCapacitados: 2,
-    CostoPorTrabajador: "$1.725.000",
-    Modalidad: "Presencial",
-    Rentabilidad: "Baja",
-  },
-  {
-    Año: 2024,
-    Mes: "JUNIO",
-    TotalGastosTransferencia: "$-",
-    TrabajadoresCapacitados: 1,
-    CostoPorTrabajador: "$-",
-    Modalidad: "Virtual",
-    Rentabilidad: "Alta",
-  },
-  {
-    Año: 2024,
-    Mes: "JULIO",
-    TotalGastosTransferencia: "$1.470.000",
-    TrabajadoresCapacitados: 1,
-    CostoPorTrabajador: "$1.470.000",
-    Modalidad: "Presencial",
-    Rentabilidad: "Baja",
-  },
-  {
-    Año: 2024,
-    Mes: "AGOSTO",
-    TotalGastosTransferencia: "$-",
-    TrabajadoresCapacitados: 4,
-    CostoPorTrabajador: "$-",
-    Modalidad: "Virtual",
-    Rentabilidad: "Alta",
-  },
-  {
-    Año: 2024,
-    Mes: "SEPTIEMBRE",
-    TotalGastosTransferencia: "$1.470.000",
-    TrabajadoresCapacitados: 1,
-    CostoPorTrabajador: "$1.470.000",
-    Modalidad: "Presencial",
-    Rentabilidad: "Baja",
-  },
-  {
-    Año: 2024,
-    Mes: "OCTUBRE",
-    TotalGastosTransferencia: "$4.410.000",
-    TrabajadoresCapacitados: 4,
-    CostoPorTrabajador: "$1.102.500",
-    Modalidad: "Presencial",
-    Rentabilidad: "Baja",
-  },
-  {
-    Año: 2024,
-    Mes: "NOVIEMBRE",
-    TotalGastosTransferencia: "$-",
-    TrabajadoresCapacitados: 3,
-    CostoPorTrabajador: "$-",
-    Modalidad: "Virtual",
-    Rentabilidad: "Alta",
-  },
-  {
-    Año: 2024,
-    Mes: "DICIEMBRE",
-    TotalGastosTransferencia: "$1.232.000",
-    TrabajadoresCapacitados: 1,
-    CostoPorTrabajador: "$1.232.000",
-    Modalidad: "Presencial",
-    Rentabilidad: "Baja",
-  },
-  {
-    Año: 2025,
-    Mes: "ENERO",
-    TotalGastosTransferencia: "$1.470.000",
-    TrabajadoresCapacitados: 2,
-    CostoPorTrabajador: "$735.000",
-    Modalidad: "Presencial",
-    Rentabilidad: "Baja",
-  },
-  {
-    Año: 2025,
-    Mes: "FEBRERO",
-    TotalGastosTransferencia: "$3.348.000",
-    TrabajadoresCapacitados: 3,
-    CostoPorTrabajador: "$1.116.000",
-    Modalidad: "Presencial",
-    Rentabilidad: "Baja",
-  },
-  {
-    Año: 2025,
-    Mes: "MARZO",
-    TotalGastosTransferencia: "$2.678.000",
-    TrabajadoresCapacitados: 2,
-    CostoPorTrabajador: "$1.339.000",
-    Modalidad: "Presencial",
-    Rentabilidad: "Baja",
-  },
-  {
-    Año: 2025,
-    Mes: "ABRIL",
-    TotalGastosTransferencia: "$905.000",
-    TrabajadoresCapacitados: 1,
-    CostoPorTrabajador: "$905.000",
-    Modalidad: "Presencial",
-    Rentabilidad: "Baja",
-  },
-];
+import {
+  listCostoBeneficioQuota,
+  saveCostoBeneficioQuota,
+} from "../../../services/modulo-talento/carpeta-formador-talento/costoBeneficioQuota";
 
 export default function GestionesTable() {
-  const [rows, setRows] = useState(initialRows);
-  const [editedRows, setEditedRows] = useState([]);
+  const [rows, setRows] = useState([]);
+  const [filteredRows, setFilteredRows] = useState([]);
+  const [editedRows, setEditedRows] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [search, setSearch] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    async function load() {
+      try {
+        const data = await listCostoBeneficioQuota({ limit: 200 });
+        setRows(data);
+        //setFilteredRows(data);
+        setError("");
+      } catch (e) {
+        setError(e.message || "Error cargando datos");
+      } finally {
+        setLoading(false);
+      }
+    }
+    load();
+  }, []);
 
   const handleChange = (index, field, value) => {
     // Convertir a número si es campo numérico

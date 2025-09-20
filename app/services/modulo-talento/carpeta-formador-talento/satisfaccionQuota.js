@@ -1,7 +1,7 @@
 import {
-  listSatisfaccion as listSatisfaccionRaw,
-  getSatisfaccion as getSatisfaccionRaw,
-  saveSatisfaccion as saveSatisfaccionRaw,
+  listSatisfaccionAprendizaje as listSatisfaccionRaw,
+  getSatisfaccionAprendizaje as getSatisfaccionRaw,
+  saveSatisfaccionAprendizaje as saveSatisfaccionRaw,
 } from "./talentTrainerService";
 import { toMonthNumber, num } from "./talentHelpers";
 

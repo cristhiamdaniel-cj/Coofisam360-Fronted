@@ -2,7 +2,6 @@ import {
   listAusentismo as listRaw,
   getAusentismo as getRaw,
   saveAusentismo as saveRaw,
-  updateAusentismo as updateRaw,
 } from "./talentHealthService";
 import { num, str, toMonthNumber, makeIdAusentismo } from "./healthHelpers";
 

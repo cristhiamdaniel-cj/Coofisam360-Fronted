@@ -7,123 +7,35 @@ import { IoSearch } from "react-icons/io5";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import { FiDownload } from "react-icons/fi";
-
-const initialRows = [
-  {
-    Año: 2025,
-    Mes: "ENERO",
-    DiasAusenciaPropios: 103,
-    DiasAusenciaContratistas: 0,
-    TotalDiasIncapacidad: 103,
-    DiasLaboralesMes: 25,
-    NumeroTrabajadores: 217,
-    DiasTrabajoProgramados: 5425,
-    AusentismoLaboral: "1,90%",
-  },
-  {
-    Año: 2025,
-    Mes: "FEBRERO",
-    DiasAusenciaPropios: 101,
-    DiasAusenciaContratistas: 0,
-    TotalDiasIncapacidad: 101,
-    DiasLaboralesMes: 24,
-    NumeroTrabajadores: 232,
-    DiasTrabajoProgramados: 5568,
-    AusentismoLaboral: "1,81%",
-  },
-  {
-    Año: 2025,
-    Mes: "MARZO",
-    DiasAusenciaPropios: 96,
-    DiasAusenciaContratistas: 0,
-    TotalDiasIncapacidad: 96,
-    DiasLaboralesMes: 25,
-    NumeroTrabajadores: 208,
-    DiasTrabajoProgramados: 5200,
-    AusentismoLaboral: "1,85%",
-  },
-  {
-    Año: 2025,
-    Mes: "ABRIL",
-    DiasAusenciaPropios: 92,
-    DiasAusenciaContratistas: 0,
-    TotalDiasIncapacidad: 92,
-    DiasLaboralesMes: 25,
-    NumeroTrabajadores: 212,
-    DiasTrabajoProgramados: 5300,
-    AusentismoLaboral: "1,74%",
-  },
-  {
-    Año: 2025,
-    Mes: "MAYO",
-    DiasAusenciaPropios: 106,
-    DiasAusenciaContratistas: 0,
-    TotalDiasIncapacidad: 106,
-    DiasLaboralesMes: 26,
-    NumeroTrabajadores: 212,
-    DiasTrabajoProgramados: 5512,
-    AusentismoLaboral: "1,92%",
-  },
-  {
-    Año: 2025,
-    Mes: "JUNIO",
-    DiasAusenciaPropios: 64,
-    DiasAusenciaContratistas: 30,
-    TotalDiasIncapacidad: 94,
-    DiasLaboralesMes: 21,
-    NumeroTrabajadores: 206,
-    DiasTrabajoProgramados: 4326,
-    AusentismoLaboral: "2,17%",
-  },
-  {
-    Año: 2025,
-    Mes: "JULIO",
-    DiasAusenciaPropios: 0,
-    DiasAusenciaContratistas: 0,
-    TotalDiasIncapacidad: 0,
-    DiasLaboralesMes: 0,
-    NumeroTrabajadores: 0,
-    DiasTrabajoProgramados: 0,
-    AusentismoLaboral: "0,00%",
-  },
-  {
-    Año: 2025,
-    Mes: "AGOSTO",
-    DiasAusenciaPropios: 0,
-    DiasAusenciaContratistas: 0,
-    TotalDiasIncapacidad: 0,
-    DiasLaboralesMes: 0,
-    NumeroTrabajadores: 0,
-    DiasTrabajoProgramados: 0,
-    AusentismoLaboral: "0,00%",
-  },
-  {
-    Año: 2025,
-    Mes: "SEPTIEMBRE",
-    DiasAusenciaPropios: 0,
-    DiasAusenciaContratistas: 0,
-    TotalDiasIncapacidad: 0,
-    DiasLaboralesMes: 0,
-    NumeroTrabajadores: 0,
-    DiasTrabajoProgramados: 0,
-    AusentismoLaboral: "0,00%",
-  },
-  {
-    Año: 2025,
-    Mes: "OCTUBRE",
-    DiasAusenciaPropios: 0,
-    DiasAusenciaContratistas: 0,
-    TotalDiasIncapacidad: 0,
-    DiasLaboralesMes: 0,
-    NumeroTrabajadores: 0,
-    DiasTrabajoProgramados: 0,
-    AusentismoLaboral: "0,00%",
-  },
-];
+import {
+  listAusentismoRows,
+  saveAusentismoRow,
+} from "../../../services/modulo-talento/carpeta-sistema-gestion-salud/ausentismoQuota";
 
 export default function GestionesTable() {
-  const [rows, setRows] = useState(initialRows);
-  const [editedRows, setEditedRows] = useState([]);
+  const [rows, setRows] = useState([]);
+  const [filteredRows, setFilteredRows] = useState([]);
+  const [editedRows, setEditedRows] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [search, setSearch] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    async function load() {
+      try {
+        const data = await listAusentismoRows({ limit: 500 });
+        setRows(data);
+        //setFilteredRows(data);
+        setError("");
+      } catch (e) {
+        setError(e.message || "Error cargando datos");
+      } finally {
+        setLoading(false);
+      }
+    }
+    load();
+  }, []);
 
   const handleChange = (index, field, value) => {
     // Convertir a número si es campo numérico

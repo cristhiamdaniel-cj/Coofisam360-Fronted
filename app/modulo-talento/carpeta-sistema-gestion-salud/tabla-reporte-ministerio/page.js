@@ -7,84 +7,44 @@ import { IoSearch } from "react-icons/io5";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import { FiDownload } from "react-icons/fi";
-
-const initialRows = [
-  {
-    id: 1,
-    anio: 2021,
-    recursos: "10%",
-    gestionIntegral: "12%",
-    gestionSalud: "20%",
-    gestionPeligros: "30%",
-    gestionAmenazas: "10%",
-    verificacion: "5%",
-    mejoramiento: "5%",
-    porcentaje: "92%",
-  },
-  {
-    id: 2,
-    anio: 2022,
-    recursos: "10%",
-    gestionIntegral: "12%",
-    gestionSalud: "20%",
-    gestionPeligros: "30%",
-    gestionAmenazas: "10%",
-    verificacion: "5%",
-    mejoramiento: "10%",
-    porcentaje: "97%",
-  },
-  {
-    id: 3,
-    anio: 2023,
-    recursos: "10%",
-    gestionIntegral: "12%",
-    gestionSalud: "20%",
-    gestionPeligros: "30%",
-    gestionAmenazas: "10%",
-    verificacion: "5%",
-    mejoramiento: "5%",
-    porcentaje: "92%",
-  },
-  {
-    id: 4,
-    anio: 2024,
-    recursos: "10%",
-    gestionIntegral: "12%",
-    gestionSalud: "20%",
-    gestionPeligros: "30%",
-    gestionAmenazas: "10%",
-    verificacion: "5%",
-    mejoramiento: "10%",
-    porcentaje: "97%",
-  },
-  {
-    id: 5,
-    anio: 2025,
-    recursos: "0%",
-    gestionIntegral: "0%",
-    gestionSalud: "0%",
-    gestionPeligros: "0%",
-    gestionAmenazas: "0%",
-    verificacion: "0%",
-    mejoramiento: "0%",
-    porcentaje: "0%",
-  },
-];
+import {
+  listReporteMinisterioRows,
+  saveReporteMinisterioRow,
+} from "../../../services/modulo-talento/carpeta-sistema-gestion-salud/reporteMinisterioQuota";
 
 export default function GestionesTable() {
-  const [rows, setRows] = useState(initialRows);
-  const [editedRows, setEditedRows] = useState([]);
+  const [rows, setRows] = useState([]);
+  const [filteredRows, setFilteredRows] = useState([]);
+  const [editedRows, setEditedRows] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [search, setSearch] = useState("");
+  const [saving, setSaving] = useState(false);
 
-  const handleChange = (id, field, value) => {
-    // update rows state immediately
+  useEffect(() => {
+    async function load() {
+      try {
+        const data = await listReporteMinisterioRows({ limit: 500 });
+        setRows(data);
+        //setFilteredRows(data);
+        setError("");
+      } catch (e) {
+        setError(e.message || "Error cargando datos");
+      } finally {
+        setLoading(false);
+      }
+    }
+    load();
+  }, []);
+
+  const handleChange = (idx, field, value) => {
     setRows(prev =>
-      prev.map(row => (row.id === id ? { ...row, [field]: value } : row))
+      prev.map((row, i) => (i === idx ? { ...row, [field]: value } : row))
     );
 
-    // mark this row as edited
     setEditedRows(prev => ({
       ...prev,
-      [id]: { ...prev[id], [field]: value },
+      [idx]: { ...prev[idx], [field]: value },
     }));
   };
 
@@ -126,8 +86,8 @@ export default function GestionesTable() {
   };
 
   return (
-    <main className="pt-12 pb-0 px-12 overflow-auto">
-      <h1 className="titulo-tabla-cupos text-3xl font-semibold pb-12">
+    <main className="pt-4 pb-0 px-12 overflow-auto">
+      <h1 className="titulo-tabla-cupos text-3xl font-semibold pb-4">
         Reporte Ministerio
       </h1>
       <div className="actions-container flex justify-between mb-4">
@@ -191,8 +151,8 @@ export default function GestionesTable() {
           </thead>
 
           <tbody className="tabla-cupos-content p-4">
-            {rows.map(row => (
-              <tr key={row.id}>
+            {rows.map((row, idx) => (
+              <tr key={idx}>
                 <td className="p-2 border text-center whitespace-nowrap">
                   {row.anio}
                 </td>

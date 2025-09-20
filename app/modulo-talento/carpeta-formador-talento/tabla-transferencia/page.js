@@ -7,156 +7,35 @@ import { IoSearch } from "react-icons/io5";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import { FiDownload } from "react-icons/fi";
-
-const initialRows = [
-  {
-    Año: 2024,
-    Mes: "Abril",
-    Comprension: 3.9,
-    Practica: 3.5,
-    RetencionConocimiento: 4.5,
-    ValoracionDesempeno: 3.5,
-    SatisfaccionTrabajador: 4.2,
-    Total: 19.6,
-    EfectividadTransferencia: 3.92,
-  },
-  {
-    Año: 2024,
-    Mes: "Mayo",
-    Comprension: 3.0,
-    Practica: 3.0,
-    RetencionConocimiento: 3.0,
-    ValoracionDesempeno: 3.5,
-    SatisfaccionTrabajador: 4.2,
-    Total: 16.7,
-    EfectividadTransferencia: 3.34,
-  },
-  {
-    Año: 2024,
-    Mes: "Junio",
-    Comprension: 4.5,
-    Practica: 4.5,
-    RetencionConocimiento: 4.5,
-    ValoracionDesempeno: 4.5,
-    SatisfaccionTrabajador: 4.2,
-    Total: 22.2,
-    EfectividadTransferencia: 4.44,
-  },
-  {
-    Año: 2024,
-    Mes: "Julio",
-    Comprension: 4.0,
-    Practica: 4.8,
-    RetencionConocimiento: 4.0,
-    ValoracionDesempeno: 4.5,
-    SatisfaccionTrabajador: 4.2,
-    Total: 21.5,
-    EfectividadTransferencia: 4.3,
-  },
-  {
-    Año: 2024,
-    Mes: "Agosto",
-    Comprension: 3.8,
-    Practica: 3.5,
-    RetencionConocimiento: 3.7,
-    ValoracionDesempeno: 4.0,
-    SatisfaccionTrabajador: 4.2,
-    Total: 19.2,
-    EfectividadTransferencia: 3.84,
-  },
-  {
-    Año: 2024,
-    Mes: "Septiembre",
-    Comprension: 4.5,
-    Practica: 4.8,
-    RetencionConocimiento: 4.5,
-    ValoracionDesempeno: 4.3,
-    SatisfaccionTrabajador: 4.2,
-    Total: 22.3,
-    EfectividadTransferencia: 4.46,
-  },
-  {
-    Año: 2024,
-    Mes: "Octubre",
-    Comprension: 3.9,
-    Practica: 4.8,
-    RetencionConocimiento: 3.9,
-    ValoracionDesempeno: 4.5,
-    SatisfaccionTrabajador: 5.0,
-    Total: 22.1,
-    EfectividadTransferencia: 4.42,
-  },
-  {
-    Año: 2024,
-    Mes: "Noviembre",
-    Comprension: 4.0,
-    Practica: 4.5,
-    RetencionConocimiento: 4.5,
-    ValoracionDesempeno: 4.5,
-    SatisfaccionTrabajador: 5.0,
-    Total: 22.5,
-    EfectividadTransferencia: 4.5,
-  },
-  {
-    Año: 2024,
-    Mes: "Diciembre",
-    Comprension: 4.0,
-    Practica: 4.8,
-    RetencionConocimiento: 4.1,
-    ValoracionDesempeno: 4.6,
-    SatisfaccionTrabajador: 4.2,
-    Total: 21.7,
-    EfectividadTransferencia: 4.34,
-  },
-  {
-    Año: 2025,
-    Mes: "Enero",
-    Comprension: 4.3,
-    Practica: 4.8,
-    RetencionConocimiento: 4.0,
-    ValoracionDesempeno: 4.4,
-    SatisfaccionTrabajador: 4.2,
-    Total: 21.7,
-    EfectividadTransferencia: 4.34,
-  },
-  {
-    Año: 2025,
-    Mes: "Febrero",
-    Comprension: 4.4,
-    Practica: 5.0,
-    RetencionConocimiento: 4.1,
-    ValoracionDesempeno: 4.3,
-    SatisfaccionTrabajador: 5.0,
-    Total: 22.8,
-    EfectividadTransferencia: 4.56,
-  },
-  {
-    Año: 2025,
-    Mes: "Marzo",
-    Comprension: 4.3,
-    Practica: 4.2,
-    RetencionConocimiento: 3.9,
-    ValoracionDesempeno: 4.6,
-    SatisfaccionTrabajador: 5.0,
-    Total: 22.0,
-    EfectividadTransferencia: 4.4,
-  },
-  {
-    Año: 2025,
-    Mes: "Abril",
-    Comprension: 4.4,
-    Practica: 2.0,
-    RetencionConocimiento: 3.9,
-    ValoracionDesempeno: 2.7,
-    SatisfaccionTrabajador: 4.2,
-    Total: 17.2,
-    EfectividadTransferencia: 3.44,
-  },
-];
+import {
+  listTransferenciaQuota,
+  saveTransferenciaQuota,
+} from "../../../services/modulo-talento/carpeta-formador-talento/transferenciaQuota";
 
 export default function GestionesTable() {
-  const [rows, setRows] = useState(initialRows);
-  const [editedRows, setEditedRows] = useState([]);
+  const [rows, setRows] = useState([]);
+  const [filteredRows, setFilteredRows] = useState([]);
+  const [editedRows, setEditedRows] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [search, setSearch] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    async function load() {
+      try {
+        const data = await listTransferenciaQuota({ limit: 500 });
+        setRows(data);
+        //setFilteredRows(data);
+        setError("");
+      } catch (e) {
+        setError(e.message || "Error cargando datos");
+      } finally {
+        setLoading(false);
+      }
+    }
+    load();
+  }, []);
 
   const handleChange = (index, field, value) => {
     // Convertir a número si es campo numérico

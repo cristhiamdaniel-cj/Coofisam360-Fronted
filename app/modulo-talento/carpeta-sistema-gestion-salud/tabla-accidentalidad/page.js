@@ -7,172 +7,45 @@ import { IoSearch } from "react-icons/io5";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import { FiDownload } from "react-icons/fi";
-
-const initialRows = [
-  {
-    Año: 2025,
-    Mes: "Enero",
-    TipoVinculacion: "Propios",
-    NumeroTrabajadores: 217,
-    AccidentesTrabajo: 0,
-    AtMortales: 0,
-    DiasIncapacidad: 103,
-    DiasCargados: 0,
-    Indicador: "I.S",
-    Resultado: "43.5%",
-  },
-  {
-    Año: 2025,
-    Mes: "Enero",
-    TipoVinculacion: "Contratistas",
-    NumeroTrabajadores: 20,
-    AccidentesTrabajo: 0,
-    AtMortales: 0,
-    DiasIncapacidad: 0,
-    DiasCargados: 0,
-    Indicador: "I.F",
-    Resultado: "0.0%",
-  },
-  {
-    Año: 2025,
-    Mes: "Enero",
-    TipoVinculacion: "Propios y contratistas",
-    NumeroTrabajadores: 237,
-    AccidentesTrabajo: 0,
-    AtMortales: 0,
-    DiasIncapacidad: 103,
-    DiasCargados: 0,
-    Indicador: "AT MORTALES",
-    Resultado: "0%",
-  },
-  {
-    Año: 2025,
-    Mes: "Febrero",
-    TipoVinculacion: "Propios",
-    NumeroTrabajadores: 233,
-    AccidentesTrabajo: 2,
-    AtMortales: 0,
-    DiasIncapacidad: 101,
-    DiasCargados: 0,
-    Indicador: "I.S",
-    Resultado: "39.9%",
-  },
-  {
-    Año: 2025,
-    Mes: "Febrero",
-    TipoVinculacion: "Contratistas",
-    NumeroTrabajadores: 20,
-    AccidentesTrabajo: 0,
-    AtMortales: 0,
-    DiasIncapacidad: 0,
-    DiasCargados: 0,
-    Indicador: "I.F",
-    Resultado: "0.0%",
-  },
-  {
-    Año: 2025,
-    Mes: "Febrero",
-    TipoVinculacion: "Propios y contratistas",
-    NumeroTrabajadores: 253,
-    AccidentesTrabajo: 0,
-    AtMortales: 0,
-    DiasIncapacidad: 101,
-    DiasCargados: 0,
-    Indicador: "AT MORTALES",
-    Resultado: "0%",
-  },
-  {
-    Año: 2025,
-    Mes: "Marzo",
-    TipoVinculacion: "Propios",
-    NumeroTrabajadores: 208,
-    AccidentesTrabajo: 1,
-    AtMortales: 0,
-    DiasIncapacidad: 4,
-    DiasCargados: 0,
-    Indicador: "I.S",
-    Resultado: "1.8%",
-  },
-  {
-    Año: 2025,
-    Mes: "Marzo",
-    TipoVinculacion: "Contratistas",
-    NumeroTrabajadores: 20,
-    AccidentesTrabajo: 0,
-    AtMortales: 0,
-    DiasIncapacidad: 0,
-    DiasCargados: 0,
-    Indicador: "I.F",
-    Resultado: "0.0%",
-  },
-  {
-    Año: 2025,
-    Mes: "Marzo",
-    TipoVinculacion: "Propios y contratistas",
-    NumeroTrabajadores: 228,
-    AccidentesTrabajo: 0,
-    AtMortales: 0,
-    DiasIncapacidad: 4,
-    DiasCargados: 0,
-    Indicador: "AT MORTALES",
-    Resultado: "0%",
-  },
-  {
-    Año: 2025,
-    Mes: "Abril",
-    TipoVinculacion: "Propios",
-    NumeroTrabajadores: 212,
-    AccidentesTrabajo: 0,
-    AtMortales: 0,
-    DiasIncapacidad: 3,
-    DiasCargados: 0,
-    Indicador: "I.S",
-    Resultado: "1.29%",
-  },
-  {
-    Año: 2025,
-    Mes: "Abril",
-    TipoVinculacion: "Contratistas",
-    NumeroTrabajadores: 20,
-    AccidentesTrabajo: 0,
-    AtMortales: 0,
-    DiasIncapacidad: 0,
-    DiasCargados: 0,
-    Indicador: "I.F",
-    Resultado: "0.0%",
-  },
-  {
-    Año: 2025,
-    Mes: "Abril",
-    TipoVinculacion: "Propios y contratistas",
-    NumeroTrabajadores: 232,
-    AccidentesTrabajo: 0,
-    AtMortales: 0,
-    DiasIncapacidad: 3,
-    DiasCargados: 0,
-    Indicador: "AT MORTALES",
-    Resultado: "0%",
-  },
-];
+import {
+  listAccidentalidadRows,
+  saveAccidentalidadRow,
+} from "../../../services/modulo-talento/carpeta-sistema-gestion-salud/accidentalidadQuota";
 
 export default function GestionesTable() {
-  const [rows, setRows] = useState(initialRows);
-  const [editedRows, setEditedRows] = useState([]);
+  const [rows, setRows] = useState([]);
+  const [filteredRows, setFilteredRows] = useState([]);
+  const [editedRows, setEditedRows] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [search, setSearch] = useState("");
+  const [saving, setSaving] = useState(false);
 
-  const handleChange = (index, field, value) => {
-    // Convertir a número si es campo numérico
+  useEffect(() => {
+    async function load() {
+      try {
+        const data = await listAccidentalidadRows({ limit: 500 });
+        setRows(data);
+        //setFilteredRows(data);
+        setError("");
+      } catch (e) {
+        setError(e.message || "Error cargando datos");
+      } finally {
+        setLoading(false);
+      }
+    }
+    load();
+  }, []);
 
-    // Actualizar rows usando el índice
-    setRows(prev => {
-      const newRows = [...prev];
-      newRows[index] = { ...newRows[index], [field]: value };
-      return newRows;
-    });
+  const handleChange = (id, field, value) => {
+    const updateRow = row => (row.id === id ? { ...row, [field]: value } : row);
 
-    // Actualizar editedRows
+    setRows(prev => prev.map(updateRow));
+    setFilteredRows(prev => prev.map(updateRow));
+
     setEditedRows(prev => ({
       ...prev,
-      [index]: { ...prev[index], [field]: value },
+      [id]: { ...prev[id], [field]: value },
     }));
   };
 
@@ -212,7 +85,7 @@ export default function GestionesTable() {
     const data = new Blob([excelBuffer], { type: "application/octet-stream" });
     saveAs(data, "cupos.xlsx");
   };
-
+  console.log(rows);
   return (
     <main className="pt-4 pb-0 px-12">
       <h1 className="titulo-tabla-cupos text-3xl font-semibold pb-4">
@@ -250,8 +123,12 @@ export default function GestionesTable() {
         <table className="table-auto border-collapse w-full">
           <thead>
             <tr className="tabla-header">
-              <th className="p-4 border text-center whitespace-nowrap">Año</th>
-              <th className="p-4 border text-center whitespace-nowrap">Mes</th>
+              <th className="p-4 border text-center whitespace-nowrap min-w-[150px]">
+                Año
+              </th>
+              <th className="p-4 border text-center whitespace-nowrap min-w-[150px]">
+                Mes
+              </th>
               <th className="p-4 border text-center whitespace-nowrap min-w-[230px]">
                 Tipo de Vinculación
               </th>
@@ -283,16 +160,48 @@ export default function GestionesTable() {
             {rows.map((r, idx) => (
               <tr key={idx}>
                 <td className="p-2 border text-left whitespace-nowrap">
-                  {r.Año}
+                  <input
+                    type="number"
+                    value={r.Año}
+                    onChange={e => {
+                      handleChange(r.id, "Año", e.target.value);
+                    }}
+                    className="px-2 py-1 w-full text-left border ml-1"
+                  />
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
-                  {r.Mes}
+                  <select
+                    value={r.Mes}
+                    onChange={e => {
+                      handleChange(r.id, "Mes", e.target.value);
+                    }}
+                    className="border rounded p-1 w-full"
+                  >
+                    {[
+                      "ENERO",
+                      "FEBRERO",
+                      "MARZO",
+                      "ABRIL",
+                      "MAYO",
+                      "JUNIO",
+                      "JULIO",
+                      "AGOSTO",
+                      "SEPTIEMBRE",
+                      "OCTUBE",
+                      "NOVIEMBRE",
+                      "DICIEMBRE",
+                    ].map(opt => (
+                      <option key={opt} value={opt}>
+                        {opt}
+                      </option>
+                    ))}
+                  </select>
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
                   <select
                     value={r.TipoVinculacion}
                     onChange={e => {
-                      handleChange(idx, "TipoVinculacion", e.target.value);
+                      handleChange(r.id, "TipoVinculacion", e.target.value);
                     }}
                     className="border rounded p-1 w-full"
                   >
@@ -309,22 +218,43 @@ export default function GestionesTable() {
                   {r.NumeroTrabajadores}
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
-                  {r.AccidentesTrabajo}
+                  <input
+                    type="number"
+                    value={r.AccidentesTrabajo}
+                    onChange={e => {
+                      handleChange(r.id, "AccidentesTrabajo", e.target.value);
+                    }}
+                    className="px-2 py-1 w-full text-left border ml-1"
+                  />
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
-                  {r.AtMortales}
+                  <input
+                    type="number"
+                    value={r.AtMortales}
+                    onChange={e => {
+                      handleChange(r.id, "AtMortales", e.target.value);
+                    }}
+                    className="px-2 py-1 w-full text-left border ml-1"
+                  />
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
                   {r.DiasIncapacidad}
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
-                  {r.DiasCargados}
+                  <input
+                    type="number"
+                    value={r.DiasCargados}
+                    onChange={e => {
+                      handleChange(r.id, "DiasCargados", e.target.value);
+                    }}
+                    className="px-2 py-1 w-full text-left border ml-1"
+                  />
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
                   <select
                     value={r.Indicador}
                     onChange={e => {
-                      handleChange(idx, "Indicador", e.target.value);
+                      handleChange(r.id, "Indicador", e.target.value);
                     }}
                     className="border rounded p-1 w-full"
                   >

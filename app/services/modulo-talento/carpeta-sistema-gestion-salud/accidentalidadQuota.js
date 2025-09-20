@@ -2,10 +2,14 @@ import {
   listAccidentalidad as listRaw,
   getAccidentalidad as getRaw,
   saveAccidentalidad as saveRaw,
-  updateAccidentalidad as updateRaw,
 } from "./talentHealthService";
 import {
-  num, str, toMonthNumber, fmtDate, dateToIso, makeIdAccidentalidad
+  num,
+  str,
+  toMonthNumber,
+  fmtDate,
+  dateToIso,
+  makeIdAccidentalidad,
 } from "./healthHelpers";
 
 export async function listAccidentalidadRows(params = {}) {
@@ -26,8 +30,8 @@ export async function saveAccidentalidadRow(uiRow) {
 function fromApi(r) {
   const ui = {
     id: r.id ?? null,
-    Año: r.anio ?? r.year,
-    Mes: r.mes_nombre ?? r.mes,
+    Año: r.anio ?? r.year ?? "",
+    Mes: (r.mes_nombre ?? r.mes ?? "").toString().toUpperCase(),
     TipoVinculacion: str(r.tipo_vinculacion ?? r.tipo),
     NumeroTrabajadores: num(r.numero_trabajadores ?? r.trabajadores),
     AccidentesTrabajo: num(r.accidentes_trabajo ?? r.at),

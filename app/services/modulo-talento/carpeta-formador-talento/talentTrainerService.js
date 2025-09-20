@@ -1,15 +1,17 @@
-import api from "../api";
+import api from "../../api";
 
 /* ===================COSTO  BENEFICIO===================== */
 export async function listCostoBeneficio(params = {}) {
-  const { data } = await api.get("/api/v1/talento//", { params });
+  const { data } = await api.get("/api/v1/talento/capacitacion-mensual/", {
+    params,
+  });
   // Alternativa:
   // const { data } = await api.get("/api/v1/talento//", { params });
   return data?.items ?? data;
 }
 
 export async function getCostoBeneficio(id, params = {}) {
-  const { data } = await api.get("/api/v1/talento//", {
+  const { data } = await api.get("//api/v1/talento/capacitacion-mensual/", {
     params: { ...(params || {}), id },
   });
   // Alternativa:
@@ -19,7 +21,10 @@ export async function getCostoBeneficio(id, params = {}) {
 }
 
 export async function saveCostoBeneficio(payload) {
-  const { data } = await api.post("/api/v1/talento//", payload);
+  const { data } = await api.post(
+    "/api/v1/talento/capacitacion-mensual/",
+    payload
+  );
   // Alternativa:
   // const { data } = await api.post("/api/v1/talento//", payload);
   return data;
@@ -27,14 +32,16 @@ export async function saveCostoBeneficio(payload) {
 
 /* ===================FORMACIÓN Y PARTICIPACIÓN===================== */
 export async function listFormaciones(params = {}) {
-  const { data } = await api.get("/api/v1/talento//", { params });
+  const { data } = await api.get("/api/v1/talento/formacion-participacion/", {
+    params,
+  });
   // Alternativa:
   // const { data } = await api.get("/api/v1/talento//", { params });
   return data?.items ?? data;
 }
 
 export async function getFormacion(id, params = {}) {
-  const { data } = await api.get("/api/v1/talento//", {
+  const { data } = await api.get("/api/v1/talento/formacion-participacion/", {
     params: { ...(params || {}), id },
   });
   // Alternativa:
@@ -44,7 +51,10 @@ export async function getFormacion(id, params = {}) {
 }
 
 export async function saveFormacion(payload) {
-  const { data } = await api.post("/api/v1/talento//", payload);
+  const { data } = await api.post(
+    "/api/v1/talento/formacion-participacion/",
+    payload
+  );
   // Alternativa:
   // const { data } = await api.post("/api/v1/talento//", payload);
   return data;
@@ -52,14 +62,16 @@ export async function saveFormacion(payload) {
 
 /* ===================SATISFACCIÓN DEL APRENDIZAJE=================== */
 export async function listSatisfaccionAprendizaje(params = {}) {
-  const { data } = await api.get("/api/v1/talento//", { params });
+  const { data } = await api.get("/api/v1/talento/satisfaccion-aprendizaje/", {
+    params,
+  });
   // Alternativa:
   // const { data } = await api.get("/api/v1/talento//", { params });
   return data?.items ?? data;
 }
 
 export async function getSatisfaccionAprendizaje(id, params = {}) {
-  const { data } = await api.get("/api/v1/talento//", {
+  const { data } = await api.get("/api/v1/talento/satisfaccion-aprendizaje/", {
     params: { ...(params || {}), id },
   });
   // Alternativa:
@@ -69,7 +81,10 @@ export async function getSatisfaccionAprendizaje(id, params = {}) {
 }
 
 export async function saveSatisfaccionAprendizaje(payload) {
-  const { data } = await api.post("/api/v1/talento//", payload);
+  const { data } = await api.post(
+    "/api/v1/talento/satisfaccion-aprendizaje/",
+    payload
+  );
   // Alternativa:
   // const { data } = await api.post("/api/v1/talento//", payload);
   return data;
@@ -77,16 +92,22 @@ export async function saveSatisfaccionAprendizaje(payload) {
 
 /* =============TRANSFERENCIA DEL CONOCIMIENTO================ */
 export async function listTransferenciaConocimiento(params = {}) {
-  const { data } = await api.get("/api/v1/talento//", { params });
+  const { data } = await api.get(
+    "/api/v1/talento/transferencia-conocimiento/",
+    { params }
+  );
   // Alternativa:
   // const { data } = await api.get("/api/v1/talento//", { params });
   return data?.items ?? data;
 }
 
 export async function getTransferenciaConocimiento(id, params = {}) {
-  const { data } = await api.get("/api/v1/talento//", {
-    params: { ...(params || {}), id },
-  });
+  const { data } = await api.get(
+    "/api/v1/talento/transferencia-conocimiento/",
+    {
+      params: { ...(params || {}), id },
+    }
+  );
   // Alternativa:
   // const { data } = await api.get(`/api/v1/talento//${id}/`, { params });
   const items = data?.items ?? [];
@@ -94,33 +115,11 @@ export async function getTransferenciaConocimiento(id, params = {}) {
 }
 
 export async function saveTransferenciaConocimiento(payload) {
-  const { data } = await api.post("/api/v1/talento//", payload);
+  const { data } = await api.post(
+    "/api/v1/talento/transferencia-conocimiento/",
+    payload
+  );
   // Alternativa:
   // const { data } = await api.post("/api/v1/talento//", payload);
-  return data;
-}
-
-/* ====================CONTROL DISCIPLINARIO================== */
-export async function listControlDisciplinario(params = {}) {
-  const { data } = await api.get("/api/v1/talento//", { params });
-  // Alternativa:
-  // const { data } = await api.get("/api/v1/talento//", { params });
-  return data?.items ?? data;
-}
-
-export async function getControlDisciplinario(id, params = {}) {
-  const { data } = await api.get("/api/v1/talento//", {
-    params: { ...(params || {}), id },
-  });
-  // Alternativa:
-  // const { data } = await api.get(`/api/v1/talento//${id}/`, { params });
-  const items = data?.items ?? [];
-  return items[0] || null;
-}
-
-export async function saveControlDisciplinario(payload) {
-  const { data } = await api.post("/api/v1/talento//", payload);
-  // Alternativa:
-  // const { data } = await api.post("/api/v1//", payload);
   return data;
 }

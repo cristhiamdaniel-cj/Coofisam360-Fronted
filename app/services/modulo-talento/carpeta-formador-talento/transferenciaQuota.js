@@ -1,7 +1,7 @@
 import {
-  listTransferencia as listTransferenciaRaw,
-  getTransferencia as getTransferenciaRaw,
-  saveTransferencia as saveTransferenciaRaw,
+  listTransferenciaConocimiento as listTransferenciaRaw,
+  getTransferenciaConocimiento as getTransferenciaRaw,
+  saveTransferenciaConocimiento as saveTransferenciaRaw,
 } from "./talentTrainerService";
 import { toMonthNumber, num } from "./talentHelpers";
 

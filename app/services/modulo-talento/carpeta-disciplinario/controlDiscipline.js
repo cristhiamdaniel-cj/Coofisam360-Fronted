@@ -23,7 +23,7 @@ export async function saveControlRow(uiRow = {}) {
 function mapUiToApi(u) {
   return {
     id: u.id ?? u.ID,
-    trabajador: str(u.TRABAJADOR),
+    trabajador: str(u.trabajador),
     oficina: str(u.OFICINA),
     cargo: str(u.CARGO),
     antiguedad: str(u.ANTIGÜEDAD ?? u.ANTIGUEDAD),
