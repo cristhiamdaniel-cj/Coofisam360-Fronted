@@ -11,8 +11,8 @@ export default function LoginLayout({ children }) {
             src="/logo-coofisam.png" // Path relative to /public
             className="logo-image-login"
             alt="Company Logo"
-            width={700} // required
-            height={400} // required
+            width={600} // required
+            height={300} // required
             priority // loads immediately
           />
         </div>

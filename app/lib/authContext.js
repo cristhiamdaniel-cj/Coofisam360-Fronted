@@ -1,6 +1,5 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { getCurrentUser, logout as authLogout } from "./auth";
 
 const AuthContext = createContext();
 
@@ -9,12 +8,16 @@ export function AuthProvider({ children }) {
   const router = useRouter();
 
   useEffect(() => {
-    const u = getCurrentUser();
-    if (u) setUser(u);
+    const token = localStorage.getItem("authToken");
+    const username = localStorage.getItem("username");
+    if (token && username) {
+      setUser({ name: username });
+    }
   }, []);
 
   const logout = () => {
-    authLogout(); // limpia token
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("username");
     setUser(null);
     router.replace("/login");
   };

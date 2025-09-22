@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useAuth } from "../lib/authContext";
 
 export default function LoginPage() {
   const [username, setUsername] = useState("");
@@ -8,6 +9,7 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const router = useRouter();
   const base = process.env.NEXT_PUBLIC_API_BASE || "";
+  const { setUser } = useAuth();
 
   async function onSubmit(e) {
     e.preventDefault();
@@ -25,7 +27,13 @@ export default function LoginPage() {
       }
 
       const data = await res.json();
+      // guardamos token y username
       localStorage.setItem("authToken", data.token);
+      localStorage.setItem("username", username);
+
+      // <-- IMPORTANT: avisamos al contexto que hay usuario
+      setUser({ name: username });
+
       router.push("/"); // redirect to home
     } catch (err) {
       setError(err.message);

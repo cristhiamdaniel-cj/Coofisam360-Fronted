@@ -4,12 +4,15 @@ import "../styles/global.css";
 import Image from "next/image";
 import Link from "next/link";
 import { useAuth } from "../lib/authContext";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 
 export default function Navbar() {
   const [isModulesOpen, setIsModulesOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const { user, logout } = useAuth();
+
+  const modulesRef = useRef(null);
+  const userMenuRef = useRef(null);
 
   const modules = [
     { name: "Financiera", href: "/modulo-financiero" },
@@ -34,6 +37,26 @@ export default function Navbar() {
       .toUpperCase();
   };
 
+  const handleLogout = () => {
+    logout();
+    setIsUserMenuOpen(false);
+    setIsModulesOpen(false);
+  };
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (modulesRef.current && !modulesRef.current.contains(event.target)) {
+        setIsModulesOpen(false);
+      }
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
+        setIsUserMenuOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   return (
     <nav className="navbar-container px-12 flex items-center justify-between h-16 bg-white shadow-md relative">
       {/* Logo */}
@@ -41,7 +64,7 @@ export default function Navbar() {
         <Image
           src="/logo-coofisam.png"
           alt="Company Logo"
-          width={150}
+          width={200}
           height={50}
           priority
         />
@@ -52,7 +75,7 @@ export default function Navbar() {
         <div className="relative">
           <button
             onClick={() => setIsModulesOpen(!isModulesOpen)}
-            className="navbar-title flex items-center px-4 py-2 rounded hover:bg-gray-100"
+            className="rounded-xl text-white flex items-center px-8 py-2 border border-gray-200 rounded hover:text-red-700 hover:bg-gray-300"
           >
             Módulos
           </button>
@@ -79,16 +102,16 @@ export default function Navbar() {
             <>
               <button
                 onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                className="w-10 h-10 rounded-full bg-gray-300 text-white flex items-center justify-center font-bold"
+                className="w-12 h-12 text-[25px] rounded-full cursor-pointer border-3 border-gray-300 bg-transparent hover:bg-gray-300 text-yellow-300 hover:text-red-700 flex items-center justify-center font-bold"
               >
                 {getInitials(user.name)}
               </button>
 
               {isUserMenuOpen && (
-                <div className="absolute right-0 top-full mt-2 bg-white shadow-lg rounded-md py-2 z-20 min-w-[150px] flex flex-col">
+                <div className="absolute module-dropdown right-0 pr-2 top-full mt-2 bg-white shadow-lg rounded-md py-2 z-20 min-w-[150px] flex flex-col">
                   <button
-                    onClick={logout}
-                    className="px-4 py-2 hover:bg-gray-100 text-left rounded"
+                    onClick={handleLogout}
+                    className="px-4 py-2 navbar-link  text-left rounded"
                   >
                     Salir
                   </button>
@@ -98,7 +121,7 @@ export default function Navbar() {
           ) : (
             <Link
               href="/login"
-              className="px-4 py-2 rounded-xl bg-gray-300 text-red-700 hover:bg-yellow-500"
+              className="px-4 py-3 rounded-xl bg-gray-300 text-red-700 hover:bg-yellow-500"
             >
               Ingresar
             </Link>

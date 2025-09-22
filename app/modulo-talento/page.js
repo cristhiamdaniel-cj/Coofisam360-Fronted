@@ -16,7 +16,7 @@ export default function FinancieroDashboard() {
       <div className="dashboard-financiero">
         <Link
           href="/modulo-talento/carpeta-disciplinario"
-          className="modulo-button"
+          className="modulo-button hover:shadow-lg "
         >
           <div className="logo">
             <Image
@@ -32,7 +32,7 @@ export default function FinancieroDashboard() {
         </Link>
         <Link
           href="/modulo-talento/carpeta-formador-talento"
-          className="modulo-button"
+          className="modulo-button hover:shadow-lg"
         >
           <div className="logo">
             <Image
@@ -48,7 +48,7 @@ export default function FinancieroDashboard() {
         </Link>
         <Link
           href="/modulo-talento/carpeta-sistema-gestion-salud"
-          className="modulo-button"
+          className="modulo-button hover:shadow-lg"
         >
           <div className="logo">
             <Image
@@ -62,7 +62,10 @@ export default function FinancieroDashboard() {
           </div>
           Sistema de Gestion de Seguridad y Salud en el Trabajo
         </Link>
-        <Link href="/modulo-talento/carpeta-talento" className="modulo-button">
+        <Link
+          href="/modulo-talento/carpeta-talento"
+          className="modulo-button hover:shadow-lg"
+        >
           <div className="logo">
             <Image
               src="/oficina.png" // Path relative to /public
