@@ -14,6 +14,7 @@ export default function LoginPage() {
   async function onSubmit(e) {
     e.preventDefault();
     setError("");
+
     try {
       const res = await fetch(`${base}/api/v1/auth/token/`, {
         method: "POST",
@@ -21,17 +22,20 @@ export default function LoginPage() {
         body: JSON.stringify({ username, password }),
       });
 
+      const data = await res.json(); // ✅ mover aquí antes de usarla
+      console.log(data);
+
       if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error(data.detail || "Credenciales inválidas");
+        console.error("Login error:", data);
+        alert(data.detail || "Error al iniciar sesión");
+        return;
       }
 
-      const data = await res.json();
       // guardamos token y username
       localStorage.setItem("authToken", data.token);
       localStorage.setItem("username", username);
 
-      // <-- IMPORTANT: avisamos al contexto que hay usuario
+      // avisamos al contexto que hay usuario
       setUser({ name: username });
 
       router.push("/"); // redirect to home
