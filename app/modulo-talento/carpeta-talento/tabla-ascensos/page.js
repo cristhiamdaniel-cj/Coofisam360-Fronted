@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 //import { getFinancialRecords } from "@/services/financial";
 import { FaRegSave } from "react-icons/fa";
 import { FaFileDownload } from "react-icons/fa";
@@ -7,7 +7,6 @@ import { IoSearch } from "react-icons/io5";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import { FiDownload } from "react-icons/fi";
-import { useMemo } from "react";
 
 const initialRows = [
   // 2024 - DICIEMBRE
@@ -619,51 +618,72 @@ const initialRows = [
 
 export default function GestionesTable() {
   const [rows, setRows] = useState(initialRows);
-  const [editedRows, setEditedRows] = useState([]);
+  const [filteredRows, setFilteredRows] = useState([]);
+  const [editedRows, setEditedRows] = useState({});
   const [search, setSearch] = useState("");
+  const [selectedYear, setSelectedYear] = useState("");
+  const [selectedMonth, setSelectedMonth] = useState("");
 
   const handleChange = (id, field, value) => {
-    // update rows state immediately
     setRows(prev =>
       prev.map(row => (row.id === id ? { ...row, [field]: value } : row))
     );
 
-    // mark this row as edited
     setEditedRows(prev => ({
       ...prev,
       [id]: { ...prev[id], [field]: value },
     }));
   };
 
-  const handleSave = async () => {
-    console.log("Saving edits:", editedRows);
+  useEffect(() => {
+    const query = search.trim().toLowerCase();
 
-    // Example: send to backend
-    /*
-    await fetch("https://coofisam360.ngrok.io/api/update-records/", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(editedRows),
+    const filtered = rows.filter(r => {
+      const matchesSearch =
+        !query || (r.Modalidad && r.Modalidad.toLowerCase().includes(query));
+      const matchesYear = !selectedYear || r.AÑO === Number(selectedYear);
+      const matchesMonth =
+        !selectedMonth ||
+        (r.MES && r.MES.toUpperCase() === selectedMonth.toUpperCase());
+      return matchesSearch && matchesYear && matchesMonth;
     });
-    */
 
-    // clear edited state after saving
+    setFilteredRows(filtered);
+  }, [search, rows, selectedYear, selectedMonth]);
+
+  const uniqueYears = [...new Set(rows.map(r => r.AÑO).filter(Boolean))];
+  const uniqueMonths = [
+    ...new Set(rows.map(r => r.MES && r.MES.toUpperCase()).filter(Boolean)),
+  ];
+  const monthNames = [
+    "ENERO",
+    "FEBRERO",
+    "MARZO",
+    "ABRIL",
+    "MAYO",
+    "JUNIO",
+    "JULIO",
+    "AGOSTO",
+    "SEPTIEMBRE",
+    "OCTUBRE",
+    "NOVIEMBRE",
+    "DICIEMBRE",
+  ];
+  const availableMonths = monthNames.filter(m => uniqueMonths.includes(m));
+
+  const handleSave = () => {
+    console.log("Saving edits:", editedRows);
     setEditedRows({});
   };
 
   const handleDownload = () => {
-    // Convert JSON to worksheet
     const worksheet = XLSX.utils.json_to_sheet(rows);
-
-    // Create a new workbook
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(
       workbook,
       worksheet,
       "Indicadores Financieros"
     );
-
-    // Write workbook and save
     const excelBuffer = XLSX.write(workbook, {
       bookType: "xlsx",
       type: "array",
@@ -672,33 +692,58 @@ export default function GestionesTable() {
     saveAs(data, "cupos.xlsx");
   };
 
-  const grouped = useMemo(() => {
+  // Agrupar filteredRows por año-mes para rowSpan
+  const groupedFiltered = useMemo(() => {
     const map = {};
-    for (const row of rows) {
+    for (const row of filteredRows) {
       const key = `${row.AÑO}-${row.MES}`;
       if (!map[key]) map[key] = [];
       map[key].push(row);
     }
     return map;
-  }, [rows]);
+  }, [filteredRows]);
 
   return (
     <main className="pt-4 pb-0 px-12 overflow-auto">
       <h1 className="titulo-tabla-cupos text-3xl font-semibold pb-4">
         Ascensos
       </h1>
+
       <div className="actions-container flex justify-between mb-4">
         <div className="search-bar flex gap-2">
-          <div className="search-bar flex gap-2">
-            <input
-              type="text"
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              placeholder="Buscar por codigo u oficina"
-              className="border w-[300px] px-2 py-1"
-            />
-          </div>
+          <input
+            type="text"
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            placeholder="Buscar por modalidad"
+            className="border w-[300px] px-2 py-1"
+          />
+          <select
+            value={selectedYear}
+            onChange={e => setSelectedYear(e.target.value)}
+            className="border px-2 py-1"
+          >
+            <option value="">Todos los años</option>
+            {uniqueYears.map(y => (
+              <option key={y} value={y}>
+                {y}
+              </option>
+            ))}
+          </select>
+          <select
+            value={selectedMonth}
+            onChange={e => setSelectedMonth(e.target.value)}
+            className="border px-2 py-1"
+          >
+            <option value="">Todos los meses</option>
+            {availableMonths.map(m => (
+              <option key={m} value={m}>
+                {m}
+              </option>
+            ))}
+          </select>
         </div>
+
         <div className="flex gap-4">
           {Object.keys(editedRows).length > 0 && (
             <button
@@ -710,8 +755,8 @@ export default function GestionesTable() {
             </button>
           )}
           <button
-            className="action-button flex gap-2 items-center justify-center cursor-pointer"
             onClick={handleDownload}
+            className="action-button flex gap-2 items-center justify-center cursor-pointer"
           >
             Descargar
             <FiDownload />
@@ -723,33 +768,21 @@ export default function GestionesTable() {
         <table className="table-auto border-collapse w-full">
           <thead>
             <tr className="tabla-header">
-              <th className="p-4 border text-center whitespace-nowrap">Año</th>
-              <th className="p-4 border text-center whitespace-nowrap">Mes</th>
-              <th className="p-4 border text-center whitespace-nowrap">
-                ID-Oficina
-              </th>
-              <th className="p-4 border text-center whitespace-nowrap">
-                Oficina o Subgerencia
-              </th>
-              <th className="p-4 border text-center whitespace-nowrap">
-                Cantidad
-              </th>
-              <th className="p-4 border text-center whitespace-nowrap">
-                Total Empleados
-              </th>
-              <th className="p-4 border text-center whitespace-nowrap">
-                % Variación
-              </th>
-              <th className="p-4 border text-center whitespace-nowrap">
-                Promedio
-              </th>
+              <th className="p-4 border text-center">Año</th>
+              <th className="p-4 border text-center">Mes</th>
+              <th className="p-4 border text-center">ID-Oficina</th>
+              <th className="p-4 border text-center">Oficina o Subgerencia</th>
+              <th className="p-4 border text-center">Cantidad</th>
+              <th className="p-4 border text-center">Total Empleados</th>
+              <th className="p-4 border text-center">% Variación</th>
+              <th className="p-4 border text-center">Promedio</th>
             </tr>
           </thead>
 
           <tbody className="tabla-cupos-content">
-            {Object.entries(grouped).map(([groupKey, groupRows]) =>
+            {Object.entries(groupedFiltered).map(([groupKey, groupRows]) =>
               groupRows.map((row, idx) => (
-                <tr key={idx}>
+                <tr key={row["ID-OFICINA"]}>
                   <td className="p-2 border text-center">{row.AÑO}</td>
                   <td className="p-2 border text-center">{row.MES}</td>
                   <td className="p-2 border text-center">

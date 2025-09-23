@@ -79,16 +79,20 @@ export default function GestionesTable() {
   const [editedRows, setEditedRows] = useState([]);
   const [search, setSearch] = useState("");
 
-  const handleChange = (id, field, value) => {
-    // update rows state immediately
-    setRows(prev =>
-      prev.map(row => (row.id === id ? { ...row, [field]: value } : row))
-    );
+  const handleChange = (index, field, value) => {
+    // Convertir a número si es campo numérico
 
-    // mark this row as edited
+    // Actualizar rows usando el índice
+    setRows(prev => {
+      const newRows = [...prev];
+      newRows[index] = { ...newRows[index], [field]: value };
+      return newRows;
+    });
+
+    // Actualizar editedRows
     setEditedRows(prev => ({
       ...prev,
-      [id]: { ...prev[id], [field]: value },
+      [index]: { ...prev[index], [field]: value },
     }));
   };
 
@@ -181,8 +185,8 @@ export default function GestionesTable() {
           </thead>
 
           <tbody className="tabla-cupos-content">
-            {rows.map((row, i) => (
-              <tr key={i}>
+            {rows.map((row, idx) => (
+              <tr key={idx}>
                 <td className="p-2 border text-center">{row.AÑO}</td>
                 <td className="p-2 border text-center">{row.MES}</td>
                 <td className="p-2 border text-center">
@@ -191,7 +195,16 @@ export default function GestionesTable() {
                 <td className="p-2 border text-center">
                   {row["CANTIDAD BENEFICIADOS"]}
                 </td>
-                <td className="p-2 border text-center">{row["VALOR BONO"]}</td>
+                <td className="p-2 border text-center">
+                  <input
+                    type="number"
+                    value={row["VALOR BONO"]}
+                    onChange={e =>
+                      handleChange(idx, "VALOR BONO", e.target.value)
+                    }
+                    className="px-2 py-1 w-full border"
+                  />
+                </td>
                 <td className="p-2 border text-center">{row["TOTAL BONO"]}</td>
                 <td className="p-2 border text-center">{row["% VARIACIÓN"]}</td>
               </tr>

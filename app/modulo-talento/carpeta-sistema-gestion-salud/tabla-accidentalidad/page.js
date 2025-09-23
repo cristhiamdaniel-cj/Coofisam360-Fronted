@@ -21,6 +21,8 @@ export default function GestionesTable() {
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
   const [saving, setSaving] = useState(false);
+  const [selectedYear, setSelectedYear] = useState();
+  const [selectedMonth, setSelectedMonth] = useState();
 
   useEffect(() => {
     async function load() {
@@ -37,6 +39,53 @@ export default function GestionesTable() {
     }
     load();
   }, []);
+
+  useEffect(() => {
+    const query = search.trim().toLowerCase();
+
+    const filtered = rows
+      .filter(r => {
+        const matchesSearch =
+          !query || r.TipoVinculacion.toLowerCase().includes(query);
+
+        const matchesYear = !selectedYear || r.Año === Number(selectedYear);
+
+        // Ahora comparamos el mes como string en mayúscula
+        const matchesMonth =
+          !selectedMonth || r.Mes.toUpperCase() === selectedMonth.toUpperCase();
+
+        return matchesSearch && matchesYear && matchesMonth;
+      })
+      .sort((a, b) => Number(a.codigo) - Number(b.codigo));
+
+    setFilteredRows(filtered);
+  }, [search, rows, selectedYear, selectedMonth]);
+
+  // Obtener años únicos
+  const uniqueYears = [...new Set(rows.map(r => r.Año).filter(Boolean))];
+
+  // Obtener meses únicos en mayúscula
+  const uniqueMonths = [
+    ...new Set(rows.map(r => r.Mes && r.Mes.toUpperCase()).filter(Boolean)),
+  ];
+
+  // Mantener el orden original de los meses
+  const monthNames = [
+    "ENERO",
+    "FEBRERO",
+    "MARZO",
+    "ABRIL",
+    "MAYO",
+    "JUNIO",
+    "JULIO",
+    "AGOSTO",
+    "SEPTIEMBRE",
+    "OCTUBRE",
+    "NOVIEMBRE",
+    "DICIEMBRE",
+  ];
+
+  const availableMonths = monthNames.filter(m => uniqueMonths.includes(m));
 
   const handleChange = (id, field, value) => {
     const updateRow = row => (row.id === id ? { ...row, [field]: value } : row);
@@ -68,14 +117,14 @@ export default function GestionesTable() {
 
   const handleDownload = () => {
     // Convert JSON to worksheet
-    const worksheet = XLSX.utils.json_to_sheet(rows);
+    const worksheet = XLSX.utils.json_to_sheet(filteredRows);
 
     // Create a new workbook
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(
       workbook,
       worksheet,
-      "Indicadores Financieros"
+      "Tabla de Accidentalidad"
     );
 
     // Write workbook and save
@@ -84,7 +133,7 @@ export default function GestionesTable() {
       type: "array",
     });
     const data = new Blob([excelBuffer], { type: "application/octet-stream" });
-    saveAs(data, "cupos.xlsx");
+    saveAs(data, "tablaAccidentalidad.xlsx");
   };
 
   const handleAddRow = () => {
@@ -113,15 +162,38 @@ export default function GestionesTable() {
       </h1>
       <div className="actions-container flex justify-between mb-4">
         <div className="search-bar flex gap-2">
-          <div className="search-bar flex gap-2">
-            <input
-              type="text"
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              placeholder="Buscar por codigo u oficina"
-              className="border w-[300px] px-2 py-1"
-            />
-          </div>
+          <input
+            type="text"
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            placeholder="Buscar por Tipo de Vinculación"
+            className="border w-[300px] px-2 py-1"
+          />
+          <select
+            value={selectedYear}
+            onChange={e => setSelectedYear(e.target.value)}
+            className="border px-2 py-1"
+          >
+            <option value="">Todos los años</option>
+            {uniqueYears.map(y => (
+              <option key={y} value={y}>
+                {y}
+              </option>
+            ))}
+          </select>
+          <select
+            value={selectedMonth}
+            onChange={e => setSelectedMonth(e.target.value)}
+            className="border px-2 py-1"
+          >
+            <option value="">Todos los meses</option>
+            {availableMonths.map(m => (
+              <option key={m} value={m}>
+                {m}
+                {/* Opcional: mostrar capitalizado */}
+              </option>
+            ))}
+          </select>
         </div>
         <div className="flex gap-4">
           {Object.keys(editedRows).length > 0 && (
@@ -188,7 +260,7 @@ export default function GestionesTable() {
           </thead>
 
           <tbody className="tabla-cupos-content p-4">
-            {rows.map((r, idx) => (
+            {filteredRows.map((r, idx) => (
               <tr key={idx}>
                 <td className="p-2 border text-left whitespace-nowrap">
                   <input

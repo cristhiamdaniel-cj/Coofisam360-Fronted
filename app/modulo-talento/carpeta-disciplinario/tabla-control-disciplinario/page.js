@@ -5,20 +5,515 @@ import {
   saveControlRow,
 } from "../../../services/modulo-talento/carpeta-disciplinario/controlDiscipline";
 import { IoSearch } from "react-icons/io5";
-import { FiDownload } from "react-icons/fi";
-import { FaRegSave, FaRegFolderOpen, FaPlay } from "react-icons/fa";
+import { FaRegSave, FaFileDownload } from "react-icons/fa";
+import { FaArrowDownWideShort } from "react-icons/fa6";
 import { TbUpload } from "react-icons/tb";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 
+const initialRows = [
+  {
+    trabajador: "CARLOS FERNANDO GONZALEZ",
+    oficina: "DIRECCIÓN GENERAL",
+    CARGO: "SUBGERENTE COMERCIAL",
+    ANTIGÜEDAD: "02/12/20",
+    MOTIVO: "INCUMPLIMIENTO MANUAL DE FUNCIONES",
+    FECHA_EN_QUE_SUCEDIERON_LOS_HECHOS: "26/11/2024",
+    FECHA_DE_CONOCIMIENTO_DE_LOS_HECHOS: "13/01/2025",
+    FECHA_NOTIFICACIÓN: "20/01/2025",
+    Inicio_de_proceso_x_Día: "7",
+    POSIBLE_SANCION: "SUSPENSION",
+    GRAVEDAD_NOTIFICADA: "GRAVE",
+    FECHA_DESCARGOS: "23/01/2025",
+    FECHA_DESICIÓN_PRIMERA_INSTANCIA: "19/02/25",
+    GRAVEDAD_PRIMERA_INSTANCIA: "GRAVE",
+    SANCION_PRIMERA_INSTANCIA: "SUSPENSION",
+    Duracion_Proceso_Inicial: "30",
+    RECURSO: "NO INTERPUESTO",
+    FECHA_INTERPOSICION_RECURSO: "",
+    FECHA_DECISIÓN_RECURSO_PRIMERA_INSTANCIA: "",
+    DECISIÓN_RECURSO_PRIMERA_INSTANCIA: "",
+    Duración_Proceso_x_1_Instancia: "0",
+    DECISIÓN_RECURSO_SEGUNDA_INSTANCIA: "",
+    GRAVEDAD_SEGUNDA_INSTANCIA: "",
+    SANCION_SEGUNDA_INSTANCIA: "",
+    FECHA_DE_DECISIÓN_SEGUNDA_INSTANCIA: "",
+    Duración_Proceso_x_2_Instancia: "0",
+    TIEMPO_DE_SUSPENSION: "4 DÍAS",
+    ETAPA_DEL_PROCESO: "TERMINADO",
+    ESTADO_DEL_EMPLEADO: "ACTIVO",
+    Diferencia_x_Día: "1455",
+    Total_Vinculación_x_Año_y_Día: "4,0",
+    Tipo_de_Impacto: "Operacional",
+    Duración_total_del_proceso: "30",
+  },
+  {
+    trabajador: "FRANCY LUPITA ORTIZ MENDOZA",
+    oficina: "NEIVA",
+    CARGO: "ASESOR MICROFINANZAS URBANO",
+    ANTIGÜEDAD: "04/09/23",
+    MOTIVO: "INCUMPLIMIENTO JORNADA LABORAL",
+    FECHA_EN_QUE_SUCEDIERON_LOS_HECHOS: "04/01/2025",
+    FECHA_DE_CONOCIMIENTO_DE_LOS_HECHOS: "08/01/2025",
+    FECHA_NOTIFICACIÓN: "27/01/2025",
+    Inicio_de_proceso_x_Día: "19",
+    POSIBLE_SANCION: "SUSPENSION",
+    GRAVEDAD_NOTIFICADA: "GRAVE",
+    FECHA_DESCARGOS: "",
+    FECHA_DESICIÓN_PRIMERA_INSTANCIA: "03/02/25",
+    GRAVEDAD_PRIMERA_INSTANCIA: "",
+    SANCION_PRIMERA_INSTANCIA: "",
+    Duracion_Proceso_Inicial: "7",
+    RECURSO: "PROCESO NO CONCLUIDO",
+    FECHA_INTERPOSICION_RECURSO: "",
+    FECHA_DECISIÓN_RECURSO_PRIMERA_INSTANCIA: "",
+    DECISIÓN_RECURSO_PRIMERA_INSTANCIA: "",
+    Duración_Proceso_x_1_Instancia: "0",
+    DECISIÓN_RECURSO_SEGUNDA_INSTANCIA: "",
+    GRAVEDAD_SEGUNDA_INSTANCIA: "",
+    SANCION_SEGUNDA_INSTANCIA: "",
+    FECHA_DE_DECISIÓN_SEGUNDA_INSTANCIA: "",
+    Duración_Proceso_x_2_Instancia: "0",
+    TIEMPO_DE_SUSPENSION: "",
+    ETAPA_DEL_PROCESO: "TERMINADO",
+    ESTADO_DEL_EMPLEADO: "RETIRADO",
+    Diferencia_x_Día: "488",
+    Total_Vinculación_x_Año_y_Día: "1,4",
+    Tipo_de_Impacto: "Operacional",
+    Duración_total_del_proceso: "7",
+  },
+  {
+    trabajador: "SEIDY MARCELA ROBAYO CAMACHO",
+    oficina: "GUADALUPE",
+    CARGO: "ASESOR COMERCIAL",
+    ANTIGÜEDAD: "04/04/22",
+    MOTIVO: "INCUMPLIMIENTO JORNADA LABORAL",
+    FECHA_EN_QUE_SUCEDIERON_LOS_HECHOS: "07/01/2025",
+    FECHA_DE_CONOCIMIENTO_DE_LOS_HECHOS: "08/01/2025",
+    FECHA_NOTIFICACIÓN: "09/01/2025",
+    Inicio_de_proceso_x_Día: "1",
+    POSIBLE_SANCION: "LLAMADO DE ATENCIÓN",
+    GRAVEDAD_NOTIFICADA: "LEVE",
+    FECHA_DESCARGOS: "13/01/2025",
+    FECHA_DESICIÓN_PRIMERA_INSTANCIA: "17/01/25",
+    GRAVEDAD_PRIMERA_INSTANCIA: "LEVE",
+    SANCION_PRIMERA_INSTANCIA: "LLAMADO DE ATENCION",
+    Duracion_Proceso_Inicial: "8",
+    RECURSO: "NO INTERPUESTO",
+    FECHA_INTERPOSICION_RECURSO: "",
+    FECHA_DECISIÓN_RECURSO_PRIMERA_INSTANCIA: "",
+    DECISIÓN_RECURSO_PRIMERA_INSTANCIA: "",
+    Duración_Proceso_x_1_Instancia: "0",
+    DECISIÓN_RECURSO_SEGUNDA_INSTANCIA: "",
+    GRAVEDAD_SEGUNDA_INSTANCIA: "",
+    SANCION_SEGUNDA_INSTANCIA: "",
+    FECHA_DE_DECISIÓN_SEGUNDA_INSTANCIA: "",
+    Duración_Proceso_x_2_Instancia: "0",
+    TIEMPO_DE_SUSPENSION: "",
+    ETAPA_DEL_PROCESO: "TERMINADO",
+    ESTADO_DEL_EMPLEADO: "ACTIVO",
+    Diferencia_x_Día: "1009",
+    Total_Vinculación_x_Año_y_Día: "2,8",
+    Tipo_de_Impacto: "Operacional",
+    Duración_total_del_proceso: "8",
+  },
+  {
+    trabajador: "JOSE ALEXIS PEÑA VALENCIA",
+    oficina: "GARZON",
+    CARGO: "JEFE DE OPERACIONES",
+    ANTIGÜEDAD: "01/04/18",
+    MOTIVO: "OMISIÓN CONTROL DE DESEMBOLSO",
+    FECHA_EN_QUE_SUCEDIERON_LOS_HECHOS: "18/01/2025",
+    FECHA_DE_CONOCIMIENTO_DE_LOS_HECHOS: "13/02/2025",
+    FECHA_NOTIFICACIÓN: "05/03/2025",
+    Inicio_de_proceso_x_Día: "20",
+    POSIBLE_SANCION: "SUSPENSION",
+    GRAVEDAD_NOTIFICADA: "GRAVE",
+    FECHA_DESCARGOS: "06/03/2025",
+    FECHA_DESICIÓN_PRIMERA_INSTANCIA: "31/03/25",
+    GRAVEDAD_PRIMERA_INSTANCIA: "GRAVE",
+    SANCION_PRIMERA_INSTANCIA: "SUSPENSION",
+    Duracion_Proceso_Inicial: "26",
+    RECURSO: "NO INTERPUESTO",
+    FECHA_INTERPOSICION_RECURSO: "",
+    FECHA_DECISIÓN_RECURSO_PRIMERA_INSTANCIA: "",
+    DECISIÓN_RECURSO_PRIMERA_INSTANCIA: "",
+    Duración_Proceso_x_1_Instancia: "0",
+    DECISIÓN_RECURSO_SEGUNDA_INSTANCIA: "",
+    GRAVEDAD_SEGUNDA_INSTANCIA: "",
+    SANCION_SEGUNDA_INSTANCIA: "",
+    FECHA_DE_DECISIÓN_SEGUNDA_INSTANCIA: "",
+    Duración_Proceso_x_2_Instancia: "0",
+    TIEMPO_DE_SUSPENSION: "6 DÍAS",
+    ETAPA_DEL_PROCESO: "TERMINADO",
+    ESTADO_DEL_EMPLEADO: "ACTIVO",
+    Diferencia_x_Día: "2484",
+    Total_Vinculación_x_Año_y_Día: "6,9",
+    Tipo_de_Impacto: "Económico",
+    Duración_total_del_proceso: "26",
+  },
+  {
+    trabajador: "CLAUDIA PATRICIA MONTES RODRIGUEZ",
+    oficina: "GARZON",
+    CARGO: "ASESOR COMERCIAL",
+    ANTIGÜEDAD: "25/07/18",
+    MOTIVO: "OMISIÓN CONTROL DE DESEMBOLSO",
+    FECHA_EN_QUE_SUCEDIERON_LOS_HECHOS: "14/08/2024",
+    FECHA_DE_CONOCIMIENTO_DE_LOS_HECHOS: "03/03/2025",
+    FECHA_NOTIFICACIÓN: "04/04/2025",
+    Inicio_de_proceso_x_Día: "32",
+    POSIBLE_SANCION: "SUSPENSION",
+    GRAVEDAD_NOTIFICADA: "GRAVE",
+    FECHA_DESCARGOS: "07/04/2025",
+    FECHA_DESICIÓN_PRIMERA_INSTANCIA: "22/04/25",
+    GRAVEDAD_PRIMERA_INSTANCIA: "LEVE",
+    SANCION_PRIMERA_INSTANCIA: "LLAMADO DE ATENCION",
+    Duracion_Proceso_Inicial: "18",
+    RECURSO: "NO INTERPUESTO",
+    FECHA_INTERPOSICION_RECURSO: "",
+    FECHA_DECISIÓN_RECURSO_PRIMERA_INSTANCIA: "",
+    DECISIÓN_RECURSO_PRIMERA_INSTANCIA: "",
+    Duración_Proceso_x_1_Instancia: "0",
+    DECISIÓN_RECURSO_SEGUNDA_INSTANCIA: "",
+    GRAVEDAD_SEGUNDA_INSTANCIA: "",
+    SANCION_SEGUNDA_INSTANCIA: "",
+    FECHA_DE_DECISIÓN_SEGUNDA_INSTANCIA: "",
+    Duración_Proceso_x_2_Instancia: "0",
+    TIEMPO_DE_SUSPENSION: "",
+    ETAPA_DEL_PROCESO: "TERMINADO",
+    ESTADO_DEL_EMPLEADO: "ACTIVO",
+    Diferencia_x_Día: "2212",
+    Total_Vinculación_x_Año_y_Día: "6,1",
+    Tipo_de_Impacto: "Económico",
+    Duración_total_del_proceso: "18",
+  },
+  {
+    trabajador: "KAREN DAYANNA CERQUERA CABRERA",
+    oficina: "GARZON",
+    CARGO: "ASESOR MICROFINANZAS URBANO",
+    ANTIGÜEDAD: "11/01/23",
+    MOTIVO: "OMISIÓN VALIDACIÓN DE IDENTIDAD",
+    FECHA_EN_QUE_SUCEDIERON_LOS_HECHOS: "07/01/2025",
+    FECHA_DE_CONOCIMIENTO_DE_LOS_HECHOS: "24/01/2025",
+    FECHA_NOTIFICACIÓN: "04/04/2025",
+    Inicio_de_proceso_x_Día: "70",
+    POSIBLE_SANCION: "SUSPENSION",
+    GRAVEDAD_NOTIFICADA: "GRAVE",
+    FECHA_DESCARGOS: "07/04/2025",
+    FECHA_DESICIÓN_PRIMERA_INSTANCIA: "22/04/25",
+    GRAVEDAD_PRIMERA_INSTANCIA: "LEVE",
+    SANCION_PRIMERA_INSTANCIA: "LLAMADO DE ATENCION",
+    Duracion_Proceso_Inicial: "18",
+    RECURSO: "NO INTERPUESTO",
+    FECHA_INTERPOSICION_RECURSO: "",
+    FECHA_DECISIÓN_RECURSO_PRIMERA_INSTANCIA: "",
+    DECISIÓN_RECURSO_PRIMERA_INSTANCIA: "",
+    Duración_Proceso_x_1_Instancia: "0",
+    DECISIÓN_RECURSO_SEGUNDA_INSTANCIA: "",
+    GRAVEDAD_SEGUNDA_INSTANCIA: "",
+    SANCION_SEGUNDA_INSTANCIA: "",
+    FECHA_DE_DECISIÓN_SEGUNDA_INSTANCIA: "",
+    Duración_Proceso_x_2_Instancia: "0",
+    TIEMPO_DE_SUSPENSION: "",
+    ETAPA_DEL_PROCESO: "TERMINADO",
+    ESTADO_DEL_EMPLEADO: "ACTIVO",
+    Diferencia_x_Día: "727",
+    Total_Vinculación_x_Año_y_Día: "2,0",
+    Tipo_de_Impacto: "Operacional",
+    Duración_total_del_proceso: "18",
+  },
+  {
+    trabajador: "LEIDY YOHANNA GUTIERREZ PERDOMO",
+    oficina: "GARZON",
+    CARGO: "ASESOR COMERCIAL",
+    ANTIGÜEDAD: "04/01/21",
+    MOTIVO: "OMISIÓN CONTROL DE DESEMBOLSO",
+    FECHA_EN_QUE_SUCEDIERON_LOS_HECHOS: "14/08/2024",
+    FECHA_DE_CONOCIMIENTO_DE_LOS_HECHOS: "25/01/2025",
+    FECHA_NOTIFICACIÓN: "04/04/2025",
+    Inicio_de_proceso_x_Día: "69",
+    POSIBLE_SANCION: "SUSPENSION",
+    GRAVEDAD_NOTIFICADA: "GRAVE",
+    FECHA_DESCARGOS: "08/04/2025",
+    FECHA_DESICIÓN_PRIMERA_INSTANCIA: "22/04/25",
+    GRAVEDAD_PRIMERA_INSTANCIA: "LEVE",
+    SANCION_PRIMERA_INSTANCIA: "LLAMADO DE ATENCION",
+    Duracion_Proceso_Inicial: "18",
+    RECURSO: "NO INTERPUESTO",
+    FECHA_INTERPOSICION_RECURSO: "",
+    FECHA_DECISIÓN_RECURSO_PRIMERA_INSTANCIA: "",
+    DECISIÓN_RECURSO_PRIMERA_INSTANCIA: "",
+    Duración_Proceso_x_1_Instancia: "0",
+    DECISIÓN_RECURSO_SEGUNDA_INSTANCIA: "",
+    GRAVEDAD_SEGUNDA_INSTANCIA: "",
+    SANCION_SEGUNDA_INSTANCIA: "",
+    FECHA_DE_DECISIÓN_SEGUNDA_INSTANCIA: "",
+    Duración_Proceso_x_2_Instancia: "0",
+    TIEMPO_DE_SUSPENSION: "",
+    ETAPA_DEL_PROCESO: "TERMINADO",
+    ESTADO_DEL_EMPLEADO: "ACTIVO",
+    Diferencia_x_Día: "1318",
+    Total_Vinculación_x_Año_y_Día: "3,7",
+    Tipo_de_Impacto: "Económico",
+    Duración_total_del_proceso: "18",
+  },
+  {
+    trabajador: "EDNA XIMENA FAJARDO PARRA",
+    oficina: "GIGANTE",
+    CARGO: "ASESOR COMERCIAL",
+    ANTIGÜEDAD: "26/09/22",
+    MOTIVO: "OMISIÓN EN VALIDACIÓN DE CONSIGNACIONES BANCARIAS",
+    FECHA_EN_QUE_SUCEDIERON_LOS_HECHOS: "24/08/2024",
+    FECHA_DE_CONOCIMIENTO_DE_LOS_HECHOS: "16/09/2024",
+    FECHA_NOTIFICACIÓN: "04/04/2025",
+    Inicio_de_proceso_x_Día: "200",
+    POSIBLE_SANCION: "SUSPENSION",
+    GRAVEDAD_NOTIFICADA: "GRAVE",
+    FECHA_DESCARGOS: "04/04/2025",
+    FECHA_DESICIÓN_PRIMERA_INSTANCIA: "22/04/25",
+    GRAVEDAD_PRIMERA_INSTANCIA: "LEVE",
+    SANCION_PRIMERA_INSTANCIA: "LLAMADO DE ATENCIÓN",
+    Duracion_Proceso_Inicial: "18",
+    RECURSO: "APELACIÓN",
+    FECHA_INTERPOSICION_RECURSO: "25/01/2025",
+    FECHA_DECISIÓN_RECURSO_PRIMERA_INSTANCIA: "",
+    DECISIÓN_RECURSO_PRIMERA_INSTANCIA: "",
+    Duración_Proceso_x_1_Instancia: "0",
+    DECISIÓN_RECURSO_SEGUNDA_INSTANCIA: "CONFIRMA",
+    GRAVEDAD_SEGUNDA_INSTANCIA: "LEVE",
+    SANCION_SEGUNDA_INSTANCIA: "LLAMADO DE ATENCIÓN",
+    FECHA_DE_DECISIÓN_SEGUNDA_INSTANCIA: "29/04/2025",
+    Duración_Proceso_x_2_Instancia: "0",
+    TIEMPO_DE_SUSPENSION: "",
+    ETAPA_DEL_PROCESO: "TERMINADO",
+    ESTADO_DEL_EMPLEADO: "ACTIVO",
+    Diferencia_x_Día: "698",
+    Total_Vinculación_x_Año_y_Día: "1,9",
+    Tipo_de_Impacto: "Económico",
+    Duración_total_del_proceso: "18",
+  },
+  {
+    trabajador: "CARLOS FERNANDO GONZALEZ",
+    oficina: "DIRECCIÓN GENERAL",
+    CARGO: "SUBGERENTE COMERCIAL",
+    ANTIGÜEDAD: "02/12/20",
+    MOTIVO: "CONFLICTO DE INTERES",
+    FECHA_EN_QUE_SUCEDIERON_LOS_HECHOS: "01/10/2024",
+    FECHA_DE_CONOCIMIENTO_DE_LOS_HECHOS: "23/10/2024",
+    FECHA_NOTIFICACIÓN: "20/01/2025",
+    Inicio_de_proceso_x_Día: "89",
+    POSIBLE_SANCION: "SUSPENSION",
+    GRAVEDAD_NOTIFICADA: "GRAVE",
+    FECHA_DESCARGOS: "23/01/2025",
+    FECHA_DESICIÓN_PRIMERA_INSTANCIA: "19/02/25",
+    GRAVEDAD_PRIMERA_INSTANCIA: "GRAVE",
+    SANCION_PRIMERA_INSTANCIA: "SUSPENSION",
+    Duracion_Proceso_Inicial: "30",
+    RECURSO: "NO INTERPUESTO",
+    FECHA_INTERPOSICION_RECURSO: "",
+    FECHA_DECISIÓN_RECURSO_PRIMERA_INSTANCIA: "",
+    DECISIÓN_RECURSO_PRIMERA_INSTANCIA: "",
+    Duración_Proceso_x_1_Instancia: "0",
+    DECISIÓN_RECURSO_SEGUNDA_INSTANCIA: "",
+    GRAVEDAD_SEGUNDA_INSTANCIA: "",
+    SANCION_SEGUNDA_INSTANCIA: "",
+    FECHA_DE_DECISIÓN_SEGUNDA_INSTANCIA: "",
+    Duración_Proceso_x_2_Instancia: "4 DÍAS",
+    TIEMPO_DE_SUSPENSION: "",
+    ETAPA_DEL_PROCESO: "TERMINADO",
+    ESTADO_DEL_EMPLEADO: "ACTIVO",
+    Diferencia_x_Día: "1399",
+    Total_Vinculación_x_Año_y_Día: "3,9",
+    Tipo_de_Impacto: "Legal",
+    Duración_total_del_proceso: "30",
+  },
+  {
+    trabajador: "FRANCY YANIXA JIMENEZ TRUJILLO",
+    oficina: "NEIVA",
+    CARGO: "ASESOR MICROFINANZAS URBANO",
+    ANTIGÜEDAD: "21/02/23",
+    MOTIVO: "INDEBIDO PROCESOS DE VINCULACIÓN",
+    FECHA_EN_QUE_SUCEDIERON_LOS_HECHOS: "12/11/2024",
+    FECHA_DE_CONOCIMIENTO_DE_LOS_HECHOS: "02/12/2024",
+    FECHA_NOTIFICACIÓN: "15/04/2025",
+    Inicio_de_proceso_x_Día: "134",
+    POSIBLE_SANCION: "SUSPENSION",
+    GRAVEDAD_NOTIFICADA: "GRAVE",
+    FECHA_DESCARGOS: "22/04/2025",
+    FECHA_DESICIÓN_PRIMERA_INSTANCIA: "30/04/25",
+    GRAVEDAD_PRIMERA_INSTANCIA: "LEVE",
+    SANCION_PRIMERA_INSTANCIA: "LLAMADO DE ATENCIÓN",
+    Duracion_Proceso_Inicial: "15",
+    RECURSO: "NO INTERPUESTO",
+    FECHA_INTERPOSICION_RECURSO: "",
+    FECHA_DECISIÓN_RECURSO_PRIMERA_INSTANCIA: "",
+    DECISIÓN_RECURSO_PRIMERA_INSTANCIA: "",
+    Duración_Proceso_x_1_Instancia: "0",
+    DECISIÓN_RECURSO_SEGUNDA_INSTANCIA: "",
+    GRAVEDAD_SEGUNDA_INSTANCIA: "",
+    SANCION_SEGUNDA_INSTANCIA: "",
+    FECHA_DE_DECISIÓN_SEGUNDA_INSTANCIA: "",
+    Duración_Proceso_x_2_Instancia: "0",
+    TIEMPO_DE_SUSPENSION: "",
+    ETAPA_DEL_PROCESO: "TERMINADO",
+    ESTADO_DEL_EMPLEADO: "ACTIVO",
+    Diferencia_x_Día: "630",
+    Total_Vinculación_x_Año_y_Día: "1,8",
+    Tipo_de_Impacto: "Operacional",
+    Duración_total_del_proceso: "15",
+  },
+  {
+    trabajador: "MARIA ALEJANDRA MOTTA ESCOBAR",
+    oficina: "NEIVA",
+    CARGO: "ASESOR COMERCIAL",
+    ANTIGÜEDAD: "01/02/13",
+    MOTIVO: "INDEBIDO PROCESOS DE VINCULACIÓN",
+    FECHA_EN_QUE_SUCEDIERON_LOS_HECHOS: "02/08/2024",
+    FECHA_DE_CONOCIMIENTO_DE_LOS_HECHOS: "02/12/2024",
+    FECHA_NOTIFICACIÓN: "04/03/2025",
+    Inicio_de_proceso_x_Día: "92",
+    POSIBLE_SANCION: "SUSPENSION",
+    GRAVEDAD_NOTIFICADA: "GRAVE",
+    FECHA_DESCARGOS: "07/03/2025",
+    FECHA_DESICIÓN_PRIMERA_INSTANCIA: "15/04/25",
+    GRAVEDAD_PRIMERA_INSTANCIA: "",
+    SANCION_PRIMERA_INSTANCIA: "EXONERADA",
+    Duracion_Proceso_Inicial: "42",
+    RECURSO: "NO INTERPUESTO",
+    FECHA_INTERPOSICION_RECURSO: "",
+    FECHA_DECISIÓN_RECURSO_PRIMERA_INSTANCIA: "",
+    DECISIÓN_RECURSO_PRIMERA_INSTANCIA: "",
+    Duración_Proceso_x_1_Instancia: "0",
+    DECISIÓN_RECURSO_SEGUNDA_INSTANCIA: "",
+    GRAVEDAD_SEGUNDA_INSTANCIA: "",
+    SANCION_SEGUNDA_INSTANCIA: "",
+    FECHA_DE_DECISIÓN_SEGUNDA_INSTANCIA: "",
+    Duración_Proceso_x_2_Instancia: "0",
+    TIEMPO_DE_SUSPENSION: "",
+    ETAPA_DEL_PROCESO: "TERMINADO",
+    ESTADO_DEL_EMPLEADO: "ACTIVO",
+    Diferencia_x_Día: "4200",
+    Total_Vinculación_x_Año_y_Día: "11,7",
+    Tipo_de_Impacto: "Operacional",
+    Duración_total_del_proceso: "42",
+  },
+  {
+    trabajador: "YOLANDA CASTELLANOS CAMARGO",
+    oficina: "NEIVA",
+    CARGO: "ASESOR COMERCIAL",
+    ANTIGÜEDAD: "05/02/15",
+    MOTIVO: "INDEBIDO PROCESOS DE VINCULACIÓN",
+    FECHA_EN_QUE_SUCEDIERON_LOS_HECHOS: "06/08/2024",
+    FECHA_DE_CONOCIMIENTO_DE_LOS_HECHOS: "02/12/2024",
+    FECHA_NOTIFICACIÓN: "04/03/2025",
+    Inicio_de_proceso_x_Día: "92",
+    POSIBLE_SANCION: "SUSPENSION",
+    GRAVEDAD_NOTIFICADA: "GRAVE",
+    FECHA_DESCARGOS: "07/03/2025",
+    FECHA_DESICIÓN_PRIMERA_INSTANCIA: "29/04/25",
+    GRAVEDAD_PRIMERA_INSTANCIA: "LEVE",
+    SANCION_PRIMERA_INSTANCIA: "LLAMADO DE ATENCIÓN",
+    Duracion_Proceso_Inicial: "40",
+    RECURSO: "APELACIÓN",
+    FECHA_INTERPOSICION_RECURSO: "10/04/2025",
+    FECHA_DECISIÓN_RECURSO_PRIMERA_INSTANCIA: "20/04/2025",
+    DECISIÓN_RECURSO_PRIMERA_INSTANCIA: "CONFIRMA",
+    Duración_Proceso_x_1_Instancia: "0",
+    DECISIÓN_RECURSO_SEGUNDA_INSTANCIA: "",
+    GRAVEDAD_SEGUNDA_INSTANCIA: "",
+    SANCION_SEGUNDA_INSTANCIA: "",
+    FECHA_DE_DECISIÓN_SEGUNDA_INSTANCIA: "",
+    Duración_Proceso_x_2_Instancia: "0",
+    TIEMPO_DE_SUSPENSION: "",
+    ETAPA_DEL_PROCESO: "TERMINADO",
+    ESTADO_DEL_EMPLEADO: "ACTIVO",
+    Diferencia_x_Día: "3600",
+    Total_Vinculación_x_Año_y_Día: "10,0",
+    Tipo_de_Impacto: "Operacional",
+    Duración_total_del_proceso: "40",
+  },
+  {
+    trabajador: "JOSE PABLO MONTOYA",
+    oficina: "GARZON",
+    CARGO: "ASESOR MICROFINANZAS RURAL",
+    ANTIGÜEDAD: "20/06/18",
+    MOTIVO: "OMISIÓN CONTROL DE DESEMBOLSO",
+    FECHA_EN_QUE_SUCEDIERON_LOS_HECHOS: "14/08/2024",
+    FECHA_DE_CONOCIMIENTO_DE_LOS_HECHOS: "25/01/2025",
+    FECHA_NOTIFICACIÓN: "04/04/2025",
+    Inicio_de_proceso_x_Día: "69",
+    POSIBLE_SANCION: "SUSPENSION",
+    GRAVEDAD_NOTIFICADA: "GRAVE",
+    FECHA_DESCARGOS: "08/04/2025",
+    FECHA_DESICIÓN_PRIMERA_INSTANCIA: "22/04/25",
+    GRAVEDAD_PRIMERA_INSTANCIA: "LEVE",
+    SANCION_PRIMERA_INSTANCIA: "LLAMADO DE ATENCIÓN",
+    Duracion_Proceso_Inicial: "18",
+    RECURSO: "NO INTERPUESTO",
+    FECHA_INTERPOSICION_RECURSO: "",
+    FECHA_DECISIÓN_RECURSO_PRIMERA_INSTANCIA: "",
+    DECISIÓN_RECURSO_PRIMERA_INSTANCIA: "",
+    Duración_Proceso_x_1_Instancia: "0",
+    DECISIÓN_RECURSO_SEGUNDA_INSTANCIA: "",
+    GRAVEDAD_SEGUNDA_INSTANCIA: "",
+    SANCION_SEGUNDA_INSTANCIA: "",
+    FECHA_DE_DECISIÓN_SEGUNDA_INSTANCIA: "",
+    Duración_Proceso_x_2_Instancia: "0",
+    TIEMPO_DE_SUSPENSION: "",
+    ETAPA_DEL_PROCESO: "TERMINADO",
+    ESTADO_DEL_EMPLEADO: "ACTIVO",
+    Diferencia_x_Día: "1318",
+    Total_Vinculación_x_Año_y_Día: "3,7",
+    Tipo_de_Impacto: "Económico",
+    Duración_total_del_proceso: "18",
+  },
+  {
+    trabajador: "LINA MARCELA PÉREZ GARCÍA",
+    oficina: "GARZON",
+    CARGO: "ASESOR COMERCIAL",
+    ANTIGÜEDAD: "10/01/20",
+    MOTIVO: "OMISIÓN CONTROL DE DESEMBOLSO",
+    FECHA_EN_QUE_SUCEDIERON_LOS_HECHOS: "14/08/2024",
+    FECHA_DE_CONOCIMIENTO_DE_LOS_HECHOS: "25/01/2025",
+    FECHA_NOTIFICACIÓN: "04/04/2025",
+    Inicio_de_proceso_x_Día: "69",
+    POSIBLE_SANCION: "SUSPENSION",
+    GRAVEDAD_NOTIFICADA: "GRAVE",
+    FECHA_DESCARGOS: "08/04/2025",
+    FECHA_DESICIÓN_PRIMERA_INSTANCIA: "22/04/25",
+    GRAVEDAD_PRIMERA_INSTANCIA: "LEVE",
+    SANCION_PRIMERA_INSTANCIA: "LLAMADO DE ATENCIÓN",
+    Duracion_Proceso_Inicial: "18",
+    RECURSO: "NO INTERPUESTO",
+    FECHA_INTERPOSICION_RECURSO: "",
+    FECHA_DECISIÓN_RECURSO_PRIMERA_INSTANCIA: "",
+    DECISIÓN_RECURSO_PRIMERA_INSTANCIA: "",
+    Duración_Proceso_x_1_Instancia: "0",
+    DECISIÓN_RECURSO_SEGUNDA_INSTANCIA: "",
+    GRAVEDAD_SEGUNDA_INSTANCIA: "",
+    SANCION_SEGUNDA_INSTANCIA: "",
+    FECHA_DE_DECISIÓN_SEGUNDA_INSTANCIA: "",
+    Duración_Proceso_x_2_Instancia: "0",
+    TIEMPO_DE_SUSPENSION: "",
+    ETAPA_DEL_PROCESO: "TERMINADO",
+    ESTADO_DEL_EMPLEADO: "ACTIVO",
+    Diferencia_x_Día: "1318",
+    Total_Vinculación_x_Año_y_Día: "3,7",
+    Tipo_de_Impacto: "Económico",
+    Duración_total_del_proceso: "18",
+  },
+];
+
 export default function GestionesTable() {
-  const [rows, setRows] = useState([]);
+  const [rows, setRows] = useState(initialRows);
   const [filteredRows, setFilteredRows] = useState([]);
   const [editedRows, setEditedRows] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
   const [saving, setSaving] = useState(false);
+  const [selectedYear, setSelectedYear] = useState();
+  const [selectedMonth, setSelectedMonth] = useState();
 
   useEffect(() => {
     async function load() {
@@ -35,6 +530,47 @@ export default function GestionesTable() {
     }
     load();
   }, []);
+
+  useEffect(() => {
+    const query = search.trim().toLowerCase();
+    const filtered = rows
+      .filter(r => {
+        const matchesSearch =
+          !query ||
+          r.oficina.toLowerCase().includes(query) ||
+          r.trabajador.toLowerCase().includes(query);
+
+        const matchesYear = !selectedYear || r.anio === Number(selectedYear);
+        const matchesMonth = !selectedMonth || r.mes === Number(selectedMonth);
+
+        return matchesSearch && matchesYear && matchesMonth;
+      })
+      .sort((a, b) => Number(a.codigo) - Number(b.codigo));
+
+    setFilteredRows(filtered);
+  }, [search, rows, selectedYear, selectedMonth]);
+
+  const uniqueYears = [...new Set(rows.map(r => r.anio).filter(Boolean))];
+  const uniqueMonths = [...new Set(rows.map(r => r.mes).filter(Boolean))];
+
+  const monthNames = [
+    "Enero",
+    "Febrero",
+    "Marzo",
+    "Abril",
+    "Mayo",
+    "Junio",
+    "Julio",
+    "Agosto",
+    "Septiembre",
+    "Octubre",
+    "Noviembre",
+    "Diciembre",
+  ];
+
+  const availableMonths = monthNames
+    .map((name, index) => ({ name, number: index + 1 }))
+    .filter(m => uniqueMonths.includes(m.number));
 
   const handleChange = (index, field, value) => {
     setRows(prev => {
@@ -74,6 +610,29 @@ export default function GestionesTable() {
     });
     const data = new Blob([excelBuffer], { type: "application/octet-stream" });
     saveAs(data, "control-disciplinario.xlsx");
+  };
+
+  const handleAddRow = () => {
+    const newRow = {
+      id: crypto.randomUUID(), // genera un id único
+      Año: new Date().getFullYear(),
+      Mes: new Date().getMonth(), // o podrías poner el mes actual
+      TotalGastosTransferencia: 0,
+      TrabajadoresCapacitados: 0,
+      CostoPorTrabajador: 0,
+      Modalidad: "",
+      Rentabilidad: "",
+      isNew: true,
+    };
+
+    setRows(prev => [newRow, ...prev]);
+    setFilteredRows(prev => [newRow, ...prev]);
+
+    // opcional: marcarla como editada inmediatamente
+    setEditedRows(prev => ({
+      ...prev,
+      [newRow.id]: newRow,
+    }));
   };
 
   const motivos = [
@@ -128,13 +687,38 @@ export default function GestionesTable() {
       </h1>
       <div className="actions-container flex justify-between mb-4">
         <div className="search-bar flex gap-2">
-          <input type="text" className="border w-[300px]" />
-          <button className="action-button flex gap-2 items-center justify-center cursor-pointer">
-            Buscar
-            <IoSearch />
-          </button>
+          <input
+            type="text"
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            placeholder="Buscar por trabajador u oficina"
+            className="border w-[300px] px-2 py-1"
+          />
+          <select
+            value={selectedYear}
+            onChange={e => setSelectedYear(e.target.value)}
+            className="border px-2 py-1"
+          >
+            <option value="">Todos los años</option>
+            {uniqueYears.map(y => (
+              <option key={y} value={y}>
+                {y}
+              </option>
+            ))}
+          </select>
+          <select
+            value={selectedMonth}
+            onChange={e => setSelectedMonth(e.target.value)}
+            className="border px-2 py-1"
+          >
+            <option value="">Todos los meses</option>
+            {availableMonths.map(m => (
+              <option key={m.number} value={m.number}>
+                {m.name}
+              </option>
+            ))}
+          </select>
         </div>
-
         <div className="flex gap-4">
           {Object.keys(editedRows).length > 0 && (
             <button
@@ -150,7 +734,14 @@ export default function GestionesTable() {
             onClick={handleDownload}
           >
             Descargar
-            <FiDownload />
+            <FaFileDownload />
+          </button>
+          <button
+            className="action-button flex gap-2 items-center justify-center cursor-pointer"
+            onClick={handleAddRow}
+          >
+            Añadir fila
+            <FaArrowDownWideShort />
           </button>
         </div>
       </div>
@@ -262,8 +853,8 @@ export default function GestionesTable() {
           </thead>
 
           <tbody className="tabla-cupos-content p-4">
-            {rows.map((r, i) => (
-              <tr key={r.i || i}>
+            {filteredRows.map((r, idx) => (
+              <tr key={idx}>
                 <td className="p-2 border text-left whitespace-nowrap">
                   {r.trabajador}
                 </td>
@@ -271,7 +862,7 @@ export default function GestionesTable() {
                   <select
                     value={r.oficina}
                     onChange={e => {
-                      handleChange(idx, "OFICINA", e.target.value);
+                      handleChange(idx, "oficina", e.target.value);
                     }}
                     className="border rounded p-1 w-full"
                   >
@@ -307,9 +898,7 @@ export default function GestionesTable() {
                   <select
                     value={r.CARGO}
                     onChange={e => {
-                      const newRows = [...rows];
-                      newRows[idx].CARGO = e.target.value;
-                      setRows(newRows);
+                      handleChange(idx, "CARGO", e.target.value);
                     }}
                     className="border rounded p-1 w-full"
                   >
@@ -340,9 +929,7 @@ export default function GestionesTable() {
                   <select
                     value={r.MOTIVO}
                     onChange={e => {
-                      const newRows = [...rows];
-                      newRows[idx].MOTIVO = e.target.value;
-                      setRows(newRows);
+                      handleChange(idx, "MOTIVO", e.target.value);
                     }}
                     className="border rounded p-1 w-full"
                   >
@@ -381,9 +968,11 @@ export default function GestionesTable() {
                   <select
                     value={r.GRAVEDAD_PRIMERA_INSTANCIA}
                     onChange={e => {
-                      const newRows = [...rows];
-                      newRows[idx].GRAVEDAD_PRIMERA_INSTANCIA = e.target.value;
-                      setRows(newRows);
+                      handleChange(
+                        idx,
+                        "GRAVEDAD_PRIMERA_INSTANCIA",
+                        e.target.value
+                      );
                     }}
                     className="border rounded p-1 w-full"
                   >
@@ -398,9 +987,11 @@ export default function GestionesTable() {
                   <select
                     value={r.SANCION_PRIMERA_INSTANCIA}
                     onChange={e => {
-                      const newRows = [...rows];
-                      newRows[idx].SANCION_PRIMERA_INSTANCIA = e.target.value;
-                      setRows(newRows);
+                      handleChange(
+                        idx,
+                        "SANCION_PRIMERA_INSTANCIA",
+                        e.target.value
+                      );
                     }}
                     className="border rounded p-1 w-full"
                   >
@@ -424,9 +1015,7 @@ export default function GestionesTable() {
                   <select
                     value={r.RECURSO}
                     onChange={e => {
-                      const newRows = [...rows];
-                      newRows[idx].RECURSO = e.target.value;
-                      setRows(newRows);
+                      handleChange(idx, "RECURSO", e.target.value);
                     }}
                     className="border rounded p-1 w-full"
                   >
@@ -452,10 +1041,11 @@ export default function GestionesTable() {
                   <select
                     value={r.DECISIÓN_RECURSO_PRIMERA_INSTANCIA}
                     onChange={e => {
-                      const newRows = [...rows];
-                      newRows[idx].DECISIÓN_RECURSO_PRIMERA_INSTANCIA =
-                        e.target.value;
-                      setRows(newRows);
+                      handleChange(
+                        idx,
+                        "DECISIÓN_RECURSO_PRIMERA_INSTANCIA",
+                        e.target.value
+                      );
                     }}
                     className="border rounded p-1 w-full"
                   >
@@ -473,10 +1063,11 @@ export default function GestionesTable() {
                   <select
                     value={r.DECISIÓN_RECURSO_SEGUNDA_INSTANCIA}
                     onChange={e => {
-                      const newRows = [...rows];
-                      newRows[idx].DECISIÓN_RECURSO_SEGUNDA_INSTANCIA =
-                        e.target.value;
-                      setRows(newRows);
+                      handleChange(
+                        idx,
+                        "DECISIÓN_RECURSO_SEGUNDA_INSTANCIA",
+                        e.target.value
+                      );
                     }}
                     className="border rounded p-1 w-full"
                   >
@@ -491,9 +1082,11 @@ export default function GestionesTable() {
                   <select
                     value={r.GRAVEDAD_SEGUNDA_INSTANCIA}
                     onChange={e => {
-                      const newRows = [...rows];
-                      newRows[idx].GRAVEDAD_SEGUNDA_INSTANCIA = e.target.value;
-                      setRows(newRows);
+                      handleChange(
+                        idx,
+                        "GRAVEDAD_SEGUNDA_INSTANCIA",
+                        e.target.value
+                      );
                     }}
                     className="border rounded p-1 w-full"
                   >
@@ -508,9 +1101,11 @@ export default function GestionesTable() {
                   <select
                     value={r.GRAVEDAD_PRIMERA_INSTANCIA}
                     onChange={e => {
-                      const newRows = [...rows];
-                      newRows[idx].GRAVEDAD_PRIMERA_INSTANCIA = e.target.value;
-                      setRows(newRows);
+                      handleChange(
+                        idx,
+                        "GRAVEDAD_PRIMERA_INSTANCIA",
+                        e.target.value
+                      );
                     }}
                     className="border rounded p-1 w-full"
                   >
@@ -534,9 +1129,7 @@ export default function GestionesTable() {
                   <select
                     value={r.ETAPA_DEL_PROCESO}
                     onChange={e => {
-                      const newRows = [...rows];
-                      newRows[idx].ETAPA_DEL_PROCESO = e.target.value;
-                      setRows(newRows);
+                      handleChange(idx, "ETAPA_DEL_PROCESO", e.target.value);
                     }}
                     className="border rounded p-1 w-full"
                   >
@@ -551,9 +1144,7 @@ export default function GestionesTable() {
                   <select
                     value={r.ESTADO_DEL_EMPLEADO}
                     onChange={e => {
-                      const newRows = [...rows];
-                      newRows[idx].ESTADO_DEL_EMPLEADO = e.target.value;
-                      setRows(newRows);
+                      handleChange(idx, "ESTADO_DEL_EMPLEADO", e.target.value);
                     }}
                     className="border rounded p-1 w-full"
                   >
@@ -574,9 +1165,7 @@ export default function GestionesTable() {
                   <select
                     value={r.Tipo_de_Impacto}
                     onChange={e => {
-                      const newRows = [...rows];
-                      newRows[idx].Tipo_de_Impacto = e.target.value;
-                      setRows(newRows);
+                      handleChange(idx, "Tipo_de_Impacto", e.target.value);
                     }}
                     className="border rounded p-1 w-full"
                   >

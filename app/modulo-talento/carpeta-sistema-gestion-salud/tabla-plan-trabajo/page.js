@@ -8,22 +8,40 @@ import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import { FiDownload } from "react-icons/fi";
 import React from "react";
+import { FaArrowDownWideShort } from "react-icons/fa6";
+
+const actividadesSST = [
+  "Evaluación Inicial",
+  "Inducción y reinducción a empleados",
+  "Actualización de la Matriz de identificación de peligros, evaluación y valoración de los riesgos.",
+  "Indicadores de gestión",
+  "Documentación de la designación del responsable del Sistema de Gestión de Seguridad y Salud en el Trabajo, con la respectiva asignación de responsabilidades.",
+  "Documentación de las responsabilidades específicas en el Sistema de Gestión de la Seguridad y Salud en el Trabajo a todos los niveles de la cooperativa",
+  "Solicitar al responsable del SG-SST - COPASST y CCL certificado de aprobación del curso virtual de cincuenta (50) horas en Seguridad y Salud en el Trabajo",
+  "Actualización de la matriz de requisitos legales",
+  "Actas de las reuniones mensuales del COPASST",
+  "Realizar la capacitación al Comité Paritario de Seguridad y Salud en el Trabajo",
+  "Actas de las reuniones mensuales del CCL",
+  "Capacitar al Comité de Convivencia Laboral",
+  "Diseñar el programa de Capacitación y entrenamiento de SST",
+  "Registro anual donde se evidencie que las personas con responsabilidades en el SG-SST realizaron la rendición de cuenta sobre su desempeño",
+  "Inducción y reinducción a Contratistas",
+  "Programa de riesgo visual",
+  "Programa de riesgo cardiovascular",
+  "Incluir como requisito para el proceso de selección y evaluación de proveedores y/o contratistas tengan documentado e implementado el Sistema de Gestión de Seguridad y Salud en el Trabajo",
+];
 
 export default function GestionesTable() {
   const [rows, setRows] = useState([]);
   const [editedRows, setEditedRows] = useState([]);
+  const [actividades, setActividades] = useState(actividadesSST);
 
-  const handleChange = (id, field, value) => {
-    // update rows state immediately
-    setRows(prev =>
-      prev.map(row => (row.id === id ? { ...row, [field]: value } : row))
-    );
-
-    // mark this row as edited
-    setEditedRows(prev => ({
-      ...prev,
-      [id]: { ...prev[id], [field]: value },
-    }));
+  const handleChange = (idx, field, value) => {
+    setActividades(prev => {
+      const newRows = [...prev];
+      newRows[idx] = { ...newRows[idx], [field]: value };
+      return newRows;
+    });
   };
 
   const handleSave = async () => {
@@ -63,33 +81,31 @@ export default function GestionesTable() {
     saveAs(data, "cupos.xlsx");
   };
 
-  const actividadesSST = [
-    "Evaluación Inicial",
-    "Inducción y reinducción a empleados",
-    "Actualización de la Matriz de identificación de peligros, evaluación y valoración de los riesgos.",
-    "Indicadores de gestión",
-    "Documentación de la designación del responsable del Sistema de Gestión de Seguridad y Salud en el Trabajo, con la respectiva asignación de responsabilidades.",
-    "Documentación de las responsabilidades específicas en el Sistema de Gestión de la Seguridad y Salud en el Trabajo a todos los niveles de la cooperativa",
-    "Solicitar al responsable del SG-SST - COPASST y CCL certificado de aprobación del curso virtual de cincuenta (50) horas en Seguridad y Salud en el Trabajo",
-    "Actualización de la matriz de requisitos legales",
-    "Actas de las reuniones mensuales del COPASST",
-    "Realizar la capacitación al Comité Paritario de Seguridad y Salud en el Trabajo",
-    "Actas de las reuniones mensuales del CCL",
-    "Capacitar al Comité de Convivencia Laboral",
-    "Diseñar el programa de Capacitación y entrenamiento de SST",
-    "Registro anual donde se evidencie que las personas con responsabilidades en el SG-SST realizaron la rendición de cuenta sobre su desempeño",
-    "Inducción y reinducción a Contratistas",
-    "Programa de riesgo visual",
-    "Programa de riesgo cardiovascular",
-    "Incluir como requisito para el proceso de selección y evaluación de proveedores y/o contratistas tengan documentado e implementado el Sistema de Gestión de Seguridad y Salud en el Trabajo",
-  ];
+  const handleAddRow = () => {
+    const newRow = {
+      id: `new-${Date.now()}`,
+      nombre: "Nueva actividad",
+      responsable: "",
+      recurso1: "SI",
+      recurso2: "NO",
+      observaciones: "",
+      isNew: true,
+    };
+
+    // Inicializar columnas P/E
+    for (let i = 0; i < 24; i++) {
+      newRow[`col${i}`] = false;
+    }
+
+    setActividades(prev => [newRow, ...prev]);
+  };
 
   return (
     <main className="pt-4 pb-0 px-12 overflow-auto">
       <h1 className="titulo-tabla-cupos text-3xl font-semibold pb-4">
         Plan de Trabajo Anual
       </h1>
-      <div className="actions-container flex justify-between mb-4">
+      <div className="actions-container flex justify-end mb-4">
         <div className="flex gap-4">
           {Object.keys(editedRows).length > 0 && (
             <button
@@ -106,6 +122,13 @@ export default function GestionesTable() {
           >
             Descargar
             <FiDownload />
+          </button>
+          <button
+            className="action-button flex gap-2 items-center justify-center cursor-pointer"
+            onClick={handleAddRow}
+          >
+            Añadir fila
+            <FaArrowDownWideShort />
           </button>
         </div>
       </div>
@@ -189,13 +212,27 @@ export default function GestionesTable() {
           </thead>
 
           <tbody className="tabla-cupos-content">
-            {actividadesSST.map((actividad, idx) => (
+            {actividades.map((actividad, idx) => (
               <tr key={idx}>
                 {/* Ciclo: puedes poner un número o mantenerlo vacío */}
                 <td className="p-2 border text-center">{idx + 1}</td>
 
                 {/* Actividad: desde tu array */}
-                <td className="p-2 border text-left">{actividad}</td>
+                <td className="p-2 border text-left">
+                  {actividad.isNew ? (
+                    <input
+                      type="text"
+                      value={actividad.nombre || actividad}
+                      onChange={e =>
+                        handleChange(idx, "actividad", e.target.value)
+                      }
+                      placeholder="Nueva actividad"
+                      className="px-2 py-1 w-full border"
+                    />
+                  ) : (
+                    actividad.nombre || actividad
+                  )}
+                </td>
 
                 {/* Cronograma: 24 columnas P/E */}
                 {Array.from({ length: 24 }).map((_, i) => (
@@ -225,18 +262,34 @@ export default function GestionesTable() {
 
                 {/* Recursos */}
                 <td className="p-2 border text-center">
-                  <input
-                    type="text"
-                    className="w-full border px-1 py-1"
-                    placeholder="admin"
-                  />
+                  <select
+                    value={"SI"}
+                    onChange={e => {
+                      handleChange(idx, "Indicador", e.target.value);
+                    }}
+                    className="border rounded text-center p-1 w-full"
+                  >
+                    {["SI", "NO"].map(opt => (
+                      <option key={opt} value={opt}>
+                        {opt}
+                      </option>
+                    ))}
+                  </select>
                 </td>
                 <td className="p-2 border text-center">
-                  <input
-                    type="text"
-                    className="w-full border px-1 py-1"
-                    placeholder="finan"
-                  />
+                  <select
+                    value={"NO"}
+                    onChange={e => {
+                      handleChange(idx, "Indicador", e.target.value);
+                    }}
+                    className="border rounded text-center p-1 w-full"
+                  >
+                    {["SI", "NO"].map(opt => (
+                      <option key={opt} value={opt}>
+                        {opt}
+                      </option>
+                    ))}
+                  </select>
                 </td>
               </tr>
             ))}

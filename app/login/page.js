@@ -16,14 +16,15 @@ export default function LoginPage() {
     setError("");
 
     try {
+      // Paso 1: pedir token
       const res = await fetch(`${base}/api/v1/auth/token/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password }),
       });
 
-      const data = await res.json(); // ✅ mover aquí antes de usarla
-      console.log(data);
+      const data = await res.json();
+      console.log("Token response:", data);
 
       if (!res.ok) {
         console.error("Login error:", data);
@@ -31,12 +32,39 @@ export default function LoginPage() {
         return;
       }
 
-      // guardamos token y username
-      localStorage.setItem("authToken", data.token);
+      const token = data.token;
+      localStorage.setItem("authToken", token);
       localStorage.setItem("username", username);
 
-      // avisamos al contexto que hay usuario
-      setUser({ name: username });
+      // Paso 2: pedir info del usuario con el token
+      const meRes = await fetch(`${base}/api/v1/me/`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Token ${token}`, // 👈 importante
+        },
+      });
+
+      const meData = await meRes.json();
+      console.log("User info:", meData);
+
+      if (!meRes.ok) {
+        console.error("Error al obtener datos de usuario:", meData);
+        alert("No se pudieron cargar los datos del usuario");
+        return;
+      }
+      // guardamos en localStorage
+      localStorage.setItem("authToken", data.token);
+      localStorage.setItem("username", meData.username);
+      localStorage.setItem("responsable", meData.responsable);
+      localStorage.setItem("acceso", JSON.stringify(meData.acceso_estructura));
+
+      // Paso 3: guardar usuario en el contexto
+      setUser({
+        username: meData.username,
+        responsable: meData.responsable,
+        acceso: meData.acceso_estructura,
+      });
 
       router.push("/"); // redirect to home
     } catch (err) {

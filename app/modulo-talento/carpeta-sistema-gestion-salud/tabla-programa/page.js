@@ -8,22 +8,41 @@ import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import { FiDownload } from "react-icons/fi";
 import React from "react";
+import { FaArrowDownWideShort } from "react-icons/fa6";
+
+const actividadesSST = [
+  "Induccion Seguridad y Salud en el Trabajo",
+  "Reinduccion Seguridad y Salud en el Trabajo",
+  "Seguridad Vial",
+  "Entrenamiento brigada de emergencia",
+  "Taller técnicas de relajación",
+  "Capacitación equidad de género y violencia",
+  "Capacitación estrategias de seguridad en entornos públicos",
+  "Capacitación acoso sexual ley 2365 de 2024",
+  "Capacitación conservación visual",
+  "Taller en el manejo de las emociones y del estrés",
+  "Capacitacion lesiones osteomusculares",
+  "Capacitacion Copasst",
+  "Capacitacion Comité Convivencia Laboral",
+  "Formacion Lideres Pausas Activas",
+  "Capacitacion Riesgos Laborales",
+  "Capacitacion Ludica Comité Convivencia Laboral",
+  "Capacitacion Habitos y Estilos de Vida Saludable",
+  "Capacitacion Brigadas Sistemas de Comando de Incidentes",
+  "Formacion habitos de vida saludable",
+];
 
 export default function GestionesTable() {
   const [rows, setRows] = useState([]);
   const [editedRows, setEditedRows] = useState([]);
+  const [actividades, setActividades] = useState(actividadesSST);
 
-  const handleChange = (id, field, value) => {
-    // update rows state immediately
-    setRows(prev =>
-      prev.map(row => (row.id === id ? { ...row, [field]: value } : row))
-    );
-
-    // mark this row as edited
-    setEditedRows(prev => ({
-      ...prev,
-      [id]: { ...prev[id], [field]: value },
-    }));
+  const handleChange = (idx, field, value) => {
+    setActividades(prev => {
+      const newRows = [...prev];
+      newRows[idx] = { ...newRows[idx], [field]: value };
+      return newRows;
+    });
   };
 
   const handleSave = async () => {
@@ -63,33 +82,31 @@ export default function GestionesTable() {
     saveAs(data, "cupos.xlsx");
   };
 
-  const actividadesSST = [
-    "Evaluación Inicial",
-    "Inducción y reinducción a empleados",
-    "Actualización de la Matriz de identificación de peligros, evaluación y valoración de los riesgos.",
-    "Indicadores de gestión",
-    "Documentación de la designación del responsable del Sistema de Gestión de Seguridad y Salud en el Trabajo, con la respectiva asignación de responsabilidades.",
-    "Documentación de las responsabilidades específicas en el Sistema de Gestión de la Seguridad y Salud en el Trabajo a todos los niveles de la cooperativa",
-    "Solicitar al responsable del SG-SST - COPASST y CCL certificado de aprobación del curso virtual de cincuenta (50) horas en Seguridad y Salud en el Trabajo",
-    "Actualización de la matriz de requisitos legales",
-    "Actas de las reuniones mensuales del COPASST",
-    "Realizar la capacitación al Comité Paritario de Seguridad y Salud en el Trabajo",
-    "Actas de las reuniones mensuales del CCL",
-    "Capacitar al Comité de Convivencia Laboral",
-    "Diseñar el programa de Capacitación y entrenamiento de SST",
-    "Registro anual donde se evidencie que las personas con responsabilidades en el SG-SST realizaron la rendición de cuenta sobre su desempeño",
-    "Inducción y reinducción a Contratistas",
-    "Programa de riesgo visual",
-    "Programa de riesgo cardiovascular",
-    "Incluir como requisito para el proceso de selección y evaluación de proveedores y/o contratistas tengan documentado e implementado el Sistema de Gestión de Seguridad y Salud en el Trabajo",
-  ];
+  const handleAddRow = () => {
+    const newRow = {
+      id: `new-${Date.now()}`,
+      nombre: "Nueva actividad",
+      responsable: "",
+      recurso1: "SI",
+      recurso2: "NO",
+      observaciones: "",
+      isNew: true,
+    };
+
+    // Inicializar columnas P/E
+    for (let i = 0; i < 24; i++) {
+      newRow[`col${i}`] = false;
+    }
+
+    setActividades(prev => [newRow, ...prev]);
+  };
 
   return (
     <main className="pt-4 pb-0 px-12 overflow-auto">
       <h1 className="titulo-tabla-cupos text-3xl font-semibold pb-4">
         Programa de Capacitaciones
       </h1>
-      <div className="actions-container flex justify-between mb-4">
+      <div className="actions-container flex justify-end mb-4">
         <div className="flex gap-4">
           {Object.keys(editedRows).length > 0 && (
             <button
@@ -107,6 +124,13 @@ export default function GestionesTable() {
             Descargar
             <FiDownload />
           </button>
+          <button
+            className="action-button flex gap-2 items-center justify-center cursor-pointer"
+            onClick={handleAddRow}
+          >
+            Añadir fila
+            <FaArrowDownWideShort />
+          </button>
         </div>
       </div>
 
@@ -114,11 +138,14 @@ export default function GestionesTable() {
         <table className="table-auto border-collapse w-full">
           <thead>
             <tr className="tabla-header">
-              <th rowSpan="3" className="p-4 border text-center bg-white z-20">
-                Actividad
+              <th
+                rowSpan="3"
+                className="p-4 border text-center bg-white z-20 min-w-[250px]"
+              >
+                ACTIVIDAD
               </th>
               <th colSpan="24" className="border text-center p-2 bg-white z-20">
-                CRONOGRAMA VIGENCIA
+                PROGRAMA DE CAPACITACIONES
               </th>
               <th rowSpan="3" className="p-4 border text-center bg-white z-20">
                 Responsable(s)
@@ -127,10 +154,10 @@ export default function GestionesTable() {
                 colSpan="2"
                 className="p-4 border text-center min-w-[300px] bg-white z-20"
               >
-                Recursos
+                RECURSOS
               </th>
               <th rowSpan="3" className="p-4 border text-center bg-white z-20">
-                Observaciones
+                OBSERVACIONES
               </th>
             </tr>
 
@@ -189,22 +216,44 @@ export default function GestionesTable() {
           </thead>
 
           <tbody className="tabla-cupos-content">
-            {actividadesSST.map((actividad, idx) => (
-              <tr key={idx}>
-                {/* Actividad: desde tu array */}
-                <td className="p-2 border text-left">{actividad}</td>
-
-                {/* Cronograma: 24 columnas P/E */}
+            {actividades.map((actividad, idx) => (
+              <tr key={actividad.id || idx}>
+                <td className="p-2 border text-left">
+                  {actividad.isNew ? (
+                    <input
+                      type="text"
+                      value={actividad.nombre || actividad}
+                      onChange={e =>
+                        handleChange(idx, "actividad", e.target.value)
+                      }
+                      placeholder="Nueva actividad"
+                      className="px-2 py-1 w-full border"
+                    />
+                  ) : (
+                    actividad.nombre || actividad
+                  )}
+                </td>
                 {Array.from({ length: 24 }).map((_, i) => (
                   <td key={i} className="p-2 border text-center max-w-[40px]">
-                    {/* Aquí puedes poner un input si quieres que sea editable */}
-                    <input type="checkbox" className="mx-auto" />
+                    <input
+                      type="checkbox"
+                      checked={actividad[`col${i}`] || false}
+                      onChange={e =>
+                        handleChange(idx, `col${i}`, e.target.checked)
+                      }
+                      className="mx-auto"
+                    />
                   </td>
                 ))}
-
                 {/* Responsable(s) */}
                 <td className="p-2 border text-center">
-                  <select className="w-full border px-1 py-1">
+                  <select
+                    value={actividad.responsable || ""}
+                    onChange={e =>
+                      handleChange(idx, "responsable", e.target.value)
+                    }
+                    className="w-full border px-1 py-1"
+                  >
                     {[
                       "Comité de Convivencia Laboral",
                       "Comité de COPASST",
@@ -222,24 +271,44 @@ export default function GestionesTable() {
 
                 {/* Recursos */}
                 <td className="p-2 border text-center">
-                  <input
-                    type="text"
-                    className="w-full border px-1 py-1"
-                    placeholder="admin"
-                  />
+                  <select
+                    value={actividad.recurso1 || "SI"}
+                    onChange={e =>
+                      handleChange(idx, "recurso1", e.target.value)
+                    }
+                    className="border rounded text-center p-1 w-full"
+                  >
+                    {["SI", "NO"].map(opt => (
+                      <option key={opt} value={opt}>
+                        {opt}
+                      </option>
+                    ))}
+                  </select>
+                </td>
+                <td className="p-2 border text-center">
+                  <select
+                    value={actividad.recurso2 || "NO"}
+                    onChange={e =>
+                      handleChange(idx, "recurso2", e.target.value)
+                    }
+                    className="border rounded text-center p-1 w-full"
+                  >
+                    {["SI", "NO"].map(opt => (
+                      <option key={opt} value={opt}>
+                        {opt}
+                      </option>
+                    ))}
+                  </select>
                 </td>
                 <td className="p-2 border text-center">
                   <input
                     type="text"
+                    value={actividad.observaciones || ""}
+                    onChange={e =>
+                      handleChange(idx, "observaciones", e.target.value)
+                    }
                     className="w-full border px-1 py-1"
-                    placeholder="finan"
-                  />
-                </td>
-                <td className="p-2 border text-center">
-                  <input
-                    type="text"
-                    className="w-full border px-1 py-1"
-                    placeholder="finan"
+                    placeholder=""
                   />
                 </td>
               </tr>

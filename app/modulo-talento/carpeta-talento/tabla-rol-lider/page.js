@@ -121,8 +121,14 @@ const initialRows = [
 
 export default function GestionesTable() {
   const [rows, setRows] = useState(initialRows);
-  const [editedRows, setEditedRows] = useState([]);
+  const [filteredRows, setFilteredRows] = useState([]);
+  const [editedRows, setEditedRows] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   const [search, setSearch] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [selectedYear, setSelectedYear] = useState();
+  const [selectedMonth, setSelectedMonth] = useState();
 
   const handleChange = (id, field, value) => {
     // update rows state immediately
@@ -136,6 +142,53 @@ export default function GestionesTable() {
       [id]: { ...prev[id], [field]: value },
     }));
   };
+
+  useEffect(() => {
+    const query = search.trim().toLowerCase();
+
+    const filtered = rows
+      .filter(r => {
+        const matchesSearch =
+          !query || r.TipoVinculacion.toLowerCase().includes(query);
+
+        const matchesYear = !selectedYear || r.AÑO === Number(selectedYear);
+
+        // Ahora comparamos el mes como string en mayúscula
+        const matchesMonth =
+          !selectedMonth || r.MES.toUpperCase() === selectedMonth.toUpperCase();
+
+        return matchesSearch && matchesYear && matchesMonth;
+      })
+      .sort((a, b) => Number(a.codigo) - Number(b.codigo));
+
+    setFilteredRows(filtered);
+  }, [search, rows, selectedYear, selectedMonth]);
+
+  // Obtener años únicos
+  const uniqueYears = [...new Set(rows.map(r => r.AÑO).filter(Boolean))];
+
+  // Obtener meses únicos en mayúscula
+  const uniqueMonths = [
+    ...new Set(rows.map(r => r.MES && r.MES.toUpperCase()).filter(Boolean)),
+  ];
+
+  // Mantener el orden original de los meses
+  const monthNames = [
+    "ENERO",
+    "FEBRERO",
+    "MARZO",
+    "ABRIL",
+    "MAYO",
+    "JUNIO",
+    "JULIO",
+    "AGOSTO",
+    "SEPTIEMBRE",
+    "OCTUBRE",
+    "NOVIEMBRE",
+    "DICIEMBRE",
+  ];
+
+  const availableMonths = monthNames.filter(m => uniqueMonths.includes(m));
 
   const handleSave = async () => {
     console.log("Saving edits:", editedRows);
@@ -181,15 +234,38 @@ export default function GestionesTable() {
       </h1>
       <div className="actions-container flex justify-between mb-4">
         <div className="search-bar flex gap-2">
-          <div className="search-bar flex gap-2">
-            <input
-              type="text"
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              placeholder="Buscar por codigo u oficina"
-              className="border w-[300px] px-2 py-1"
-            />
-          </div>
+          <input
+            type="text"
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            placeholder="Buscar por Tipo de Vinculación"
+            className="border w-[300px] px-2 py-1"
+          />
+          <select
+            value={selectedYear}
+            onChange={e => setSelectedYear(e.target.value)}
+            className="border px-2 py-1"
+          >
+            <option value="">Todos los años</option>
+            {uniqueYears.map(y => (
+              <option key={y} value={y}>
+                {y}
+              </option>
+            ))}
+          </select>
+          <select
+            value={selectedMonth}
+            onChange={e => setSelectedMonth(e.target.value)}
+            className="border px-2 py-1"
+          >
+            <option value="">Todos los meses</option>
+            {availableMonths.map(m => (
+              <option key={m} value={m}>
+                {m}
+                {/* Opcional: mostrar capitalizado */}
+              </option>
+            ))}
+          </select>
         </div>
         <div className="flex gap-4">
           {Object.keys(editedRows).length > 0 && (
@@ -227,7 +303,7 @@ export default function GestionesTable() {
             </tr>
           </thead>
           <tbody className="tabla-cupos-content">
-            {rows.map(row => (
+            {filteredRows.map(row => (
               <tr key={row.id}>
                 <td className="p-2 border text-center">{row.AÑO}</td>
                 <td className="p-2 border text-center">{row.MES}</td>

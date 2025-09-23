@@ -10,14 +10,23 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     const token = localStorage.getItem("authToken");
     const username = localStorage.getItem("username");
+    const responsable = localStorage.getItem("responsable");
+    const acceso = localStorage.getItem("acceso");
+
     if (token && username) {
-      setUser({ name: username });
+      setUser({
+        username,
+        responsable,
+        acceso: acceso ? JSON.parse(acceso) : {},
+      });
     }
   }, []);
 
   const logout = () => {
     localStorage.removeItem("authToken");
     localStorage.removeItem("username");
+    localStorage.removeItem("responsable");
+    localStorage.removeItem("acceso");
     setUser(null);
     router.replace("/login");
   };

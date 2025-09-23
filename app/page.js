@@ -1,3 +1,14 @@
+"use client";
+
+import { useAuth } from "./lib/authContext";
+
 export default function Home() {
-  return <div className="main-layout">APP</div>;
+  const { user } = useAuth();
+  return (
+    <div className="main-layout p-12">
+      <h1 className="font-bold text-red-700 text-[35px]">
+        Bienvenido(a) {user.responsable}
+      </h1>
+    </div>
+  );
 }

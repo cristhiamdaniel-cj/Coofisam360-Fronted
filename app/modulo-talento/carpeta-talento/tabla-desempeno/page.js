@@ -13,7 +13,7 @@ const initialRows = [
   {
     id: 2,
     "OFICINA O SUBGERENCIA": "GUADALUPE",
-    "% DESEMPEÑO": "90%",
+    "% DESEMPEÑO": 90,
     AÑO: 2024,
   },
   { id: 3, "OFICINA O SUBGERENCIA": "PITAL", "% DESEMPEÑO": "90%", AÑO: 2024 },
@@ -78,43 +78,43 @@ const initialRows = [
   {
     id: 17,
     "OFICINA O SUBGERENCIA": "CHAPARRRAL",
-    "% DESEMPEÑO": "90%",
+    "% DESEMPEÑO": 90,
     AÑO: 2024,
   },
   {
     id: 18,
     "OFICINA O SUBGERENCIA": "FLORENCIA",
-    "% DESEMPEÑO": "90%",
+    "% DESEMPEÑO": 90,
     AÑO: 2024,
   },
   {
     id: 19,
     "OFICINA O SUBGERENCIA": "SUBGERENCIA INNOVACION EMPRESARIAL",
-    "% DESEMPEÑO": "90%",
+    "% DESEMPEÑO": 90,
     AÑO: 2024,
   },
   {
     id: 20,
     "OFICINA O SUBGERENCIA": "SUBGERENCIA COMERCIAL",
-    "% DESEMPEÑO": "90%",
+    "% DESEMPEÑO": 90,
     AÑO: 2024,
   },
   {
     id: 21,
     "OFICINA O SUBGERENCIA": "SUBGERENCIA CREDITO Y CARTERA",
-    "% DESEMPEÑO": "90%",
+    "% DESEMPEÑO": 90,
     AÑO: 2024,
   },
   {
     id: 22,
     "OFICINA O SUBGERENCIA": "SUBGERENCIA FINANCIERA",
-    "% DESEMPEÑO": "90%",
+    "% DESEMPEÑO": 90,
     AÑO: 2024,
   },
   {
     id: 23,
     "OFICINA O SUBGERENCIA": "GERENCIA",
-    "% DESEMPEÑO": "90%",
+    "% DESEMPEÑO": 90,
     AÑO: 2024,
   },
 ];
@@ -268,7 +268,17 @@ export default function GestionesTable() {
                     ))}
                   </select>
                 </td>
-                <td className="p-2 border text-center">{row["% DESEMPEÑO"]}</td>
+                <td className="p-2 border flex gap-1 items-center">
+                  <input
+                    type="number"
+                    value={row["% DESEMPEÑO"] || 80}
+                    onChange={e =>
+                      handleChange(row.id, "% DESEMPEÑO", e.target.value)
+                    }
+                    className="px-2 py-1 w-full border text-right"
+                  />
+                  %
+                </td>
                 <td className="p-2 border text-center">{row["AÑO"]}</td>
               </tr>
             ))}

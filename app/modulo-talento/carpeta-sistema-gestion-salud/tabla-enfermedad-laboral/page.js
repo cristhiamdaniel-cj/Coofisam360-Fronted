@@ -192,7 +192,7 @@ export default function GestionesTable() {
 
           <tbody className="tabla-cupos-content p-4">
             {rows.map((row, idx) => (
-              <tr key={row.id}>
+              <tr key={idx}>
                 {/* Año */}
                 <td className="p-2 border text-center whitespace-nowrap">
                   {row.isNew ? (

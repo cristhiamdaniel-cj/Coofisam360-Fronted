@@ -26,15 +26,31 @@ export default function Navbar() {
     { name: "Oficial de Cumplimiento", href: "/modulo-cumplimiento" },
   ];
 
-  const handleModuleClick = () => setIsModulesOpen(false);
+  // normaliza string: trim, collapse spaces, lower, remove diacritics
+  const normalize = s =>
+    String(s || "")
+      .trim()
+      .replace(/\s+/g, " ")
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "");
 
-  const getInitials = name => {
-    if (!name) return "";
-    return name
-      .split(" ")
-      .map(n => n[0])
-      .join("")
-      .toUpperCase();
+  // hasModuleAccess: user.acceso es un objeto con keys = nombres de módulo
+  const hasModuleAccess = moduleName => {
+    if (!user || !user.acceso) return false;
+    // user.acceso expected to be object, e.g. { "Talento y Cultura": { ... } }
+    const keys = Object.keys(user.acceso || {});
+    const found = keys.find(k => normalize(k) === normalize(moduleName));
+    return !!found;
+  };
+
+  // iniciales: usa responsable si existe, sino username
+  const getInitials = responsableOrUsername => {
+    const name = responsableOrUsername || "";
+    const parts = name.trim().split(/\s+/).filter(Boolean);
+    if (parts.length === 0) return "";
+    if (parts.length === 1) return parts[0][0].toUpperCase();
+    return (parts[0][0] + parts[1][0]).toUpperCase();
   };
 
   const handleLogout = () => {
@@ -43,6 +59,7 @@ export default function Navbar() {
     setIsModulesOpen(false);
   };
 
+  // cerrar dropdowns al click fuera
   useEffect(() => {
     function handleClickOutside(event) {
       if (modulesRef.current && !modulesRef.current.contains(event.target)) {
@@ -52,10 +69,14 @@ export default function Navbar() {
         setIsUserMenuOpen(false);
       }
     }
-
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  // Si hay usuario, filtra; si no (por ejemplo en dev) puedes decidir mostrar todos o ninguno.
+  const allowedModules = user
+    ? modules.filter(m => hasModuleAccess(m.name))
+    : modules;
 
   return (
     <nav className="navbar-container px-12 flex items-center justify-between h-16 bg-white shadow-md relative">
@@ -70,48 +91,55 @@ export default function Navbar() {
         />
       </div>
 
-      {/* Módulos */}
       <div className="flex gap-4 items-center">
-        <div className="relative">
+        {/* Módulos */}
+        <div className="relative" ref={modulesRef}>
           <button
             onClick={() => setIsModulesOpen(!isModulesOpen)}
-            className="rounded-xl text-white flex items-center px-8 py-2 border border-gray-200 rounded hover:text-red-700 hover:bg-gray-300"
+            className="rounded-xl text-white flex items-center px-8 py-2 border border-gray-200 hover:text-red-700 hover:bg-gray-300"
           >
             Módulos
           </button>
 
           {isModulesOpen && (
-            <div className="absolute flex flex-col gap-2 top-full mt-2 bg-white shadow-lg rounded-md py-2 z-20 min-w-[200px] module-dropdown">
-              {modules.map(mod => (
-                <Link
-                  key={mod.name}
-                  href={mod.href}
-                  className="navbar-link px-4 py-2 hover:bg-gray-100 rounded"
-                  onClick={handleModuleClick}
-                >
-                  {mod.name}
-                </Link>
-              ))}
+            <div className="absolute flex flex-col gap-2 top-full mt-2 bg-white shadow-lg rounded-md py-2 z-20 min-w-[220px] module-dropdown">
+              {allowedModules.length > 0 ? (
+                allowedModules.map(mod => (
+                  <Link
+                    key={mod.name}
+                    href={mod.href}
+                    className="navbar-link px-4 py-2 hover:bg-gray-100 rounded"
+                    onClick={() => setIsModulesOpen(false)}
+                  >
+                    {mod.name}
+                  </Link>
+                ))
+              ) : (
+                <p className="px-4 py-2 text-gray-400 text-sm">Sin acceso</p>
+              )}
             </div>
           )}
         </div>
 
-        {/* User menu / login */}
-        <div className="relative">
+        {/* User menu */}
+        <div className="relative" ref={userMenuRef}>
           {user ? (
             <>
               <button
                 onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                className="w-12 h-12 text-[25px] rounded-full cursor-pointer border-3 border-gray-300 bg-transparent hover:bg-gray-300 text-yellow-300 hover:text-red-700 flex items-center justify-center font-bold"
+                className="w-12 h-12 text-[20px] rounded-full cursor-pointer border-3 border-gray-300 bg-transparent hover:bg-gray-300 text-gray-300 hover:text-red-700 flex items-center justify-center font-bold"
               >
-                {getInitials(user.name)}
+                {getInitials(user.responsable || user.username)}
               </button>
 
               {isUserMenuOpen && (
-                <div className="absolute module-dropdown right-0 pr-2 top-full mt-2 bg-white shadow-lg rounded-md py-2 z-20 min-w-[150px] flex flex-col">
+                <div className="absolute module-dropdown right-0 pr-2 top-full mt-2 bg-white shadow-lg rounded-md py-2 z-20 min-w-[220px] flex flex-col">
+                  <p className="px-4 py-2 text-sm text-gray-300 border-b">
+                    {user.username || ""}
+                  </p>
                   <button
                     onClick={handleLogout}
-                    className="px-4 py-2 navbar-link  text-left rounded"
+                    className="px-4 py-2 mt-2 navbar-link text-left rounded hover:bg-gray-100"
                   >
                     Salir
                   </button>
