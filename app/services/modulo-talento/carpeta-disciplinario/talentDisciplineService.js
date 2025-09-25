@@ -23,3 +23,10 @@ export async function saveControlDisciplinario(payload = {}) {
   );
   return data;
 }
+
+/* ========= EMPLEADOS (por oficina) ========= */
+
+export async function listEmpleados(params = {}) {
+  const { data } = await api.get("/api/v1/talento/empleados/", { params });
+  return data?.items ?? data ?? [];
+}

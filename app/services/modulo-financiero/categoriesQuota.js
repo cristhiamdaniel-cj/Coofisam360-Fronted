@@ -25,8 +25,12 @@ function mapCategoryRow(r) {
     codigo: str(r.codigo ?? r.codigo_oficina ?? r.office_code ?? r.cod),
     nombre: str(r.nombre ?? r.nombre_oficina ?? r.office_name),
     fecha: fmtDate(r.fecha ?? r.fecha_apertura ?? r.opened_at),
-    ctaPuc14: str(r.cta_puc_14 ?? r.puc14 ?? r.account_14 ?? ""),
-    ctaPuc21: str(r.cta_puc_21 ?? r.puc21 ?? r.account_21 ?? ""),
+    ctaPuc14: formatNumeric(
+      r.ctaPuc14 ?? r.saldo_c14 ?? r.saldoC14 ?? r.cta_puc_14 ?? r.puc14 ?? r.account_14
+    ),
+    ctaPuc21: formatNumeric(
+      r.ctaPuc21 ?? r.saldo_c21 ?? r.saldoC21 ?? r.cta_puc_21 ?? r.puc21 ?? r.account_21
+    ),
     asociados: num(r.asociados ?? r.num_asociados ?? r.members ?? 0),
     entidades: num(r.entidades ?? r.entidades_financieras ?? r.banks ?? 0),
     poblacion: num(r.poblacion ?? r.population ?? 0),
@@ -48,6 +52,15 @@ function num(v) {
 
 function str(v) {
   return (v ?? "").toString();
+}
+
+function formatNumeric(v) {
+  if (v == null || v === "") return "";
+  const n = num(v);
+  return new Intl.NumberFormat("es-CO", {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  }).format(n);
 }
 
 function fmtDate(v) {
