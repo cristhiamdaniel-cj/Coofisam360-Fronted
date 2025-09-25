@@ -56,19 +56,51 @@ export default function GestionesTable() {
   };
 
   const handleSave = async () => {
-    console.log("Saving edits:", editedRows);
+    setSaving(true);
+    try {
+      console.log(">>> editedRows:", editedRows);
 
-    // Example: send to backend
-    /*
-    await fetch("https://coofisam360.ngrok.io/api/update-records/", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(editedRows),
-    });
-    */
+      const updates = Object.entries(editedRows).map(async ([id, changes]) => {
+        console.log(">>> Iterando row:", id, changes);
 
-    // clear edited state after saving
-    setEditedRows({});
+        const fullRow = rows.find(r => String(r.id) === String(id));
+        if (!fullRow) {
+          console.warn("⚠️ No se encontró la fila con id:", id);
+          return;
+        }
+
+        const payload = {
+          id: fullRow.id,
+          anio: Number(fullRow.Año),
+          mes: Number(fullRow.Mes),
+          dias_ausencia_propios: Number(
+            changes.DiasAusenciaPropios ?? fullRow.DiasAusenciaPropios
+          ) || 0,
+          dias_ausencia_contratistas: Number(
+            changes.DiasAusenciaContratistas ?? fullRow.DiasAusenciaContratistas
+          ) || 0,
+          total_dias_incapacidad: Number(fullRow.TotalDiasIncapacidad) || 0,
+          dias_laborales_mes: Number(fullRow.DiasLaboralesMes) || 0,
+          numero_trabajadores: Number(fullRow.NumeroTrabajadores) || 0,
+          dias_trabajo_programados: Number(fullRow.DiasTrabajoProgramados) || 0,
+          ausentismo_laboral: Number(fullRow.AusentismoLaboral) || 0,
+        };
+
+        console.log(">>> Payload enviado al backend:", payload);
+
+        await saveAusentismoRow(payload);
+      });
+
+      await Promise.all(updates);
+
+      alert("Cambios guardados correctamente ✅");
+      setEditedRows({});
+    } catch (err) {
+      console.error("Error guardando cambios:", err);
+      alert("Error guardando cambios ❌");
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleDownload = () => {

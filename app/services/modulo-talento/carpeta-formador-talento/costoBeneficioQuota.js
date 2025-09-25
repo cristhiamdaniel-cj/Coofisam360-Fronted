@@ -20,8 +20,10 @@ export async function getCostoBeneficioQuota(id, params = {}) {
   const r = await getCostoBeneficioRaw(id, params);
   return r ? mapFromApi(r) : null;
 }
-export async function saveCostoBeneficioQuota(payload) {
-  return await saveCostoBeneficioRaw(payload);
+export async function saveCostoBeneficioQuota(uiPayload) {
+  console.log(">>> UI Payload recibido:", uiPayload);
+  // Por ahora enviar directamente sin mapeo para debug
+  return await saveCostoBeneficioRaw(uiPayload);
 }
 
 function mapFromApi(r) {
@@ -40,11 +42,11 @@ function mapFromApi(r) {
 function mapToApi(r) {
   return {
     id: r.id,
-    anio: num(r.Año),
+    anio: Number(r.Año) || 0,
     mes: r.Mes,
-    total_gastos: r.TotalGastosTransferencia,
-    trabajadores_capacitados: num(r.TrabajadoresCapacitados),
-    costo_por_trabajador: r.CostoPorTrabajador,
+    total_gastos: Number(r.TotalGastosTransferencia) || 0,
+    trabajadores_capacitados: Number(r.TrabajadoresCapacitados) || 0,
+    costo_por_trabajador: Number(r.CostoPorTrabajador) || 0,
     modalidad: r.Modalidad ?? "",
     rentabilidad: r.Rentabilidad ?? "",
   };

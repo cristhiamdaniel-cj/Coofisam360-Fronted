@@ -1,12 +1,15 @@
 "use client";
 import { useEffect, useState } from "react";
-//import { getFinancialRecords } from "@/services/financial";
 import { FaRegSave } from "react-icons/fa";
 import { FaFileDownload } from "react-icons/fa";
 import { IoSearch } from "react-icons/io5";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import { FiDownload } from "react-icons/fi";
+import {
+  listBonificacionesRows,
+  saveBonificacionRow,
+} from "../../../services/modulo-talento/carpeta-talento/bonificaQuota";
 
 const initialRows = [
   {
@@ -36,9 +39,30 @@ const initialRows = [
 ];
 
 export default function GestionesTable() {
-  const [rows, setRows] = useState(initialRows);
+  const [rows, setRows] = useState([]);
   const [editedRows, setEditedRows] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   const [search, setSearch] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    async function load() {
+      try {
+        const data = await listBonificacionesRows({ limit: 500 });
+        console.log(data);
+        setRows(data);
+        setError("");
+      } catch (e) {
+        setError(e.message || "Error cargando datos");
+        // Si hay error, usar datos iniciales como fallback
+        setRows(initialRows);
+      } finally {
+        setLoading(false);
+      }
+    }
+    load();
+  }, []);
 
   const handleChange = (id, field, value) => {
     // update rows state immediately
@@ -54,19 +78,45 @@ export default function GestionesTable() {
   };
 
   const handleSave = async () => {
-    console.log("Saving edits:", editedRows);
+    setSaving(true);
+    try {
+      console.log(">>> editedRows:", editedRows);
 
-    // Example: send to backend
-    /*
-    await fetch("https://coofisam360.ngrok.io/api/update-records/", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(editedRows),
-    });
-    */
+      const updates = Object.entries(editedRows).map(async ([id, changes]) => {
+        console.log(">>> Iterando row:", id, changes);
 
-    // clear edited state after saving
-    setEditedRows({});
+        const fullRow = rows.find(r => String(r.id) === String(id));
+        if (!fullRow) {
+          console.warn("⚠️ No se encontró la fila con id:", id);
+          return;
+        }
+
+        const payload = {
+          id: fullRow.id,
+          anio: Number(fullRow.AÑO),
+          mes: fullRow.MES,
+          cantidad_empleados: Number(fullRow["CANTIDAD EMPLEADOS"]) || 0,
+          cantidad_beneficiados: Number(
+            changes["CANTIDAD BENEFICIADOS"] ?? fullRow["CANTIDAD BENEFICIADOS"]
+          ) || 0,
+          variacion_pct: fullRow["% VARIACIÓN"] || "0%",
+        };
+
+        console.log(">>> Payload enviado al backend:", payload);
+
+        await saveBonificacionRow(payload);
+      });
+
+      await Promise.all(updates);
+
+      alert("Cambios guardados correctamente ✅");
+      setEditedRows({});
+    } catch (err) {
+      console.error("Error guardando cambios:", err);
+      alert("Error guardando cambios ❌");
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleDownload = () => {

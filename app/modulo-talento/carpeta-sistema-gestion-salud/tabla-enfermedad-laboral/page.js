@@ -50,19 +50,55 @@ export default function GestionesTable() {
   };
 
   const handleSave = async () => {
-    console.log("Saving edits:", editedRows);
+    setSaving(true);
+    try {
+      console.log(">>> editedRows:", editedRows);
 
-    // Example: send to backend
-    /*
-    await fetch("https://coofisam360.ngrok.io/api/update-records/", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(editedRows),
-    });
-    */
+      const updates = Object.entries(editedRows).map(async ([id, changes]) => {
+        console.log(">>> Iterando row:", id, changes);
 
-    // clear edited state after saving
-    setEditedRows({});
+        const fullRow = rows.find(r => String(r.id) === String(id));
+        if (!fullRow) {
+          console.warn("⚠️ No se encontró la fila con id:", id);
+          return;
+        }
+
+        const payload = {
+          id: fullRow.id,
+          anio: Number(fullRow.anio),
+          mes: Number(fullRow.mes),
+          casos_antiguos_el: Number(
+            changes.casosAntiguosEL ?? fullRow.casosAntiguosEL
+          ) || 0,
+          numero_trabajadores_anio: Number(
+            changes.numeroTrabajadoresAnio ?? fullRow.numeroTrabajadoresAnio
+          ) || 0,
+          casos_nuevos_el: Number(
+            changes.casosNuevosEL ?? fullRow.casosNuevosEL
+          ) || 0,
+          constante: Number(fullRow.constante) || 0,
+          indicador: changes.indicador ?? fullRow.indicador ?? "",
+          resultado: Number(fullRow.resultado) || 0,
+          codigo_cie10: changes.codigoCIE10 ?? fullRow.codigoCIE10 ?? "",
+          clasificacion_cie: changes.clasificacionCIE ?? fullRow.clasificacionCIE ?? "",
+          clasificacion_enfermedad_laboral: changes.clasificacionEnfermedadLaboral ?? fullRow.clasificacionEnfermedadLaboral ?? "",
+        };
+
+        console.log(">>> Payload enviado al backend:", payload);
+
+        await saveEnfermedadLaboralRow(payload);
+      });
+
+      await Promise.all(updates);
+
+      alert("Cambios guardados correctamente ✅");
+      setEditedRows({});
+    } catch (err) {
+      console.error("Error guardando cambios:", err);
+      alert("Error guardando cambios ❌");
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleDownload = () => {

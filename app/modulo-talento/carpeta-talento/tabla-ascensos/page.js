@@ -1,12 +1,15 @@
 "use client";
 import { useEffect, useState, useMemo } from "react";
-//import { getFinancialRecords } from "@/services/financial";
 import { FaRegSave } from "react-icons/fa";
 import { FaFileDownload } from "react-icons/fa";
 import { IoSearch } from "react-icons/io5";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import { FiDownload } from "react-icons/fi";
+import {
+  listAscensosRows,
+  saveAscensoRow,
+} from "../../../services/modulo-talento/carpeta-talento/ascensoQuota";
 
 const initialRows = [
   // 2024 - DICIEMBRE
@@ -617,12 +620,33 @@ const initialRows = [
 ];
 
 export default function GestionesTable() {
-  const [rows, setRows] = useState(initialRows);
+  const [rows, setRows] = useState([]);
   const [filteredRows, setFilteredRows] = useState([]);
   const [editedRows, setEditedRows] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   const [search, setSearch] = useState("");
   const [selectedYear, setSelectedYear] = useState("");
   const [selectedMonth, setSelectedMonth] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    async function load() {
+      try {
+        const data = await listAscensosRows({ limit: 500 });
+        console.log(data);
+        setRows(data);
+        setError("");
+      } catch (e) {
+        setError(e.message || "Error cargando datos");
+        // Si hay error, usar datos iniciales como fallback
+        setRows(initialRows);
+      } finally {
+        setLoading(false);
+      }
+    }
+    load();
+  }, []);
 
   const handleChange = (id, field, value) => {
     setRows(prev =>
@@ -671,9 +695,48 @@ export default function GestionesTable() {
   ];
   const availableMonths = monthNames.filter(m => uniqueMonths.includes(m));
 
-  const handleSave = () => {
-    console.log("Saving edits:", editedRows);
-    setEditedRows({});
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      console.log(">>> editedRows:", editedRows);
+
+      const updates = Object.entries(editedRows).map(async ([id, changes]) => {
+        console.log(">>> Iterando row:", id, changes);
+
+        const fullRow = rows.find(r => String(r.id) === String(id));
+        if (!fullRow) {
+          console.warn("⚠️ No se encontró la fila con id:", id);
+          return;
+        }
+
+        const payload = {
+          id: fullRow.id,
+          anio: Number(fullRow.AÑO),
+          mes: fullRow.MES,
+          oficina_codigo: fullRow["ID-OFICINA"],
+          cantidad: Number(
+            changes.CANTIDAD ?? fullRow.CANTIDAD
+          ) || 0,
+          total_empleados: Number(fullRow["TOTAL EMPLEADOS"]) || 0,
+          variacion_pct: fullRow["% VARIACIÓN"] || "0%",
+          promedio: fullRow.PROMEDIO || "0%",
+        };
+
+        console.log(">>> Payload enviado al backend:", payload);
+
+        await saveAscensoRow(payload);
+      });
+
+      await Promise.all(updates);
+
+      alert("Cambios guardados correctamente ✅");
+      setEditedRows({});
+    } catch (err) {
+      console.error("Error guardando cambios:", err);
+      alert("Error guardando cambios ❌");
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleDownload = () => {

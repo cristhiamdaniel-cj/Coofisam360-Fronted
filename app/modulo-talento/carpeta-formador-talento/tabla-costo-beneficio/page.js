@@ -116,27 +116,27 @@ export default function GestionesTable() {
           return;
         }
 
-        if (!fullRow) return;
+        // Crear el objeto con los cambios aplicados
+        const updatedRow = {
+          ...fullRow,
+          ...changes
+        };
 
+        // Payload simplificado para prueba
         const payload = {
-          id: fullRow.id,
-          anio: Number(fullRow.Año),
-          mes: toMonthNumber(fullRow.Mes),
-          total_gastos:
-            Number(
-              changes.TotalGastosTransferencia ??
-                fullRow.TotalGastosTransferencia
-            ) || 0,
-          trabajadores_capacitados:
-            Number(
-              changes.TrabajadoresCapacitados ?? fullRow.TrabajadoresCapacitados
-            ) || 0,
-          costo_por_trabajador: Number(fullRow.CostoPorTrabajador) || 0,
-          modalidad: changes.Modalidad ?? fullRow.Modalidad ?? "",
-          rentabilidad: changes.Rentabilidad ?? fullRow.Rentabilidad ?? "",
+          // Solo incluir ID si es un número (ID de base de datos)
+          ...(updatedRow.id && !isNaN(Number(updatedRow.id)) ? { id: Number(updatedRow.id) } : {}),
+          anio: Number(updatedRow.Año) || 2024,
+          mes: updatedRow.Mes || "ENERO",
+          total_gastos: Number(updatedRow.TotalGastosTransferencia) || 0,
+          trabajadores_capacitados: Number(updatedRow.TrabajadoresCapacitados) || 0,
+          costo_por_trabajador: Number(updatedRow.CostoPorTrabajador) || 0,
+          modalidad: updatedRow.Modalidad || "Virtual",
+          rentabilidad: updatedRow.Rentabilidad || "Baja",
         };
 
         console.log(">>> Payload enviado al backend:", payload);
+        console.log(">>> Payload JSON:", JSON.stringify(payload, null, 2));
 
         await saveCostoBeneficioQuota(payload);
       });
@@ -147,7 +147,8 @@ export default function GestionesTable() {
       setEditedRows({});
     } catch (err) {
       console.error("Error guardando cambios:", err);
-      alert("Error guardando cambios ❌");
+      console.error("Error completo:", JSON.stringify(err, null, 2));
+      alert(`Error guardando cambios ❌: ${err.message || 'Error desconocido'}`);
     } finally {
       setSaving(false);
     }

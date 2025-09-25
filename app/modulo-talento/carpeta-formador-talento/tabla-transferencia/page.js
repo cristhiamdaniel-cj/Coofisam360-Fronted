@@ -105,19 +105,57 @@ export default function GestionesTable() {
   };
 
   const handleSave = async () => {
-    console.log("Saving edits:", editedRows);
+    setSaving(true);
+    try {
+      console.log(">>> editedRows:", editedRows);
 
-    // Example: send to backend
-    /*
-    await fetch("https://coofisam360.ngrok.io/api/update-records/", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(editedRows),
-    });
-    */
+      const updates = Object.entries(editedRows).map(async ([id, changes]) => {
+        console.log(">>> Iterando row:", id, changes);
 
-    // clear edited state after saving
-    setEditedRows({});
+        const fullRow = rows.find(r => String(r.id) === String(id));
+        if (!fullRow) {
+          console.warn("⚠️ No se encontró la fila con id:", id);
+          return;
+        }
+
+        const payload = {
+          id: fullRow.id,
+          anio: Number(fullRow.Año),
+          mes: fullRow.Mes,
+          comprension: Number(
+            changes.Comprension ?? fullRow.Comprension
+          ) || 0,
+          practica: Number(
+            changes.Practica ?? fullRow.Practica
+          ) || 0,
+          retencion_conocimiento: Number(
+            changes.RetencionConocimiento ?? fullRow.RetencionConocimiento
+          ) || 0,
+          valoracion_desempeno: Number(
+            changes.ValoracionDesempeno ?? fullRow.ValoracionDesempeno
+          ) || 0,
+          satisfaccion_trabajador: Number(
+            changes.SatisfaccionTrabajador ?? fullRow.SatisfaccionTrabajador
+          ) || 0,
+          total: Number(fullRow.Total) || 0,
+          efectividad_transferencia: Number(fullRow.EfectividadTransferencia) || 0,
+        };
+
+        console.log(">>> Payload enviado al backend:", payload);
+
+        await saveTransferenciaQuota(payload);
+      });
+
+      await Promise.all(updates);
+
+      alert("Cambios guardados correctamente ✅");
+      setEditedRows({});
+    } catch (err) {
+      console.error("Error guardando cambios:", err);
+      alert("Error guardando cambios ❌");
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleDownload = () => {

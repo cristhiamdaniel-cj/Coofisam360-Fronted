@@ -1,12 +1,15 @@
 "use client";
 import { useEffect, useState } from "react";
-//import { getFinancialRecords } from "@/services/financial";
 import { FaRegSave } from "react-icons/fa";
 import { FaFileDownload } from "react-icons/fa";
 import { IoSearch } from "react-icons/io5";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import { FiDownload } from "react-icons/fi";
+import {
+  listEgresoRows,
+  saveEgresoRow,
+} from "../../../services/modulo-talento/carpeta-talento/egresoQuota";
 
 const initialRows = [
   {
@@ -305,9 +308,12 @@ const oficinas = [
 ];
 
 export default function GestionesTable() {
-  const [rows, setRows] = useState(initialRows);
-  const [editedRows, setEditedRows] = useState([]);
+  const [rows, setRows] = useState([]);
+  const [editedRows, setEditedRows] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   const [search, setSearch] = useState("");
+  const [saving, setSaving] = useState(false);
 
   const handleChange = (id, field, value) => {
     // update rows state immediately
@@ -322,20 +328,63 @@ export default function GestionesTable() {
     }));
   };
 
+  useEffect(() => {
+    async function load() {
+      try {
+        const data = await listEgresoRows({ limit: 500 });
+        console.log(data);
+        setRows(data);
+        setError("");
+      } catch (e) {
+        setError(e.message || "Error cargando datos");
+        // Si hay error, usar datos iniciales como fallback
+        setRows(initialRows);
+      } finally {
+        setLoading(false);
+      }
+    }
+    load();
+  }, []);
+
   const handleSave = async () => {
-    console.log("Saving edits:", editedRows);
+    setSaving(true);
+    try {
+      console.log(">>> editedRows:", editedRows);
 
-    // Example: send to backend
-    /*
-    await fetch("https://coofisam360.ngrok.io/api/update-records/", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(editedRows),
-    });
-    */
+      const updates = Object.entries(editedRows).map(async ([id, changes]) => {
+        console.log(">>> Iterando row:", id, changes);
 
-    // clear edited state after saving
-    setEditedRows({});
+        const fullRow = rows.find(r => String(r.id) === String(id));
+        if (!fullRow) {
+          console.warn("⚠️ No se encontró la fila con id:", id);
+          return;
+        }
+
+        const payload = {
+          id: fullRow.id,
+          anio: Number(fullRow.AÑO),
+          mes: fullRow.MES,
+          oficina: changes.OFICINA ?? fullRow.OFICINA ?? "",
+          cargo: changes.CARGO ?? fullRow.CARGO ?? "",
+          cantidad: Number(changes.CANTIDAD ?? fullRow.CANTIDAD) || 0,
+          motivo: changes.MOTIVO ?? fullRow.MOTIVO ?? "",
+        };
+
+        console.log(">>> Payload enviado al backend:", payload);
+
+        await saveEgresoRow(payload);
+      });
+
+      await Promise.all(updates);
+
+      alert("Cambios guardados correctamente ✅");
+      setEditedRows({});
+    } catch (err) {
+      console.error("Error guardando cambios:", err);
+      alert("Error guardando cambios ❌");
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleDownload = () => {
