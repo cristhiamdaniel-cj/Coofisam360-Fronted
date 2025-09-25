@@ -20,7 +20,7 @@ export default function BackButton() {
   return (
     <button
       onClick={handleBack}
-      className="px-4 py-2 hover:bg-gray-200 text-gray-800 rounded-lg transition back-button cursor-pointer"
+      className="px-4 py-2 hover:bg-gray-300 text-gray-800 rounded-lg transition back-button cursor-pointer"
     >
       <IoMdArrowBack className="text-3xl back-arrow" />
     </button>
