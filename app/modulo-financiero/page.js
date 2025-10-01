@@ -357,6 +357,23 @@ export default function FinancieroDashboard() {
           Categorias de Oficinas
         </Link>
 
+        <Link
+          href="/modulo-financiero/tabla-presupuesto"
+          className="modulo-button"
+        >
+          <div className="logo">
+            <Image
+              src="/oficina.png"
+              className="module-image"
+              alt="Categorías de oficinas"
+              width={200}
+              height={50}
+              priority
+            />
+          </div>
+          Presupuesto
+        </Link>
+
         {/* Enlaces a rutas eliminadas removidos */}
       </div>
     </main>
