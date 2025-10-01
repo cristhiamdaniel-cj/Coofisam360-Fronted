@@ -1,0 +1,278 @@
+
+> frontend@0.1.0 dev
+> next dev -p 8061
+
+   ▲ Next.js 15.5.2
+   - Local:        http://localhost:8061
+   - Network:      http://192.168.0.101:8061
+   - Environments: .env.local
+
+ ✓ Starting...
+ ✓ Ready in 1253ms
+ ○ Compiling / ...
+ ✓ Compiled / in 960ms (652 modules)
+ GET / 200 in 1304ms
+ ○ Compiling /login ...
+ ✓ Compiled /login in 1317ms (692 modules)
+ GET /login 200 in 1455ms
+ ○ Compiling /modulo-financiero ...
+ ✓ Compiled /modulo-financiero in 1631ms (705 modules)
+ GET /modulo-financiero 200 in 2201ms
+ ⚠ Cross origin request detected from coofisam360-frontend.ngrok.io to /_next/* resource. In a future major version of Next.js, you will need to explicitly configure "allowedDevOrigins" in next.config to allow this.
+Read more: https://nextjs.org/docs/app/api-reference/config/next-config-js/allowedDevOrigins
+ GET /modulo-financiero 200 in 54ms
+ GET /modulo-financiero 200 in 25ms
+ ✓ Compiled /modulo-financiero/tabla-indicadores in 391ms (726 modules)
+ GET /modulo-financiero/tabla-indicadores 200 in 477ms
+ GET / 200 in 136ms
+ GET /modulo-financiero/tabla-indicadores 200 in 17ms
+ GET /login 200 in 29ms
+ GET /login 200 in 51ms
+ ✓ Compiled /modulo-talento in 418ms (734 modules)
+ GET /modulo-talento 200 in 500ms
+ GET /modulo-talento 200 in 20ms
+ GET / 200 in 20ms
+ GET / 200 in 19ms
+ GET /modulo-talento 200 in 17ms
+ ○ Compiling /modulo-talento/carpeta-formador-talento ...
+ ✓ Compiled /modulo-talento/carpeta-formador-talento in 1023ms (753 modules)
+ GET /modulo-talento/carpeta-formador-talento 200 in 1167ms
+ GET /login 200 in 25ms
+ GET /login 200 in 25ms
+ GET /login 200 in 154ms
+ GET / 200 in 42ms
+ GET /login 200 in 20ms
+ GET / 200 in 14ms
+ GET /modulo-talento 200 in 27ms
+ ✓ Compiled /modulo-talento/carpeta-talento in 497ms (747 modules)
+ GET /modulo-talento/carpeta-talento 200 in 600ms
+ GET /login 200 in 25ms
+ GET / 200 in 18ms
+ GET /modulo-talento 200 in 30ms
+ ✓ Compiled /modulo-talento/carpeta-disciplinario in 351ms (750 modules)
+ GET /modulo-talento/carpeta-disciplinario 200 in 460ms
+ GET /modulo-talento/carpeta-disciplinario 200 in 16ms
+ ○ Compiling /modulo-talento/carpeta-disciplinario/tabla-control-disciplinario ...
+ ✓ Compiled /modulo-talento/carpeta-disciplinario/tabla-control-disciplinario in 1426ms (769 modules)
+ GET /modulo-talento/carpeta-disciplinario/tabla-control-disciplinario 200 in 1540ms
+ GET /login 200 in 31ms
+ GET / 200 in 142ms
+ GET /login 200 in 22ms
+ GET / 200 in 18ms
+ GET /modulo-talento 200 in 29ms
+ GET /login 200 in 19ms
+ GET / 200 in 20ms
+ GET /modulo-talento 200 in 21ms
+ GET / 200 in 39ms
+ GET /login 200 in 20ms
+ ✓ Compiled in 642ms (758 modules)
+ GET /login 200 in 116ms
+ GET /login 200 in 23ms
+ GET /login 200 in 20ms
+ ✓ Compiled in 287ms (758 modules)
+ GET /login 200 in 74ms
+ GET /login 200 in 27ms
+ GET /login 200 in 21ms
+ GET / 200 in 23ms
+ GET /modulo-talento 200 in 28ms
+ GET /modulo-talento/carpeta-disciplinario 200 in 34ms
+ GET /modulo-talento/carpeta-disciplinario/tabla-control-disciplinario 200 in 30ms
+ GET / 200 in 149ms
+ GET /modulo-talento/carpeta-disciplinario/tabla-control-disciplinario 200 in 18ms
+ GET /login 200 in 19ms
+ GET /login 200 in 23ms
+ GET /login 200 in 26ms
+ GET /login 200 in 24ms
+ GET /login 200 in 49ms
+ GET / 200 in 20ms
+ GET /modulo-talento 200 in 24ms
+ GET /modulo-talento 200 in 22ms
+ ✓ Compiled /modulo-talento/carpeta-formador-talento in 354ms (462 modules)
+ GET /modulo-talento/carpeta-formador-talento 200 in 445ms
+ ○ Compiling /modulo-talento/carpeta-formador-talento/tabla-formacion ...
+ ✓ Compiled /modulo-talento/carpeta-formador-talento/tabla-formacion in 1101ms (774 modules)
+ GET /modulo-talento/carpeta-formador-talento/tabla-formacion 200 in 1224ms
+ GET /login 200 in 33ms
+ GET / 200 in 27ms
+ GET / 200 in 22ms
+ GET /modulo-talento 200 in 35ms
+ GET /modulo-talento/carpeta-disciplinario 200 in 29ms
+ GET /modulo-talento/carpeta-disciplinario/tabla-control-disciplinario 200 in 28ms
+ GET /modulo-talento/carpeta-disciplinario/tabla-control-disciplinario 200 in 21ms
+ GET /login 200 in 23ms
+ GET / 200 in 20ms
+ GET /login 200 in 22ms
+ GET / 200 in 20ms
+ GET /login 200 in 23ms
+ GET / 200 in 154ms
+ GET /login 200 in 20ms
+ GET / 200 in 56ms
+ GET /login 200 in 27ms
+ GET / 200 in 70ms
+ ○ Compiling /modulo-financiero ...
+ ✓ Compiled /modulo-financiero in 2.3s (466 modules)
+ GET /modulo-financiero 200 in 2736ms
+ ○ Compiling /modulo-cartera ...
+ ✓ Compiled /modulo-cartera in 1236ms (778 modules)
+ GET /modulo-cartera 200 in 1895ms
+ GET /login 200 in 30ms
+ GET /login 200 in 23ms
+ GET / 200 in 210ms
+ GET / 200 in 39ms
+ GET /login 200 in 26ms
+ GET / 200 in 26ms
+ ✓ Compiled /modulo-talento in 341ms (463 modules)
+ GET /modulo-talento 200 in 493ms
+ GET /modulo-talento/carpeta-disciplinario 200 in 30ms
+ GET /modulo-talento/carpeta-disciplinario 200 in 24ms
+ GET /modulo-talento/carpeta-disciplinario/tabla-control-disciplinario 200 in 25ms
+ GET /modulo-talento/carpeta-disciplinario/tabla-control-disciplinario 200 in 21ms
+ GET /modulo-talento/carpeta-disciplinario/tabla-control-disciplinario 200 in 18ms
+ GET /modulo-talento/carpeta-disciplinario/tabla-control-disciplinario 200 in 17ms
+ GET /login 200 in 30ms
+ GET / 200 in 160ms
+ GET / 200 in 37ms
+ GET /login 200 in 21ms
+ GET /login 200 in 22ms
+ GET / 200 in 20ms
+ GET /modulo-talento 200 in 26ms
+ ○ Compiling /modulo-talento/carpeta-sistema-gestion-salud ...
+ ✓ Compiled /modulo-talento/carpeta-sistema-gestion-salud in 617ms (762 modules)
+ GET /modulo-talento/carpeta-sistema-gestion-salud 200 in 777ms
+ GET /modulo-talento/carpeta-sistema-gestion-salud 200 in 18ms
+ GET /modulo-talento/carpeta-sistema-gestion-salud 200 in 17ms
+ ○ Compiling /modulo-talento/carpeta-sistema-gestion-salud/tabla-accidentalidad ...
+ ✓ Compiled /modulo-talento/carpeta-sistema-gestion-salud/tabla-accidentalidad in 664ms (779 modules)
+ GET /modulo-talento/carpeta-sistema-gestion-salud/tabla-accidentalidad 200 in 776ms
+ GET /modulo-talento/carpeta-sistema-gestion-salud/tabla-accidentalidad 200 in 19ms
+ ✓ Compiled /modulo-talento/carpeta-sistema-gestion-salud/tabla-ausentismo in 358ms (788 modules)
+ GET /modulo-talento/carpeta-sistema-gestion-salud/tabla-ausentismo 200 in 404ms
+ ○ Compiling /modulo-talento/carpeta-sistema-gestion-salud/tabla-programa ...
+ ✓ Compiled /modulo-talento/carpeta-sistema-gestion-salud/tabla-programa in 512ms (790 modules)
+ GET /modulo-talento/carpeta-sistema-gestion-salud/tabla-programa 200 in 563ms
+ ✓ Compiled / in 324ms (466 modules)
+ GET / 200 in 552ms
+ GET / 200 in 36ms
+ GET /modulo-talento 200 in 26ms
+ GET /modulo-talento/carpeta-sistema-gestion-salud 200 in 39ms
+ GET /modulo-talento/carpeta-sistema-gestion-salud/tabla-accidentalidad 200 in 30ms
+ GET /modulo-talento/carpeta-sistema-gestion-salud 200 in 36ms
+ GET /modulo-talento/carpeta-sistema-gestion-salud/tabla-accidentalidad 200 in 24ms
+ ✓ Compiled /modulo-talento/carpeta-sistema-gestion-salud/tabla-ausentismo in 298ms (467 modules)
+ GET /modulo-talento/carpeta-sistema-gestion-salud/tabla-ausentismo 200 in 432ms
+ GET /modulo-talento/carpeta-sistema-gestion-salud/tabla-accidentalidad 200 in 26ms
+ GET /modulo-talento/carpeta-sistema-gestion-salud/tabla-ausentismo 200 in 17ms
+ ○ Compiling /modulo-talento/carpeta-sistema-gestion-salud/tabla-enfermedad-laboral ...
+ ✓ Compiled /modulo-talento/carpeta-sistema-gestion-salud/tabla-enfermedad-laboral in 780ms (772 modules)
+ GET /modulo-talento/carpeta-sistema-gestion-salud/tabla-enfermedad-laboral 200 in 922ms
+ GET /modulo-talento/carpeta-sistema-gestion-salud/tabla-enfermedad-laboral 200 in 23ms
+ ✓ Compiled /modulo-talento/carpeta-sistema-gestion-salud/tabla-plan-trabajo in 313ms (779 modules)
+ GET /modulo-talento/carpeta-sistema-gestion-salud/tabla-plan-trabajo 200 in 387ms
+ GET /modulo-talento/carpeta-sistema-gestion-salud/tabla-enfermedad-laboral 200 in 35ms
+ GET /modulo-talento/carpeta-sistema-gestion-salud/tabla-plan-trabajo 200 in 33ms
+ GET /modulo-talento/carpeta-sistema-gestion-salud/tabla-programa 200 in 35ms
+ ○ Compiling /modulo-talento/carpeta-sistema-gestion-salud/tabla-reporte-ministerio ...
+ ✓ Compiled /modulo-talento/carpeta-sistema-gestion-salud/tabla-reporte-ministerio in 865ms (761 modules)
+ GET /modulo-talento/carpeta-sistema-gestion-salud/tabla-reporte-ministerio 200 in 1086ms
+ ✓ Compiled /modulo-talento/carpeta-sistema-gestion-salud/tabla-restricciones-laborales in 347ms (770 modules)
+ GET /modulo-talento/carpeta-sistema-gestion-salud/tabla-restricciones-laborales 200 in 425ms
+ GET / 200 in 41ms
+ ✓ Compiled /login in 278ms (459 modules)
+ GET /login 200 in 461ms
+ GET /login 200 in 179ms
+ GET / 200 in 24ms
+ GET /login 200 in 22ms
+ GET / 200 in 37ms
+ GET /login 200 in 24ms
+ GET / 200 in 20ms
+ GET / 200 in 41ms
+ GET / 200 in 21ms
+ GET / 200 in 43ms
+ GET /login 200 in 26ms
+ ○ Compiling /modulo-financiero ...
+ ✓ Compiled /modulo-financiero in 918ms (463 modules)
+ GET /modulo-financiero 200 in 1217ms
+ ✓ Compiled /modulo-talento in 370ms (468 modules)
+ GET /modulo-talento 200 in 459ms
+ GET / 200 in 25ms
+ ○ Compiling /modulo-cartera ...
+ ✓ Compiled /modulo-cartera in 864ms (483 modules)
+ GET /modulo-cartera 200 in 1483ms
+ GET /modulo-financiero 200 in 27ms
+ ✓ Compiled /modulo-financiero/tabla-indicadores in 212ms (489 modules)
+ GET /modulo-financiero/tabla-indicadores 200 in 296ms
+ ○ Compiling /modulo-financiero/tabla-cupos ...
+ ✓ Compiled /modulo-financiero/tabla-cupos in 1176ms (820 modules)
+ GET /modulo-financiero/tabla-cupos 200 in 1243ms
+ GET /modulo-talento 200 in 41ms
+ ○ Compiling /modulo-talento/carpeta-disciplinario ...
+ ✓ Compiled /modulo-talento/carpeta-disciplinario in 606ms (499 modules)
+ GET /modulo-talento/carpeta-disciplinario 200 in 686ms
+ ✓ Compiled /modulo-talento/carpeta-disciplinario/tabla-control-disciplinario in 473ms (506 modules)
+ GET /modulo-talento/carpeta-disciplinario/tabla-control-disciplinario 200 in 551ms
+ ○ Compiling /modulo-talento/carpeta-formador-talento ...
+ ✓ Compiled /modulo-talento/carpeta-formador-talento in 515ms (468 modules)
+ GET /modulo-talento/carpeta-formador-talento 200 in 812ms
+ ✓ Compiled /modulo-talento/carpeta-formador-talento/tabla-formacion in 467ms (471 modules)
+ GET /modulo-talento/carpeta-formador-talento/tabla-formacion 200 in 571ms
+ ✓ Compiled /modulo-talento in 368ms (470 modules)
+ GET /modulo-talento 200 in 643ms
+ GET / 200 in 26ms
+ ✓ Compiled /modulo-financiero in 233ms (471 modules)
+ GET /modulo-financiero 200 in 390ms
+ ✓ Compiled /modulo-financiero/tabla-indicadores in 451ms (477 modules)
+ GET /modulo-financiero/tabla-indicadores 200 in 518ms
+ ✓ Compiled /modulo-financiero/tabla-cupos in 413ms (484 modules)
+ GET /modulo-financiero/tabla-cupos 200 in 484ms
+ GET /modulo-talento 200 in 22ms
+ GET /modulo-talento/carpeta-formador-talento 200 in 30ms
+ ○ Compiling /modulo-talento/carpeta-formador-talento/tabla-costo-beneficio ...
+ ⨯ ./app/services/modulo-talento/carpeta-formador-talento/costoBeneficioQuota.js:12:1
+Module not found: Can't resolve 'uuid'
+  10 |   fmtMoneyCOP,
+  11 | } from "./talentHelpers";
+> 12 | import { v4 as uuidv4 } from "uuid";
+     | ^
+  13 |
+  14 | export async function listCostoBeneficioQuota(params = {}) {
+  15 |   const raw = await listCostoBeneficioRaw(params);
+
+https://nextjs.org/docs/messages/module-not-found
+
+Import trace for requested module:
+./app/modulo-talento/carpeta-formador-talento/tabla-costo-beneficio/page.js
+ ⨯ ./app/services/modulo-talento/carpeta-formador-talento/costoBeneficioQuota.js:12:1
+Module not found: Can't resolve 'uuid'
+  10 |   fmtMoneyCOP,
+  11 | } from "./talentHelpers";
+> 12 | import { v4 as uuidv4 } from "uuid";
+     | ^
+  13 |
+  14 | export async function listCostoBeneficioQuota(params = {}) {
+  15 |   const raw = await listCostoBeneficioRaw(params);
+
+https://nextjs.org/docs/messages/module-not-found
+
+Import trace for requested module:
+./app/modulo-talento/carpeta-formador-talento/tabla-costo-beneficio/page.js
+ ⨯ ./app/services/modulo-talento/carpeta-formador-talento/costoBeneficioQuota.js:12:1
+Module not found: Can't resolve 'uuid'
+  10 |   fmtMoneyCOP,
+  11 | } from "./talentHelpers";
+> 12 | import { v4 as uuidv4 } from "uuid";
+     | ^
+  13 |
+  14 | export async function listCostoBeneficioQuota(params = {}) {
+  15 |   const raw = await listCostoBeneficioRaw(params);
+
+https://nextjs.org/docs/messages/module-not-found
+
+Import trace for requested module:
+./app/modulo-talento/carpeta-formador-talento/tabla-costo-beneficio/page.js
+ GET /modulo-talento/carpeta-formador-talento/tabla-costo-beneficio 500 in 4269ms
+ GET /modulo-talento 500 in 603ms
+ GET /modulo-talento 500 in 18ms
+ GET /modulo-talento 500 in 15ms
+ GET / 500 in 18ms
+ GET / 500 in 31ms
+ GET / 500 in 23ms

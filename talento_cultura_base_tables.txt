@@ -1,0 +1,441 @@
+Line style is unicode.
+Border style is 2.
+Null display is "[NULL]".
+?column?
+accidentalidad
+- id bigint(64/0) DEFAULT nextval('talento_cultura.accidentalidad_id_seq'::regclass) NOT NULL
+- anio smallint(16/0) NOT NULL
+- mes character varying(12) NOT NULL
+- tipo_vinculacion text NOT NULL
+- numero_accidentes integer(32/0) NOT NULL
+- accidentes_mortales integer(32/0) DEFAULT 0 NOT NULL
+- dias_cargados integer(32/0) NOT NULL
+- indicador text NOT NULL
+- resultado numeric(12/2) NOT NULL
+- creado_en timestamp with time zone DEFAULT now() NOT NULL
+- actualizado_en timestamp with time zone DEFAULT now() NOT NULL
+- numero_trabajadores integer(32/0)
+- dias_incapacidad integer(32/0)
+
+ascensos
+- periodo date NOT NULL
+- oficina_codigo integer(32/0) NOT NULL
+- cantidad integer(32/0) DEFAULT 0 NOT NULL
+- observacion text
+- creado_en timestamp with time zone DEFAULT now() NOT NULL
+- actualizado_en timestamp with time zone DEFAULT now() NOT NULL
+- oficina_nombre text
+
+capacitacion_mensual
+- periodo date NOT NULL
+- total_gastos numeric(14/2)
+- trabajadores_cap integer(32/0)
+- modalidad character varying(20) NOT NULL
+- rentabilidad character varying(20)
+- grupo smallint(16/0) DEFAULT 1 NOT NULL
+- costo_por_trabajador numeric(14/2)
+
+control_disciplinario
+- id bigint(64/0) DEFAULT nextval('talento_cultura.control_disciplinario_id_seq'::regclass) NOT NULL
+- anio smallint(16/0) NOT NULL
+- trabajador_id text NOT NULL
+- trabajador_nombre text NOT NULL
+- oficina_id text
+- oficina_nombre text
+- cargo_id text
+- cargo_nombre text
+- antiguedad date
+- motivo text
+- fecha_hechos date
+- fecha_conocimiento date
+- fecha_notificacion date
+- posible_sancion text
+- gravedad_notificada text
+- fecha_descargos date
+- fecha_decision_1 date
+- gravedad_1 text
+- sancion_1 text
+- recurso text
+- fecha_interposicion_recurso date
+- fecha_decision_recurso date
+- decision_recurso text
+- gravedad_2 text
+- sancion_2 text
+- fecha_decision_2 date
+- tiempo_suspension text
+- etapa_proceso text
+- estado_empleado text
+- tipo_impacto text
+- fecha_creacion timestamp with time zone DEFAULT now() NOT NULL
+- fecha_actualizacion timestamp with time zone DEFAULT now() NOT NULL
+
+egresos
+- id bigint(64/0) DEFAULT nextval('talento_cultura.egresos_id_seq'::regclass) NOT NULL
+- anio smallint(16/0) NOT NULL
+- mes character varying(12) NOT NULL
+- oficina_id text NOT NULL
+- oficina_nombre text NOT NULL
+- cargo_id text NOT NULL
+- cargo_nombre text NOT NULL
+- cantidad integer(32/0) NOT NULL
+- motivo text NOT NULL
+- creado_en timestamp with time zone DEFAULT now() NOT NULL
+- actualizado_en timestamp with time zone DEFAULT now() NOT NULL
+
+empleados_dim
+- empleado_id text NOT NULL
+- nombre text
+- oficina_id text
+- oficina_nombre text
+- cargo_id text
+- cargo_nombre text
+- fecha_ingreso date
+- estado_buk text
+- fecha_actualizacion timestamp with time zone DEFAULT now() NOT NULL
+
+formacion_participacion
+- periodo date NOT NULL
+- oficina_dependencia text NOT NULL
+- rol text NOT NULL
+- tema_formacion text NOT NULL
+- tipo_formacion text NOT NULL
+- cant_trab_participaron integer(32/0) NOT NULL
+- total_participantes integer(32/0) NOT NULL
+- veces_formado integer(32/0) NOT NULL
+- calificacion numeric(3/2)
+- grupo smallint(16/0) DEFAULT 1 NOT NULL
+- total_participantes_text text
+- pct_participacion numeric(5/2)
+
+horas_extra_buk_staging
+- hora_extra_id bigint(64/0) NOT NULL
+- empleado_id bigint(64/0)
+- horas_fecha date
+- horas_cantidad numeric(8/2)
+- horas_estado character varying(64)
+- horas_detalle text
+- creado_en timestamp without time zone
+- actualizado_en timestamp without time zone
+- periodo date
+
+incapacidades_buk_staging
+- buk_registro_id bigint(64/0) NOT NULL
+- buk_employee_id bigint(64/0) NOT NULL
+- tipo_registro character varying(64)
+- sub_tipo character varying(64)
+- estado_solicitud character varying(64)
+- fecha_solicitud date
+- fecha_aprobacion date
+- fecha_inicio date
+- fecha_fin date
+- horas_totales numeric(10/2)
+- dias_calendario numeric(10/2)
+- dias_habiles numeric(10/2)
+- motivo text
+- observaciones text
+- certificado_url text
+- entidad_salud character varying(255)
+- diagnostico_codigo character varying(64)
+- remunerado boolean
+- aprobado_por_nombre character varying(255)
+- aprobado_por_email character varying(255)
+- creado_en timestamp without time zone
+- actualizado_en timestamp without time zone
+- periodo date
+
+informacion_laboral
+- empleado_numero_de_documento text NOT NULL
+- empleado_nombre_completo text
+- trabajo_familia_de_cargo text
+- trabajo_cargo text
+- trabajo_sueldo_base numeric(14/2)
+- empleado_codigo_de_ficha text
+- trabajo_centro_de_costo integer(32/0)
+- trabajo_fecha_ingreso_compania date NOT NULL
+- trabajo_fecha_fin_de_contrato date
+- trabajo_fecha_termino_trabajo date
+- empleado_email text
+- empleado_fecha_de_nacimiento date
+- trabajo_tipo_de_contrato text
+- trabajo_fecha_vencimiento_contrato date
+- periodo date DEFAULT '2023-07-01'::date NOT NULL
+
+informacion_laboral_buk_staging
+- empleado_numero_de_documento character varying(64)
+- empleado_nombre_completo character varying(255)
+- trabajo_familia_de_cargo character varying(255)
+- trabajo_cargo character varying(255)
+- trabajo_sueldo_base numeric(14/2)
+- empleado_codigo_de_ficha character varying(64)
+- trabajo_centro_de_costo character varying(255)
+- trabajo_fecha_ingreso_compania date
+- trabajo_fecha_fin_de_contrato date
+- trabajo_fecha_termino_trabajo date
+- empleado_email character varying(255)
+- empleado_fecha_de_nacimiento date
+- trabajo_tipo_de_contrato character varying(128)
+- trabajo_fecha_vencimiento_contrato date
+- periodo date
+- buk_employee_id bigint(64/0) NOT NULL
+- tipo_periodo character varying(32)
+- empleado_persona_id bigint(64/0)
+- empleado_url_foto text
+- empleado_primer_nombre character varying(128)
+- empleado_primer_apellido character varying(128)
+- empleado_segundo_apellido character varying(128)
+- empleado_rut character varying(64)
+- empleado_nacionalidad character varying(64)
+- pais_codigo character varying(8)
+- empleado_estado_civil character varying(64)
+- empleado_email_personal character varying(255)
+- empleado_direccion character varying(255)
+- empleado_calle character varying(255)
+- empleado_numero_calle character varying(32)
+- empleado_numero_oficina character varying(32)
+- empleado_ciudad character varying(128)
+- empleado_barrio character varying(128)
+- ubicacion_id bigint(64/0)
+- empleado_region character varying(128)
+- empleado_telefono_oficina character varying(64)
+- empleado_telefono character varying(64)
+- empleado_genero character varying(32)
+- empleado_universidad character varying(255)
+- empleado_titulo character varying(255)
+- empleado_activo_desde date
+- empleado_estado character varying(64)
+- trabajo_rol_privado boolean
+- empleado_compania_salud character varying(128)
+- empleado_regimen_pensional character varying(128)
+- empleado_fondo_pension character varying(128)
+- empleado_jubilado boolean
+- empleado_regimen_jubilacion character varying(128)
+- empleado_afc character varying(64)
+- empleado_activo_hasta date
+- creado_en timestamp without time zone
+- motivo_terminacion character varying(255)
+- trabajo_periodicidad character varying(64)
+- trabajo_frecuencia character varying(64)
+- trabajo_tipo_horario character varying(64)
+- trabajo_asignacion_zona boolean
+- trabajo_id_anterior bigint(64/0)
+- trabajo_compania_id bigint(64/0)
+- trabajo_area_id bigint(64/0)
+- job_contract_term date
+- trabajo_horas_semanales numeric(6/2)
+- job_base_wage numeric(14/2)
+- trabajo_rol_id bigint(64/0)
+- trabajo_rol_codigo character varying(64)
+- trabajo_rol_descripcion text
+- trabajo_rol_requisitos text
+- trabajo_familia_id bigint(64/0)
+- role_family_name character varying(255)
+- role_family_qty integer(32/0)
+- empleado_banco character varying(128)
+- empleado_metodo_pago character varying(64)
+- empleado_periodo_pago character varying(64)
+- empleado_anticipo_pago character varying(64)
+- empleado_tipo_cuenta character varying(64)
+- empleado_numero_cuenta character varying(64)
+- empleado_vacaciones_progresivas_desde date
+- familia_id bigint(64/0)
+- familia_seccion_asignacion character varying(128)
+- familia_responsabilidad_maternidad character varying(128)
+- familia_responsabilidad_invalidez character varying(128)
+- familia_fecha_inicio date
+- familia_fecha_fin date
+- empleado_tipo_documento character varying(32)
+- hash_payload character(64)
+
+licencias_buk_staging
+- licencia_id bigint(64/0) NOT NULL
+- empleado_id bigint(64/0)
+- licencia_tipo character varying(128)
+- licencia_formato character varying(64)
+- licencia_fecha_inicio date
+- licencia_fecha_fin date
+- licencia_dias integer(32/0)
+- licencia_porcentaje_dia numeric(6/2)
+- licencia_contribucion_dias integer(32/0)
+- licencia_etapa_jornada character varying(64)
+- licencia_fecha_solicitud date
+- licencia_fecha_solicitud_fin date
+- licencia_justificacion text
+- licencia_estado character varying(64)
+- licencia_tipo_id bigint(64/0)
+- licencia_medico_rut character varying(64)
+- creado_en timestamp without time zone
+- actualizado_en timestamp without time zone
+- periodo date
+
+liderazgo_genero_input
+- periodo date NOT NULL
+- lider_mujer integer(32/0) DEFAULT 0 NOT NULL
+- lider_hombre integer(32/0) DEFAULT 0 NOT NULL
+- lider_otro integer(32/0) DEFAULT 0 NOT NULL
+- pct_lider_mujer numeric(5/2)
+- pct_lider_hombre numeric(5/2)
+- pct_lider_otro numeric(5/2)
+
+parametros_ausentismo
+- anio integer(32/0) NOT NULL
+- mes integer(32/0) NOT NULL
+- DIAS DE AUSENCIA POR INCAPACIDAD LABORAL Y COMÚN PERSONAL PROP integer(32/0) DEFAULT 0 NOT NULL
+- DIAS DE AUSENCIA POR INCAPACIDAD LABORAL Y COMÚN PERSONAL CONT integer(32/0) DEFAULT 0 NOT NULL
+- NÚMERO DE DIAS LABORALES EN EL MES integer(32/0) NOT NULL
+- total_dias_incapacidad integer(32/0)
+- numero_dias_programados integer(32/0)
+- ausentismo_laboral numeric(6/2)
+
+parametros_enfermedad_laboral
+- anio integer(32/0) NOT NULL
+- mes integer(32/0) NOT NULL
+- Casos antiguos de EL integer(32/0) DEFAULT 0 NOT NULL
+- Casos Nuevos de EL integer(32/0) DEFAULT 0 NOT NULL
+- CODIGO CIE-10 text
+- Clasificación Internacional de Enfermedades text
+- CLASIFICACION ENFERMEDAD LABORAL text
+- Constante numeric(12/3) DEFAULT 100000 NOT NULL
+- indicador text
+- resultado numeric(12/2)
+
+permisos_buk_staging
+- permiso_id bigint(64/0) NOT NULL
+- empleado_id bigint(64/0)
+- permiso_tipo character varying(128)
+- permiso_motivo text
+- permiso_fecha_inicio timestamp without time zone
+- permiso_fecha_fin timestamp without time zone
+- permiso_horas numeric(8/2)
+- permiso_estado character varying(64)
+- creado_en timestamp without time zone
+- actualizado_en timestamp without time zone
+- periodo date
+
+plan_trabajo_anual
+- anio integer(32/0) NOT NULL
+- mes integer(32/0) NOT NULL
+- ciclo text NOT NULL
+- actividad text NOT NULL
+- planeado integer(32/0) DEFAULT 0 NOT NULL
+- ejecutado integer(32/0) DEFAULT 0 NOT NULL
+- responsable text NOT NULL
+- recurso_administrativo boolean DEFAULT false NOT NULL
+- recurso_financiero boolean DEFAULT false NOT NULL
+- total_actividades integer(32/0) DEFAULT 0 NOT NULL
+- actividades_programadas_mes integer(32/0) DEFAULT 0 NOT NULL
+- created_at timestamp with time zone DEFAULT now() NOT NULL
+- updated_at timestamp with time zone DEFAULT now() NOT NULL
+- porcentaje_ejecucion_mensual numeric(6/2)
+- porcentaje_cumplimiento_meta numeric(6/2)
+
+programa_capacitaciones
+- anio integer(32/0) NOT NULL
+- mes integer(32/0) NOT NULL
+- actividad text NOT NULL
+- planeado integer(32/0) DEFAULT 0 NOT NULL
+- ejecutado integer(32/0) DEFAULT 0 NOT NULL
+- responsable text NOT NULL
+- recurso_administrativo boolean DEFAULT false NOT NULL
+- recurso_financiero boolean DEFAULT false NOT NULL
+- observaciones text
+- total_actividades integer(32/0) DEFAULT 0 NOT NULL
+- actividades_programadas_mes integer(32/0) DEFAULT 0 NOT NULL
+- created_at timestamp with time zone DEFAULT now() NOT NULL
+- updated_at timestamp with time zone DEFAULT now() NOT NULL
+- porcentaje_ejecucion_mensual numeric(6/2)
+- porcentaje_cumplimiento_meta numeric(6/2)
+
+reporte_bono_cumpleanos
+- anio integer(32/0) NOT NULL
+- mes character varying(12) NOT NULL
+- cantidad_empleados integer(32/0) NOT NULL
+- cantidad_beneficiados integer(32/0)
+- valor_bono numeric(14/2)
+- total_bono numeric(18/2)
+- porcentaje_variacion numeric(5/2)
+
+reporte_bonos_mensual
+- anio integer(32/0) NOT NULL
+- mes character varying(12) NOT NULL
+- cantidad_empleados integer(32/0) NOT NULL
+- cantidad_beneficiados integer(32/0)
+- valor_bono numeric(14/2)
+- porcentaje_variacion numeric(5/2)
+
+reporte_clima_laboral
+- anio integer(32/0) NOT NULL
+- dimension character varying(128) NOT NULL
+- porcentaje numeric(5/2) NOT NULL
+
+reporte_desempeno
+- anio integer(32/0) NOT NULL
+- oficina character varying(128) NOT NULL
+- porcentaje numeric(5/2) NOT NULL
+
+reporte_empleados_beneficios
+- anio integer(32/0) NOT NULL
+- mes character varying(32) NOT NULL
+- cantidad_empleados integer(32/0) NOT NULL
+- cantidad_beneficiados integer(32/0)
+- porcentaje_variacion numeric(7/2)
+
+reporte_ministerio
+- anio integer(32/0) NOT NULL
+- recursos numeric(5/2) DEFAULT 0 NOT NULL
+- gestion_integral numeric(5/2) DEFAULT 0 NOT NULL
+- gestion_salud numeric(5/2) DEFAULT 0 NOT NULL
+- gestion_peligros numeric(5/2) DEFAULT 0 NOT NULL
+- gestion_amenazas numeric(5/2) DEFAULT 0 NOT NULL
+- verificacion_sgsst numeric(5/2) DEFAULT 0 NOT NULL
+- mejoramiento numeric(5/2) DEFAULT 0 NOT NULL
+- porcentaje numeric(5/2) DEFAULT 0 NOT NULL
+- creado_en timestamp with time zone DEFAULT now() NOT NULL
+- actualizado_en timestamp with time zone DEFAULT now() NOT NULL
+
+restricciones_laborales
+- anio integer(32/0) NOT NULL
+- sede text NOT NULL
+- cargo text NOT NULL
+- patologia text NOT NULL
+- restricciones text NOT NULL
+- creado_en timestamp with time zone DEFAULT now() NOT NULL
+- actualizado_en timestamp with time zone DEFAULT now() NOT NULL
+
+satisfaccion_aprendizaje
+- periodo date NOT NULL
+- n_formadores_recomendacion integer(32/0) NOT NULL
+- total_formadores integer(32/0) NOT NULL
+- pct_satisfaccion numeric(5/2) NOT NULL
+- formadores_o_area text NOT NULL
+- recomendacion text NOT NULL
+
+transferencia_conocimiento
+- periodo date NOT NULL
+- comprension numeric(3/2)
+- retencion numeric(3/2)
+- valoracion_desempeno numeric(3/2)
+- satisfaccion numeric(3/2)
+- valoracion_jefe_inmediato numeric(3/2)
+- practica numeric
+- total numeric(5/2)
+- efectividad numeric(5/2)
+
+vacaciones_buk_staging
+- vacacion_id bigint(64/0) NOT NULL
+- empleado_id bigint(64/0)
+- aprobado_por_id bigint(64/0)
+- vacaciones_dias_habiles integer(32/0)
+- vacaciones_dias_calendario integer(32/0)
+- vacaciones_etapa_jornada character varying(64)
+- vacaciones_fecha_inicio date
+- vacaciones_fecha_fin date
+- fecha_solicitud date
+- fecha_aprobacion date
+- vacaciones_tipo character varying(64)
+- vacaciones_estado character varying(64)
+- vacaciones_tipo_id bigint(64/0)
+- creado_en timestamp without time zone
+- actualizado_en timestamp without time zone
+- periodo date
+
+(28 rows)

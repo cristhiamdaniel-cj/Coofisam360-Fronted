@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import {
   listControlRows,
   saveControlRow,
+  listEmpleadosByOficina,
 } from "../../../services/modulo-talento/carpeta-disciplinario/controlDiscipline";
 import { IoSearch } from "react-icons/io5";
 import { FaRegSave, FaFileDownload } from "react-icons/fa";
@@ -514,6 +515,7 @@ export default function GestionesTable() {
   const [saving, setSaving] = useState(false);
   const [selectedYear, setSelectedYear] = useState();
   const [selectedMonth, setSelectedMonth] = useState();
+  const [empleadosCache, setEmpleadosCache] = useState({}); // { OFICINA|CARGO: [empleados] }
 
   useEffect(() => {
     async function load() {
@@ -522,6 +524,16 @@ export default function GestionesTable() {
         setRows(data);
         //setFilteredRows(data);
         setError("");
+        // Prefetch de empleados por oficina presente en datos
+        const combos = [...new Set((data || []).map(r => {
+          const ofi = (r.oficina || "").toString().toUpperCase();
+          const car = (r.CARGO || "").toString().toUpperCase();
+          return ofi && car ? `${ofi}|${car}` : null;
+        }).filter(Boolean))];
+        for (const combo of combos) {
+          const [ofi, car] = combo.split('|');
+          ensureEmpleados(ofi, car);
+        }
       } catch (e) {
         setError(e.message || "Error cargando datos");
       } finally {
@@ -531,21 +543,35 @@ export default function GestionesTable() {
     load();
   }, []);
 
+  async function ensureEmpleados(oficinaNombre, cargoNombre) {
+    const keyOfi = (oficinaNombre || "").toString().toUpperCase();
+    const keyCar = (cargoNombre || "").toString().toUpperCase();
+    if (!keyOfi) return;
+    const cacheKey = `${keyOfi}|${keyCar || '*'}`;
+    if (empleadosCache[cacheKey]) return;
+    try {
+      const lista = await listEmpleadosByOficina(keyOfi, keyCar || undefined);
+      setEmpleadosCache(prev => ({ ...prev, [cacheKey]: lista }));
+    } catch (e) {
+      // silencioso; evitamos romper la UI
+    }
+  }
+
   useEffect(() => {
     const query = search.trim().toLowerCase();
     const filtered = rows
       .filter(r => {
         const matchesSearch =
           !query ||
-          r.oficina.toLowerCase().includes(query) ||
-          r.trabajador.toLowerCase().includes(query);
+          (r.oficina || "").toLowerCase().includes(query) ||
+          (r.trabajador || "").toLowerCase().includes(query);
 
         const matchesYear = !selectedYear || r.anio === Number(selectedYear);
         const matchesMonth = !selectedMonth || r.mes === Number(selectedMonth);
 
         return matchesSearch && matchesYear && matchesMonth;
       })
-      .sort((a, b) => Number(a.codigo) - Number(b.codigo));
+      .sort((a, b) => (Number(a.codigo) || 0) - (Number(b.codigo) || 0));
 
     setFilteredRows(filtered);
   }, [search, rows, selectedYear, selectedMonth]);
@@ -585,6 +611,20 @@ export default function GestionesTable() {
     }));
   };
 
+  function formatIsoToDdMmYyyy(v) {
+    if (!v) return "";
+    if (/^\d{4}-\d{2}-\d{2}$/.test(v)) {
+      const [yyyy, mm, dd] = String(v).split("-");
+      return `${dd}/${mm}/${yyyy}`;
+    }
+    const d = new Date(v);
+    if (isNaN(d)) return String(v);
+    const dd = String(d.getDate()).padStart(2, "0");
+    const mm = String(d.getMonth() + 1).padStart(2, "0");
+    const yy = d.getFullYear();
+    return `${dd}/${mm}/${yy}`;
+  }
+
   const handleSave = async () => {
     try {
       // Convertimos el objeto editedRows en un array de filas
@@ -614,14 +654,40 @@ export default function GestionesTable() {
 
   const handleAddRow = () => {
     const newRow = {
-      id: crypto.randomUUID(), // genera un id único
-      Año: new Date().getFullYear(),
-      Mes: new Date().getMonth(), // o podrías poner el mes actual
-      TotalGastosTransferencia: 0,
-      TrabajadoresCapacitados: 0,
-      CostoPorTrabajador: 0,
-      Modalidad: "",
-      Rentabilidad: "",
+      id: crypto.randomUUID(),
+      trabajador: "",
+      oficina: "",
+      CARGO: "",
+      ANTIGÜEDAD: "",
+      MOTIVO: "",
+      FECHA_EN_QUE_SUCEDIERON_LOS_HECHOS: "",
+      FECHA_DE_CONOCIMIENTO_DE_LOS_HECHOS: "",
+      FECHA_NOTIFICACIÓN: "",
+      Inicio_de_proceso_x_Día: "",
+      POSIBLE_SANCION: "",
+      GRAVEDAD_NOTIFICADA: "",
+      FECHA_DESCARGOS: "",
+      FECHA_DESICIÓN_PRIMERA_INSTANCIA: "",
+      GRAVEDAD_PRIMERA_INSTANCIA: "",
+      SANCION_PRIMERA_INSTANCIA: "",
+      Duracion_Proceso_Inicial: "",
+      RECURSO: "",
+      FECHA_INTERPOSICION_RECURSO: "",
+      FECHA_DECISIÓN_RECURSO_PRIMERA_INSTANCIA: "",
+      DECISIÓN_RECURSO_PRIMERA_INSTANCIA: "",
+      Duración_Proceso_x_1_Instancia: "",
+      DECISIÓN_RECURSO_SEGUNDA_INSTANCIA: "",
+      GRAVEDAD_SEGUNDA_INSTANCIA: "",
+      SANCION_SEGUNDA_INSTANCIA: "",
+      FECHA_DE_DECISIÓN_SEGUNDA_INSTANCIA: "",
+      Duración_Proceso_x_2_Instancia: "",
+      TIEMPO_DE_SUSPENSION: "",
+      ETAPA_DEL_PROCESO: "",
+      ESTADO_DEL_EMPLEADO: "",
+      Diferencia_x_Día: "",
+      Total_Vinculación_x_Año_y_Día: "",
+      Tipo_de_Impacto: "",
+      Duración_total_del_proceso: "",
       isNew: true,
     };
 
@@ -855,14 +921,64 @@ export default function GestionesTable() {
           <tbody className="tabla-cupos-content p-4">
             {filteredRows.map((r, idx) => (
               <tr key={idx}>
-                <td className="p-2 border text-left whitespace-nowrap">
-                  {r.trabajador}
+                <td className="p-2 border text-left whitespace-nowrap min-w-[240px]">
+                  {(() => {
+                    const ofiKey = (r.oficina || "").toString().toUpperCase();
+                    const carKey = (r.CARGO || "").toString().toUpperCase();
+                    const cacheExact = `${ofiKey}|${carKey || '*'}`;
+                    const cacheOfiOnly = `${ofiKey}|*`;
+                    const lista = empleadosCache[cacheExact] || empleadosCache[cacheOfiOnly] || [];
+                    if (ofiKey && !empleadosCache[cacheOfiOnly]) {
+                      ensureEmpleados(ofiKey);
+                    }
+                    if (ofiKey && carKey && !empleadosCache[cacheExact]) {
+                      ensureEmpleados(ofiKey, carKey);
+                    }
+                    if (ofiKey) {
+                      return (
+                        <select
+                          value={r.trabajador || ""}
+                          onChange={e => {
+                            const nombre = e.target.value;
+                            const emp = lista.find(x => x.nombre === nombre);
+                            handleChange(idx, "trabajador", nombre);
+                            if (emp) {
+                              handleChange(idx, "CARGO", emp.cargo_nombre || "");
+                              handleChange(idx, "ANTIGÜEDAD", formatIsoToDdMmYyyy(emp.fecha_ingreso));
+                              if (emp.oficina_nombre && emp.oficina_nombre !== r.oficina) {
+                                handleChange(idx, "oficina", emp.oficina_nombre);
+                              }
+                              if (emp.estado_buk) {
+                                handleChange(idx, "ESTADO_DEL_EMPLEADO", String(emp.estado_buk).toUpperCase());
+                              }
+                            }
+                          }}
+                          className="border rounded p-1 w-full"
+                        >
+                          <option value="">Seleccione empleado…</option>
+                          {/* Mostrar el valor actual si no está en la lista */}
+                          {r.trabajador && !lista.some(x => x.nombre === r.trabajador) && (
+                            <option value={r.trabajador}>{r.trabajador}</option>
+                          )}
+                          {lista.map(emp => (
+                            <option key={emp.id || emp.nombre} value={emp.nombre}>
+                              {emp.nombre}
+                            </option>
+                          ))}
+                        </select>
+                      );
+                    }
+                    return r.trabajador || "";
+                  })()}
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
                   <select
                     value={r.oficina}
                     onChange={e => {
-                      handleChange(idx, "oficina", e.target.value);
+                      const val = e.target.value;
+                      handleChange(idx, "oficina", val);
+                      ensureEmpleados(val);
+                      ensureEmpleados(val, r.CARGO);
                     }}
                     className="border rounded p-1 w-full"
                   >
@@ -898,7 +1014,9 @@ export default function GestionesTable() {
                   <select
                     value={r.CARGO}
                     onChange={e => {
-                      handleChange(idx, "CARGO", e.target.value);
+                      const val = e.target.value;
+                      handleChange(idx, "CARGO", val);
+                      ensureEmpleados(r.oficina, val);
                     }}
                     className="border rounded p-1 w-full"
                   >
