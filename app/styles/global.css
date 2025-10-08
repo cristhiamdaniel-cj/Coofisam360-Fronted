@@ -83,7 +83,7 @@
 
 .dashboard-financiero {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 50px;
   padding: 40px 0px 0px 0px;
 }
@@ -129,11 +129,30 @@
   overflow-x: auto;
 }
 
+/* Contenedor de tabla con scroll vertical */
+.table-container {
+  overflow-y: auto;
+  overflow-x: auto;
+  max-height: 65vh;
+}
+
 .tabla-cupos-content tr td {
   border: 1px solid #e5e7eb; /* Same as Tailwind border */
   text-align: center; /* Centers text */
-  color: var(--dark-text);
+  color: #000000; /* Texto negro por defecto para campos fijos */
   padding: 10px 20px;
+}
+
+/* Estilo para campos editables - siempre gris */
+.tabla-cupos-content tr td select,
+.tabla-cupos-content tr td textarea,
+.tabla-cupos-content tr td input {
+  color: var(--dark-text);
+}
+
+/* Estilo para datos editados - mantiene el color gris */
+.tabla-cupos-content tr td.edited {
+  color: var(--dark-text);
 }
 
 .tabla-header {
@@ -182,8 +201,35 @@ table thead th {
   top: 0; /* sticks to the top of the scroll container */
   background: var(
     --bright-red
-  ); /* give it a solid background so rows don’t bleed through */
+  ); /* give it a solid background so rows don't bleed through */
   z-index: 10; /* keep it above the body cells */
+}
+
+/* Estilo específico para headers de tabla-presupuesto */
+.tabla-cupos-header th {
+  position: sticky;
+  top: 0;
+  background: var(--bright-red);
+  z-index: 10;
+  color: var(--light-text);
+}
+
+/* Headers principales (primera fila) */
+.tabla-presupuesto-header tr:first-child th {
+  position: sticky;
+  top: 0;
+  z-index: 12;
+  background: var(--bright-red);
+  color: var(--light-text);
+}
+
+/* Subheaders (segunda fila) */
+.tabla-presupuesto-header tr:last-child th {
+  position: sticky;
+  top: 58px; /* Altura aproximada del header principal */
+  z-index: 11;
+  background: var(--bright-red);
+  color: var(--light-text);
 }
 
 .login-header {
@@ -273,9 +319,9 @@ table thead th {
 }
 
 .search-bar input {
-  border-radius: 15px;
+  border-radius: 25px;
 }
 
 .search-bar select {
-  border-radius: 15px;
+  border-radius: 25px;
 }

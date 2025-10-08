@@ -456,7 +456,7 @@ export default function CategoriasTable() {
 
       <div className="overflow-x-auto max-w-full table-container h-[65vh]">
         <table className="table-auto border-collapse w-full">
-          <thead className="tabla-cupos-header">
+          <thead className="tabla-presupuesto-header">
             <tr>
               <th
                 rowSpan="2"
