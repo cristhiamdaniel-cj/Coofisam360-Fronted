@@ -2,6 +2,7 @@ import {
   listCostoBeneficio as listCostoBeneficioRaw,
   getCostoBeneficio as getCostoBeneficioRaw,
   saveCostoBeneficio as saveCostoBeneficioRaw,
+  updateCostoBeneficio as updateCostoBeneficioRaw,
 } from "./talentTrainerService";
 import {
   toMonthNumber,
@@ -9,7 +10,17 @@ import {
   num,
   fmtMoneyCOP,
 } from "./talentHelpers";
-import { v4 as uuidv4 } from "uuid";
+// Evitar dependencia a 'uuid'; usar crypto.randomUUID si existe
+function genId() {
+  try {
+    if (typeof crypto !== "undefined" && crypto.randomUUID) {
+      return crypto.randomUUID();
+    }
+  } catch (_) {}
+  return `id_${Date.now().toString(36)}_${Math.random()
+    .toString(36)
+    .slice(2, 10)}`;
+}
 
 export async function listCostoBeneficioQuota(params = {}) {
   const raw = await listCostoBeneficioRaw(params);
@@ -23,17 +34,25 @@ export async function getCostoBeneficioQuota(id, params = {}) {
 export async function saveCostoBeneficioQuota(payload) {
   return await saveCostoBeneficioRaw(payload);
 }
+export async function updateCostoBeneficioQuota(payload) {
+  return await updateCostoBeneficioRaw(payload);
+}
 
 function mapFromApi(r) {
   return {
-    id: r.id ?? r.row_id ?? uuidv4(),
+    id: r.id ?? r.row_id ?? genId(),
     Año: r.anio ?? r.year,
     Mes: r.mes_nombre ?? r.mes ?? r.month_name,
     TotalGastosTransferencia: r.total_gastos,
-    TrabajadoresCapacitados: num(r.trabajadores_capacitados ?? r.n_capacitados),
+    TrabajadoresCapacitados: num(
+      r.trabajadores_cap ?? r.trabajadores_capacitados ?? r.n_capacitados
+    ),
     CostoPorTrabajador: r.costo_por_trabajador,
-    Modalidad: r.modalidad ?? "",
-    Rentabilidad: r.rentabilidad ?? "",
+    // Mostrar en UI normalizado, pero conservar el valor exacto para PK en PUT
+    Modalidad: (r.modalidad ?? "").toString().toUpperCase(),
+    ModalidadPk: (r.modalidad ?? "").toString(),
+    Rentabilidad: (r.rentabilidad ?? "").toString().toUpperCase(),
+    Grupo: r.grupo ?? 1,
   };
 }
 
@@ -43,9 +62,11 @@ function mapToApi(r) {
     anio: num(r.Año),
     mes: r.Mes,
     total_gastos: r.TotalGastosTransferencia,
-    trabajadores_capacitados: num(r.TrabajadoresCapacitados),
+    trabajadores_cap: num(r.TrabajadoresCapacitados),
     costo_por_trabajador: r.CostoPorTrabajador,
-    modalidad: r.Modalidad ?? "",
-    rentabilidad: r.Rentabilidad ?? "",
+    // Para PUT usar el valor original de la PK si existe
+    modalidad: (r.ModalidadPk ?? r.Modalidad ?? "").toString(),
+    rentabilidad: (r.Rentabilidad ?? "").toString().toUpperCase(),
+    grupo: r.Grupo ?? 1,
   };
 }

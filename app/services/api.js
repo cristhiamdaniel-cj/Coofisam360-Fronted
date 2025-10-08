@@ -39,12 +39,18 @@ async function request(method, path, { params, body, headers } = {}) {
   });
   clearTimeout(timer);
 
-  const isJson = (res.headers.get("content-type") || "").includes(
-    "application/json"
-  );
-  const data = isJson
-    ? await res.json().catch(() => undefined)
-    : await res.text();
+  const contentType = res.headers.get("content-type") || "";
+  const isJson = contentType.includes("application/json");
+  let data;
+  if (isJson) {
+    try {
+      data = await res.json();
+    } catch (_) {
+      data = undefined;
+    }
+  } else if (contentType.includes("text")) {
+    data = await res.text();
+  }
   if (!res.ok) {
     const message =
       (data && (data.error || data.message)) || res.statusText || "API error";
@@ -57,7 +63,15 @@ const api = {
   get: (path, { params } = {}) => request("GET", path, { params }),
   post: (path, body) => request("POST", path, { body }),
   put: (path, body) => request("PUT", path, { body }),
-  delete: (path, params) => request("DELETE", path, { params }),
+  delete: (path, options) => {
+    if (options && (options.params || options.body || options.headers)) {
+      return request("DELETE", path, options);
+    }
+    if (options && typeof options === "object") {
+      return request("DELETE", path, { params: options });
+    }
+    return request("DELETE", path);
+  },
 };
 
 export default api;

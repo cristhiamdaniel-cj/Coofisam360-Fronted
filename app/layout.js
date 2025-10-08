@@ -39,7 +39,12 @@ export default function RootLayout({ children }) {
   }, [pathname, isLoginRoute, router]);
 
   return (
-    <html lang="es" className={`${grandHotel.variable} ${urbanist.variable}`}>
+    // Evita warnings de hidratación causados por extensiones (p.ej. data-lt-installed)
+    <html
+      lang="es"
+      className={`${grandHotel.variable} ${urbanist.variable}`}
+      suppressHydrationWarning
+    >
       <body className="main-layout">
         <AuthProvider>
           {isLoginRoute ? (

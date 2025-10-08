@@ -2,6 +2,7 @@ import {
   listReporteMinisterio as listRaw,
   getReporteMinisterio as getRaw,
   saveReporteMinisterio as saveRaw,
+  updateReporteMinisterio as updateRaw,
 } from "./talentHealthService";
 import { num, str } from "./healthHelpers";
 
@@ -15,7 +16,11 @@ export async function getReporteMinisterioRow(id, params = {}) {
   return r ? fromApi(r) : null;
 }
 export async function saveReporteMinisterioRow(uiRow) {
-  return await saveRaw(toApi(uiRow));
+  const body = toApi(uiRow);
+  if (uiRow && !uiRow.isNew) {
+    return await updateRaw(body);
+  }
+  return await saveRaw(body);
 }
 
 function fromApi(a) {

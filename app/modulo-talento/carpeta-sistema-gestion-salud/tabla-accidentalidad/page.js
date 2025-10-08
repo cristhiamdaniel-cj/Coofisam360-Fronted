@@ -23,6 +23,9 @@ export default function GestionesTable() {
   const [saving, setSaving] = useState(false);
   const [selectedYear, setSelectedYear] = useState();
   const [selectedMonth, setSelectedMonth] = useState();
+  const [editingRows, setEditingRows] = useState({});
+  const [statusMsg, setStatusMsg] = useState("");
+  const [statusType, setStatusType] = useState("info"); // success | error | info
 
   useEffect(() => {
     async function load() {
@@ -88,31 +91,66 @@ export default function GestionesTable() {
   const availableMonths = monthNames.filter(m => uniqueMonths.includes(m));
 
   const handleChange = (id, field, value) => {
-    const updateRow = row => (row.id === id ? { ...row, [field]: value } : row);
-
+    const updateRow = row => {
+      if (row.id === id) {
+        const updatedRow = { ...row, [field]: value };
+        
+        // Si se cambia el tipo de vinculación, actualizar automáticamente el número de trabajadores
+        if (field === 'TipoVinculacion') {
+          if (value === 'Propios') {
+            updatedRow.NumeroTrabajadores = updatedRow.NumeroTrabajadoresPropios || 0;
+          } else if (value === 'Contratistas') {
+            updatedRow.NumeroTrabajadores = updatedRow.NumeroTrabajadoresContratistas || 0;
+          } else if (value === 'Propios y Contratistas') {
+            const propios = updatedRow.NumeroTrabajadoresPropios || 0;
+            const contratistas = updatedRow.NumeroTrabajadoresContratistas || 0;
+            updatedRow.NumeroTrabajadores = propios + contratistas;
+          }
+        }
+        
+        return updatedRow;
+      }
+      return row;
+    };
+    
     setRows(prev => prev.map(updateRow));
     setFilteredRows(prev => prev.map(updateRow));
-
-    setEditedRows(prev => ({
-      ...prev,
-      [id]: { ...prev[id], [field]: value },
-    }));
+    setEditedRows(prev => ({ ...prev, [id]: { ...(prev[id] || {}), [field]: value } }));
   };
 
   const handleSave = async () => {
-    console.log("Saving edits:", editedRows);
-
-    // Example: send to backend
-    /*
-    await fetch("https://coofisam360.ngrok.io/api/update-records/", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(editedRows),
-    });
-    */
-
-    // clear edited state after saving
-    setEditedRows({});
+    try {
+      setSaving(true);
+      const keys = Object.keys(editedRows);
+      let ok = 0, fail = 0;
+      for (const k of keys) {
+        const row = rows.find(r => String(r.id) === String(k));
+        if (!row) continue;
+        const merged = { ...row, ...(editedRows[k] || {}) };
+        try {
+          await saveAccidentalidadRow(merged);
+          ok++;
+        } catch (e) {
+          console.error(e);
+          fail++;
+        }
+      }
+      setEditedRows({});
+      const data = await listAccidentalidadRows({ limit: 500 });
+      setRows(data);
+      if (fail === 0 && ok > 0) {
+        setStatusType("success");
+        setStatusMsg("Información guardada correctamente.");
+      } else if (ok > 0 && fail > 0) {
+        setStatusType("info");
+        setStatusMsg(`Guardado parcial: ${ok} ok, ${fail} con error.`);
+      } else if (fail > 0) {
+        setStatusType("error");
+        setStatusMsg("Ocurrió un error guardando los cambios.");
+      }
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleDownload = () => {
@@ -142,7 +180,9 @@ export default function GestionesTable() {
       Año: new Date().getFullYear(),
       Mes: "ENERO",
       TipoVinculacion: "Propios",
-      NumeroTrabajadores: 0, // solo lectura, se puede calcular después
+      NumeroTrabajadores: 0, // se calcula automáticamente según el tipo de vinculación
+      NumeroTrabajadoresPropios: 0, // para cálculos automáticos
+      NumeroTrabajadoresContratistas: 0, // para cálculos automáticos
       AccidentesTrabajo: 0,
       AtMortales: 0,
       DiasIncapacidad: 0, // solo lectura
@@ -161,6 +201,11 @@ export default function GestionesTable() {
         Accidentalidad
       </h1>
       <div className="actions-container flex justify-between mb-4">
+        {statusMsg && (
+          <div className={`px-4 py-2 rounded text-sm ${statusType === 'success' ? 'bg-green-100 text-green-800' : statusType === 'error' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'}`}>
+            {statusMsg}
+          </div>
+        )}
         <div className="search-bar flex gap-2">
           <input
             type="text"
@@ -199,9 +244,10 @@ export default function GestionesTable() {
           {Object.keys(editedRows).length > 0 && (
             <button
               onClick={handleSave}
+              disabled={saving}
               className="action-button flex gap-2 items-center justify-center cursor-pointer"
             >
-              Guardar cambios
+              {saving ? 'Guardando...' : 'Guardar cambios'}
               <FaRegSave />
             </button>
           )}
@@ -226,6 +272,7 @@ export default function GestionesTable() {
         <table className="table-auto border-collapse w-full">
           <thead>
             <tr className="tabla-header">
+              <th className="p-4 border text-center whitespace-nowrap">Acciones</th>
               <th className="p-4 border text-center whitespace-nowrap min-w-[150px]">
                 Año
               </th>
@@ -260,45 +307,56 @@ export default function GestionesTable() {
           </thead>
 
           <tbody className="tabla-cupos-content p-4">
-            {filteredRows.map((r, idx) => (
+            {filteredRows.map((r, idx) => { const isEditing = r.isNew || !!editingRows[idx]; return (
               <tr key={idx}>
-                <td className="p-2 border text-left whitespace-nowrap">
-                  <input
-                    type="number"
-                    value={r.Año}
-                    onChange={e => {
-                      handleChange(r.id, "Año", e.target.value);
-                    }}
-                    className="px-2 py-1 w-full text-left border ml-1"
-                  />
+                <td className="p-2 border text-center whitespace-nowrap">
+                  <button onClick={() => setEditingRows(prev => ({...prev, [idx]: !prev[idx]}))} className="px-3 py-1 border rounded cursor-pointer">{isEditing ? "Terminar" : "Editar"}</button>
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
-                  <select
-                    value={r.Mes}
-                    onChange={e => {
-                      handleChange(r.id, "Mes", e.target.value);
-                    }}
-                    className="border rounded p-1 w-full"
-                  >
-                    {[
-                      "ENERO",
-                      "FEBRERO",
-                      "MARZO",
-                      "ABRIL",
-                      "MAYO",
-                      "JUNIO",
-                      "JULIO",
-                      "AGOSTO",
-                      "SEPTIEMBRE",
-                      "OCTUBE",
-                      "NOVIEMBRE",
-                      "DICIEMBRE",
-                    ].map(opt => (
-                      <option key={opt} value={opt}>
-                        {opt}
-                      </option>
-                    ))}
-                  </select>
+                  {isEditing ? (
+                    <input
+                      type="number"
+                      value={r.Año}
+                      onChange={e => {
+                        handleChange(r.id, "Año", e.target.value);
+                      }}
+                      className="px-2 py-1 w-full text-left border ml-1"
+                    />
+                  ) : (
+                    r.Año
+                  )}
+                </td>
+                <td className="p-2 border text-left whitespace-nowrap">
+                  {isEditing ? (
+                    <select
+                      value={r.Mes}
+                      onChange={e => {
+                        handleChange(r.id, "Mes", e.target.value);
+                      }}
+                      className="border rounded p-1 w-full"
+                    >
+                      {[
+                        "ENERO",
+                        "FEBRERO",
+                        "MARZO",
+                        "ABRIL",
+                        "MAYO",
+                        "JUNIO",
+                        "JULIO",
+                        "AGOSTO",
+                        "SEPTIEMBRE",
+                        "OCTUBRE",
+                        "NOVIEMBRE",
+                        "DICIEMBRE",
+                      ].map(opt => (
+                        <option key={opt} value={opt}>
+                          {opt}
+                        </option>
+                      ))}
+                    </select>
+                  ) : (
+                    r.Mes
+                  )}
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
                   <select
@@ -318,18 +376,9 @@ export default function GestionesTable() {
                   </select>
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
-                  {r.isNew ? (
-                    <input
-                      type="number"
-                      value={r.NumeroTrabajadores}
-                      onChange={e =>
-                        handleChange(r.id, "NumeroTrabajadores", e.target.value)
-                      }
-                      className="px-2 py-1 w-full border"
-                    />
-                  ) : (
-                    r.NumeroTrabajadores
-                  )}
+                  {r.TipoVinculacion === 'Propios' ? (r.NumeroTrabajadoresPropios ?? 0) : 
+                   r.TipoVinculacion === 'Contratistas' ? (r.NumeroTrabajadoresContratistas ?? 0) : 
+                   (r.NumeroTrabajadores ?? 0)}
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
                   <input
@@ -352,7 +401,7 @@ export default function GestionesTable() {
                   />
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
-                  {r.isNew ? (
+                  {isEditing ? (
                     <input
                       type="number"
                       value={r.DiasIncapacidad}
@@ -391,7 +440,7 @@ export default function GestionesTable() {
                   </select>
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
-                  {r.isNew ? (
+                  {isEditing ? (
                     <input
                       type="number"
                       value={r.Resultado}
@@ -405,7 +454,7 @@ export default function GestionesTable() {
                   )}
                 </td>
               </tr>
-            ))}
+            );})}
           </tbody>
         </table>
       </div>

@@ -515,6 +515,20 @@ export default function GestionesTable() {
   const [saving, setSaving] = useState(false);
   const [selectedYear, setSelectedYear] = useState();
   const [selectedMonth, setSelectedMonth] = useState();
+  const [editingRows, setEditingRows] = useState({});
+
+  const toIso = v => {
+    if (!v) return "";
+    if (/^\d{2}\/\d{2}\/\d{4}$/.test(v)) {
+      const [dd, mm, yyyy] = v.split("/");
+      return `${yyyy}-${mm}-${dd}`;
+    }
+    return v;
+  };
+
+  const toggleEdit = idx => {
+    setEditingRows(prev => ({ ...prev, [idx]: !prev[idx] }));
+  };
   const [empleadosCache, setEmpleadosCache] = useState({}); // { OFICINA|CARGO: [empleados] }
 
   useEffect(() => {
@@ -524,16 +538,8 @@ export default function GestionesTable() {
         setRows(data);
         //setFilteredRows(data);
         setError("");
-        // Prefetch de empleados por oficina presente en datos
-        const combos = [...new Set((data || []).map(r => {
-          const ofi = (r.oficina || "").toString().toUpperCase();
-          const car = (r.CARGO || "").toString().toUpperCase();
-          return ofi && car ? `${ofi}|${car}` : null;
-        }).filter(Boolean))];
-        for (const combo of combos) {
-          const [ofi, car] = combo.split('|');
-          ensureEmpleados(ofi, car);
-        }
+        // Nota: evitamos prefetch masivo de empleados para no saturar la BD.
+        // Se cargan bajo demanda cuando el usuario edita la fila.
       } catch (e) {
         setError(e.message || "Error cargando datos");
       } finally {
@@ -627,10 +633,23 @@ export default function GestionesTable() {
 
   const handleSave = async () => {
     try {
-      // Convertimos el objeto editedRows en un array de filas
-      const updates = Object.values(editedRows);
-      for (const row of updates) {
-        await saveControlRow(row);
+      // Normaliza claves de editedRows a índices de la tabla
+      const keys = Object.keys(editedRows || {});
+      const indices = Array.from(
+        new Set(
+          keys
+            .map(k => {
+              const n = Number(k);
+              if (Number.isInteger(n)) return n;
+              const pos = rows.findIndex(r => String(r.id) === k);
+              return pos;
+            })
+            .filter(i => i >= 0)
+        )
+      );
+      for (const idx of indices) {
+        const finalRow = rows[idx];
+        await saveControlRow(finalRow);
       }
       setEditedRows({});
       alert("Cambios guardados correctamente");
@@ -816,6 +835,7 @@ export default function GestionesTable() {
         <table className="table-auto border-collapse w-full">
           <thead>
             <tr className="tabla-header">
+              <th className="p-4 border text-center whitespace-nowrap">ACCIONES</th>
               <th className="p-4 border text-center whitespace-nowrap">
                 TRABAJADOR
               </th>
@@ -919,10 +939,16 @@ export default function GestionesTable() {
           </thead>
 
           <tbody className="tabla-cupos-content p-4">
-            {filteredRows.map((r, idx) => (
+            {filteredRows.map((r, idx) => { const isEditing = r.isNew || !!editingRows[idx]; return (
               <tr key={idx}>
+                <td className="p-2 border text-center whitespace-nowrap">
+                  <button onClick={() => setEditingRows(prev => ({...prev, [idx]: !prev[idx]}))} className="px-3 py-1 border rounded cursor-pointer">{isEditing ? "Terminar" : "Editar"}</button>
+                </td>
                 <td className="p-2 border text-left whitespace-nowrap min-w-[240px]">
                   {(() => {
+                    if (!isEditing) {
+                      return r.trabajador || "";
+                    }
                     const ofiKey = (r.oficina || "").toString().toUpperCase();
                     const carKey = (r.CARGO || "").toString().toUpperCase();
                     const cacheExact = `${ofiKey}|${carKey || '*'}`;
@@ -936,7 +962,7 @@ export default function GestionesTable() {
                     }
                     if (ofiKey) {
                       return (
-                        <select
+                        <select disabled={!isEditing}
                           value={r.trabajador || ""}
                           onChange={e => {
                             const nombre = e.target.value;
@@ -972,7 +998,7 @@ export default function GestionesTable() {
                   })()}
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
-                  <select
+                  <select disabled={!isEditing}
                     value={r.oficina}
                     onChange={e => {
                       const val = e.target.value;
@@ -1011,7 +1037,7 @@ export default function GestionesTable() {
                   </select>
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
-                  <select
+                  <select disabled={!isEditing}
                     value={r.CARGO}
                     onChange={e => {
                       const val = e.target.value;
@@ -1044,7 +1070,7 @@ export default function GestionesTable() {
                   {r.ANTIGÜEDAD}
                 </td>
                 <td className="p-2 border text-left ">
-                  <select
+                  <select disabled={!isEditing}
                     value={r.MOTIVO}
                     onChange={e => {
                       handleChange(idx, "MOTIVO", e.target.value);
@@ -1059,13 +1085,46 @@ export default function GestionesTable() {
                   </select>
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
-                  {r.FECHA_EN_QUE_SUCEDIERON_LOS_HECHOS}
+                  {isEditing ? (
+                    <input
+                      type="date"
+                      value={toIso(r.FECHA_EN_QUE_SUCEDIERON_LOS_HECHOS)}
+                      onChange={e =>
+                        handleChange(idx, "FECHA_EN_QUE_SUCEDIERON_LOS_HECHOS", e.target.value)
+                      }
+                      className="border rounded p-1"
+                    />
+                  ) : (
+                    r.FECHA_EN_QUE_SUCEDIERON_LOS_HECHOS
+                  )}
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
-                  {r.FECHA_DE_CONOCIMIENTO_DE_LOS_HECHOS}
+                  {isEditing ? (
+                    <input
+                      type="date"
+                      value={toIso(r.FECHA_DE_CONOCIMIENTO_DE_LOS_HECHOS)}
+                      onChange={e =>
+                        handleChange(idx, "FECHA_DE_CONOCIMIENTO_DE_LOS_HECHOS", e.target.value)
+                      }
+                      className="border rounded p-1"
+                    />
+                  ) : (
+                    r.FECHA_DE_CONOCIMIENTO_DE_LOS_HECHOS
+                  )}
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
-                  {r.FECHA_NOTIFICACIÓN}
+                  {isEditing ? (
+                    <input
+                      type="date"
+                      value={toIso(r.FECHA_NOTIFICACIÓN)}
+                      onChange={e =>
+                        handleChange(idx, "FECHA_NOTIFICACIÓN", e.target.value)
+                      }
+                      className="border rounded p-1"
+                    />
+                  ) : (
+                    r.FECHA_NOTIFICACIÓN
+                  )}
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
                   {r.Inicio_de_proceso_x_Día}
@@ -1077,13 +1136,39 @@ export default function GestionesTable() {
                   {r.GRAVEDAD_NOTIFICADA}
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
-                  {r.FECHA_DESCARGOS}
+                  {isEditing ? (
+                    <input
+                      type="date"
+                      value={toIso(r.FECHA_DESCARGOS)}
+                      onChange={e =>
+                        handleChange(idx, "FECHA_DESCARGOS", e.target.value)
+                      }
+                      className="border rounded p-1"
+                    />
+                  ) : (
+                    r.FECHA_DESCARGOS
+                  )}
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
-                  {r.FECHA_DESICIÓN_PRIMERA_INSTANCIA}
+                  {isEditing ? (
+                    <input
+                      type="date"
+                      value={toIso(r.FECHA_DESICIÓN_PRIMERA_INSTANCIA)}
+                      onChange={e =>
+                        handleChange(
+                          idx,
+                          "FECHA_DESICIÓN_PRIMERA_INSTANCIA",
+                          e.target.value
+                        )
+                      }
+                      className="border rounded p-1"
+                    />
+                  ) : (
+                    r.FECHA_DESICIÓN_PRIMERA_INSTANCIA
+                  )}
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
-                  <select
+                  <select disabled={!isEditing}
                     value={r.GRAVEDAD_PRIMERA_INSTANCIA}
                     onChange={e => {
                       handleChange(
@@ -1102,7 +1187,7 @@ export default function GestionesTable() {
                   </select>
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
-                  <select
+                  <select disabled={!isEditing}
                     value={r.SANCION_PRIMERA_INSTANCIA}
                     onChange={e => {
                       handleChange(
@@ -1130,7 +1215,7 @@ export default function GestionesTable() {
                   {r.Duracion_Proceso_Inicial}
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
-                  <select
+                  <select disabled={!isEditing}
                     value={r.RECURSO}
                     onChange={e => {
                       handleChange(idx, "RECURSO", e.target.value);
@@ -1150,13 +1235,43 @@ export default function GestionesTable() {
                   </select>
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
-                  {r.FECHA_INTERPOSICION_RECURSO}
+                  {isEditing ? (
+                    <input
+                      type="date"
+                      value={toIso(r.FECHA_INTERPOSICION_RECURSO)}
+                      onChange={e =>
+                        handleChange(
+                          idx,
+                          "FECHA_INTERPOSICION_RECURSO",
+                          e.target.value
+                        )
+                      }
+                      className="border rounded p-1"
+                    />
+                  ) : (
+                    r.FECHA_INTERPOSICION_RECURSO
+                  )}
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
-                  {r.FECHA_DECISIÓN_RECURSO_PRIMERA_INSTANCIA}
+                  {isEditing ? (
+                    <input
+                      type="date"
+                      value={toIso(r.FECHA_DECISIÓN_RECURSO_PRIMERA_INSTANCIA)}
+                      onChange={e =>
+                        handleChange(
+                          idx,
+                          "FECHA_DECISIÓN_RECURSO_PRIMERA_INSTANCIA",
+                          e.target.value
+                        )
+                      }
+                      className="border rounded p-1"
+                    />
+                  ) : (
+                    r.FECHA_DECISIÓN_RECURSO_PRIMERA_INSTANCIA
+                  )}
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
-                  <select
+                  <select disabled={!isEditing}
                     value={r.DECISIÓN_RECURSO_PRIMERA_INSTANCIA}
                     onChange={e => {
                       handleChange(
@@ -1178,7 +1293,7 @@ export default function GestionesTable() {
                   {r.Duración_Proceso_x_1_Instancia}
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
-                  <select
+                  <select disabled={!isEditing}
                     value={r.DECISIÓN_RECURSO_SEGUNDA_INSTANCIA}
                     onChange={e => {
                       handleChange(
@@ -1197,7 +1312,7 @@ export default function GestionesTable() {
                   </select>
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
-                  <select
+                  <select disabled={!isEditing}
                     value={r.GRAVEDAD_SEGUNDA_INSTANCIA}
                     onChange={e => {
                       handleChange(
@@ -1216,7 +1331,7 @@ export default function GestionesTable() {
                   </select>
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
-                  <select
+                  <select disabled={!isEditing}
                     value={r.GRAVEDAD_PRIMERA_INSTANCIA}
                     onChange={e => {
                       handleChange(
@@ -1235,7 +1350,22 @@ export default function GestionesTable() {
                   </select>
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
-                  {r.FECHA_DE_DECISIÓN_SEGUNDA_INSTANCIA}
+                  {isEditing ? (
+                    <input
+                      type="date"
+                      value={toIso(r.FECHA_DE_DECISIÓN_SEGUNDA_INSTANCIA)}
+                      onChange={e =>
+                        handleChange(
+                          idx,
+                          "FECHA_DE_DECISIÓN_SEGUNDA_INSTANCIA",
+                          e.target.value
+                        )
+                      }
+                      className="border rounded p-1"
+                    />
+                  ) : (
+                    r.FECHA_DE_DECISIÓN_SEGUNDA_INSTANCIA
+                  )}
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
                   {r.Duración_Proceso_x_2_Instancia}
@@ -1244,7 +1374,7 @@ export default function GestionesTable() {
                   {r.TIEMPO_DE_SUSPENSION}
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
-                  <select
+                  <select disabled={!isEditing}
                     value={r.ETAPA_DEL_PROCESO}
                     onChange={e => {
                       handleChange(idx, "ETAPA_DEL_PROCESO", e.target.value);
@@ -1259,7 +1389,7 @@ export default function GestionesTable() {
                   </select>
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
-                  <select
+                  <select disabled={!isEditing}
                     value={r.ESTADO_DEL_EMPLEADO}
                     onChange={e => {
                       handleChange(idx, "ESTADO_DEL_EMPLEADO", e.target.value);
@@ -1280,7 +1410,7 @@ export default function GestionesTable() {
                   {r.Total_Vinculación_x_Año_y_Día}
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
-                  <select
+                  <select disabled={!isEditing}
                     value={r.Tipo_de_Impacto}
                     onChange={e => {
                       handleChange(idx, "Tipo_de_Impacto", e.target.value);
@@ -1304,7 +1434,7 @@ export default function GestionesTable() {
                   {r.Duración_total_del_proceso}
                 </td>
               </tr>
-            ))}
+            ); })}
           </tbody>
         </table>
       </div>

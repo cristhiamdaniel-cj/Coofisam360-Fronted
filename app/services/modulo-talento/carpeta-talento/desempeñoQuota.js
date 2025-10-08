@@ -26,6 +26,7 @@ export function mapDesempenoUiToApi(u = {}) {
   return {
     anio: u.AÑO,
     oficina: u["OFICINA O SUBGERENCIA"],
-    desempeno_pct: u["% DESEMPEÑO"],
+    // Backend espera 'porcentaje'
+    porcentaje: u["% DESEMPEÑO"],
   };
 }

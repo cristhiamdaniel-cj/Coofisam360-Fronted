@@ -17,7 +17,7 @@ export default function LoginPage() {
 
     try {
       // Paso 1: pedir token
-      const res = await fetch(`${base}/api/v1/auth/token/`, {
+      const res = await fetch(`${base}/api/v1/auth/login/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password }),

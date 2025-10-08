@@ -8,7 +8,13 @@ export const MMAP = {
 export function toMonthNumber(m) {
   if (m == null) return undefined;
   if (typeof m === "number") return m;
-  return MMAP[String(m).trim()] ?? undefined;
+  const s = String(m).trim();
+  // Aceptar cadenas numéricas "1".."12"
+  if (/^\d{1,2}$/.test(s)) {
+    const n = parseInt(s, 10);
+    if (n >= 1 && n <= 12) return n;
+  }
+  return MMAP[s] ?? undefined;
 }
 export function num(v, d = 0) {
   if (v == null || v === "") return d;

@@ -29,6 +29,13 @@ export async function saveCostoBeneficio(payload) {
   // const { data } = await api.post("/api/v1/talento//", payload);
   return data;
 }
+export async function updateCostoBeneficio(payload) {
+  const { data } = await api.put(
+    "/api/v1/talento/capacitacion-mensual/",
+    payload
+  );
+  return data;
+}
 
 /* ===================FORMACIÓN Y PARTICIPACIÓN===================== */
 export async function listFormaciones(params = {}) {
@@ -59,6 +66,13 @@ export async function saveFormacion(payload) {
   // const { data } = await api.post("/api/v1/talento//", payload);
   return data;
 }
+export async function updateFormacion(payload) {
+  const { data } = await api.put(
+    "/api/v1/talento/formacion-participacion/",
+    payload
+  );
+  return data;
+}
 
 /* ===================SATISFACCIÓN DEL APRENDIZAJE=================== */
 export async function listSatisfaccionAprendizaje(params = {}) {
@@ -87,6 +101,13 @@ export async function saveSatisfaccionAprendizaje(payload) {
   );
   // Alternativa:
   // const { data } = await api.post("/api/v1/talento//", payload);
+  return data;
+}
+export async function updateSatisfaccionAprendizaje(payload) {
+  const { data } = await api.put(
+    "/api/v1/talento/satisfaccion-aprendizaje/",
+    payload
+  );
   return data;
 }
 
@@ -121,5 +142,12 @@ export async function saveTransferenciaConocimiento(payload) {
   );
   // Alternativa:
   // const { data } = await api.post("/api/v1/talento//", payload);
+  return data;
+}
+export async function updateTransferenciaConocimiento(payload) {
+  const { data } = await api.put(
+    "/api/v1/talento/transferencia-conocimiento/",
+    payload
+  );
   return data;
 }

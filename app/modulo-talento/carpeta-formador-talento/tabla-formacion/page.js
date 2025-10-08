@@ -11,6 +11,8 @@ import { FaArrowDownWideShort } from "react-icons/fa6";
 import {
   listFormacionQuota,
   getFormacionQuota,
+  saveFormacionQuota,
+  updateFormacionQuota,
 } from "../../../services/modulo-talento/carpeta-formador-talento/formacionQuota";
 
 const puestos = [
@@ -105,6 +107,7 @@ export default function GestionesTable() {
   const [saving, setSaving] = useState(false);
   const [selectedYear, setSelectedYear] = useState();
   const [selectedMonth, setSelectedMonth] = useState();
+  const [editingRows, setEditingRows] = useState({});
 
   useEffect(() => {
     async function load() {
@@ -188,19 +191,25 @@ export default function GestionesTable() {
   };
 
   const handleSave = async () => {
-    console.log("Saving edits:", editedRows);
-
-    // Example: send to backend
-    /*
-    await fetch("https://coofisam360.ngrok.io/api/update-records/", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(editedRows),
-    });
-    */
-
-    // clear edited state after saving
-    setEditedRows({});
+    try {
+      const indices = Object.keys(editedRows || {})
+        .map(k => Number(k))
+        .filter(i => Number.isInteger(i) && i >= 0);
+      for (const idx of Array.from(new Set(indices))) {
+        const row = rows[idx];
+        if (!row) continue;
+        if (row.isNew) {
+          await saveFormacionQuota(row);
+        } else {
+          await updateFormacionQuota(row);
+        }
+      }
+      setEditedRows({});
+      alert("Cambios guardados correctamente");
+    } catch (err) {
+      console.error("Error guardando cambios:", err);
+      alert("Error al guardar cambios");
+    }
   };
 
   const handleDownload = () => {

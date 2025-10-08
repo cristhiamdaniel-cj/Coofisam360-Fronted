@@ -49,19 +49,16 @@ export default function GestionesTable() {
   };
 
   const handleSave = async () => {
-    console.log("Saving edits:", editedRows);
-
-    // Example: send to backend
-    /*
-    await fetch("https://coofisam360.ngrok.io/api/update-records/", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(editedRows),
-    });
-    */
-
-    // clear edited state after saving
-    setEditedRows({});
+    try {
+      const idxs = Object.keys(editedRows).map(k => Number(k));
+      for (const i of idxs) {
+        const merged = { ...rows[i], ...(editedRows[i] || {}) };
+        await saveReporteMinisterioRow(merged);
+      }
+      setEditedRows({});
+      const data = await listReporteMinisterioRows({ limit: 500 });
+      setRows(data);
+    } catch (e) {}
   };
 
   const handleDownload = () => {

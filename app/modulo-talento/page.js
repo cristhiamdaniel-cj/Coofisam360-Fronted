@@ -11,6 +11,14 @@ export default function TalentoDashboard() {
   // función para validar acceso a carpetas
   const hasFolderAccess = folderName => {
     if (!user || !user.acceso) return false;
+    
+    // Si user.acceso es un array (nuevo formato)
+    if (Array.isArray(user.acceso)) {
+      // Si el usuario tiene acceso al módulo de talento, mostrar todas las carpetas
+      return user.acceso.includes('modulo-talento');
+    }
+    
+    // Si user.acceso es un objeto (formato anterior)
     const talento = user.acceso["Talento y Cultura"];
     if (!talento) return false;
 

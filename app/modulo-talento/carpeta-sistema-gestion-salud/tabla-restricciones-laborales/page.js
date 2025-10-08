@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 //import { getFinancialRecords } from "@/services/financial";
 import { FaRegSave } from "react-icons/fa";
 import { FaFileDownload } from "react-icons/fa";
@@ -120,22 +120,21 @@ const oficinas = [
 
 export default function GestionesTable() {
   const [rows, setRows] = useState([]);
-  const [filteredRows, setFilteredRows] = useState([]);
   const [editedRows, setEditedRows] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
+  const [editingRows, setEditingRows] = useState({});
   const [saving, setSaving] = useState(false);
+  const [status, setStatus] = useState({ type: "", message: "" });
   const [selectedYear, setSelectedYear] = useState();
-  const [selectedMonth, setSelectedMonth] = useState();
 
   useEffect(() => {
     async function load() {
+      setLoading(true);
       try {
         const data = await listRestriccionesRows({ limit: 500 });
-        console.log(data);
         setRows(data);
-        //setFilteredRows(data);
         setError("");
       } catch (e) {
         setError(e.message || "Error cargando datos");
@@ -146,77 +145,109 @@ export default function GestionesTable() {
     load();
   }, []);
 
-  useEffect(() => {
+  const filteredRows = useMemo(() => {
     const query = search.trim().toLowerCase();
-
-    const filtered = rows
+    return rows
       .filter(r => {
-        const matchesSearch = !query || r.cargo.toLowerCase().includes(query);
-
+        const cargo = (r.cargo || "").toString().toLowerCase();
+        const matchesSearch = !query || cargo.includes(query);
         const matchesYear = !selectedYear || r.anio === Number(selectedYear);
-
-        // Ahora comparamos el mes como string en mayúscula
-        const matchesMonth =
-          !selectedMonth || r.Mes.toUpperCase() === selectedMonth.toUpperCase();
-
-        return matchesSearch && matchesYear && matchesMonth;
+        return matchesSearch && matchesYear;
       })
-      .sort((a, b) => Number(a.codigo) - Number(b.codigo));
-
-    setFilteredRows(filtered);
-  }, [search, rows, selectedYear, selectedMonth]);
+      .sort((a, b) => {
+        const aKey = `${a.anio || 0}-${(a.sede || "").toUpperCase()}-${(a.cargo || "").toUpperCase()}`;
+        const bKey = `${b.anio || 0}-${(b.sede || "").toUpperCase()}-${(b.cargo || "").toUpperCase()}`;
+        return aKey.localeCompare(bKey);
+      });
+  }, [rows, search, selectedYear]);
 
   // Obtener años únicos
   const uniqueYears = [...new Set(rows.map(r => r.anio).filter(Boolean))];
 
-  // Obtener meses únicos en mayúscula
-  const uniqueMonths = [
-    ...new Set(rows.map(r => r.Mes && r.Mes.toUpperCase()).filter(Boolean)),
-  ];
+  const getRowKey = useCallback(row => {
+    if (!row) return "";
+    return (
+      row._key ||
+      `restr-${
+        row.id != null && row.id !== undefined
+          ? row.id
+          : `${row.anio ?? ""}|${(row.sede || "").toUpperCase()}|${(row.cargo || "").toUpperCase()}`
+      }`
+    );
+  }, []);
 
-  // Mantener el orden original de los meses
-  const monthNames = [
-    "ENERO",
-    "FEBRERO",
-    "MARZO",
-    "ABRIL",
-    "MAYO",
-    "JUNIO",
-    "JULIO",
-    "AGOSTO",
-    "SEPTIEMBRE",
-    "OCTUBRE",
-    "NOVIEMBRE",
-    "DICIEMBRE",
-  ];
-
-  const availableMonths = monthNames.filter(m => uniqueMonths.includes(m));
-
-  const handleChange = (idx, field, value) => {
+  const handleChange = useCallback((rowKey, field, value) => {
     setRows(prev =>
-      prev.map((row, i) => (i === idx ? { ...row, [field]: value } : row))
+      prev.map(row => {
+        const key = getRowKey(row);
+        if (key !== rowKey) return row;
+        const original = {
+          origAnio: row.origAnio ?? row.anio,
+          origSede: row.origSede ?? row.sede,
+          origCargo: row.origCargo ?? row.cargo,
+          origPatologia: row.origPatologia ?? row.patologia,
+        };
+        return { ...row, [field]: value, _key: rowKey, isEdited: true, ...original };
+      })
     );
 
     setEditedRows(prev => ({
       ...prev,
-      [idx]: { ...prev[idx], [field]: value },
+      [rowKey]: { ...prev[rowKey], [field]: value },
     }));
-  };
+  }, [getRowKey]);
 
   const handleSave = async () => {
-    console.log("Saving edits:", editedRows);
-
-    // Example: send to backend
-    /*
-    await fetch("https://coofisam360.ngrok.io/api/update-records/", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(editedRows),
-    });
-    */
-
-    // clear edited state after saving
-    setEditedRows({});
+    const keys = Object.keys(editedRows);
+    if (!keys.length) return;
+    setSaving(true);
+    setStatus({ type: "", message: "" });
+    let ok = 0;
+    let fail = 0;
+    for (const key of keys) {
+      const row = rows.find(r => getRowKey(r) === key);
+      if (!row) continue;
+      const payload = {
+        ...row,
+        ...(editedRows[key] || {}),
+      };
+      if (row.isNew) {
+        payload.isNew = true;
+      }
+      payload.origAnio = row.origAnio ?? row.anio;
+      payload.origSede = row.origSede ?? row.sede;
+      payload.origCargo = row.origCargo ?? row.cargo;
+      payload.origPatologia = row.origPatologia ?? row.patologia;
+      const keyChanged =
+        payload.anio !== payload.origAnio ||
+        payload.sede !== payload.origSede ||
+        payload.cargo !== payload.origCargo ||
+        payload.patologia !== payload.origPatologia;
+      if (keyChanged) {
+        payload.allowPkChange = true;
+      }
+      try {
+        await saveRestriccionRow(payload);
+        ok++;
+      } catch (e) {
+        console.error(e);
+        fail++;
+      }
+    }
+    try {
+      const fresh = await listRestriccionesRows({ limit: 500 });
+      setRows(fresh);
+      setEditedRows({});
+    } finally {
+      setSaving(false);
+    }
+    if (ok && !fail) {
+      setStatus({ type: "success", message: "Cambios guardados correctamente." });
+    } else if (ok && fail) {
+      setStatus({ type: "warning", message: `${ok} registros guardados, ${fail} con error.` });
+    } else {
+      setStatus({ type: "error", message: "No se pudieron guardar los cambios." });
+    }
   };
 
   const handleDownload = () => {
@@ -242,18 +273,24 @@ export default function GestionesTable() {
 
   // Función para agregar una nueva fila al inicio de la tabla
   const handleAddRow = () => {
+    const key = `new-${Date.now()}`;
     const newRow = {
-      id: `new-${Date.now()}`, // ID único temporal
-      anio: new Date().getFullYear(), // Año actual
-      oficina: oficinas[0] || "", // primera opción por defecto
-      cargo: cargos[0] || "", // primera opción por defecto
+      id: null,
+      anio: new Date().getFullYear(),
+      sede: oficinas[0] || "",
+      cargo: cargos[0] || "",
       patologia: "",
       restricciones: "",
-      isNew: true, // marca que es una fila nueva
+      isNew: true,
+      origAnio: null,
+      origSede: null,
+      origCargo: null,
+      origPatologia: null,
     };
-
-    // Agregar al inicio de la tabla
+    newRow._key = key;
     setRows(prev => [newRow, ...prev]);
+    setEditingRows(prev => ({ ...prev, [key]: true }));
+    setEditedRows(prev => ({ ...prev, [key]: newRow }));
   };
 
   return (
@@ -261,6 +298,19 @@ export default function GestionesTable() {
       <h1 className="titulo-tabla-cupos text-3xl font-semibold pb-4">
         Restricciones Laborales
       </h1>
+      {status.message && (
+        <div
+          className={`mb-3 text-sm ${
+            status.type === "success"
+              ? "text-green-700"
+              : status.type === "warning"
+              ? "text-amber-600"
+              : "text-red-600"
+          }`}
+        >
+          {status.message}
+        </div>
+      )}
       <div className="actions-container flex justify-between mb-4">
         <div className="search-bar flex gap-2">
           <input
@@ -271,7 +321,7 @@ export default function GestionesTable() {
             className="border w-[300px] px-2 py-1"
           />
           <select
-            value={selectedYear}
+            value={selectedYear || ""}
             onChange={e => setSelectedYear(e.target.value)}
             className="border px-2 py-1"
           >
@@ -282,27 +332,15 @@ export default function GestionesTable() {
               </option>
             ))}
           </select>
-          <select
-            value={selectedMonth}
-            onChange={e => setSelectedMonth(e.target.value)}
-            className="border px-2 py-1"
-          >
-            <option value="">Todos los meses</option>
-            {availableMonths.map(m => (
-              <option key={m} value={m}>
-                {m}
-                {/* Opcional: mostrar capitalizado */}
-              </option>
-            ))}
-          </select>
         </div>
         <div className="flex gap-4">
           {Object.keys(editedRows).length > 0 && (
             <button
               onClick={handleSave}
-              className="action-button flex gap-2 items-center justify-center cursor-pointer"
+              disabled={saving}
+              className="action-button flex gap-2 items-center justify-center cursor-pointer disabled:opacity-50"
             >
-              Guardar cambios
+              {saving ? "Guardando..." : "Guardar cambios"}
               <FaRegSave />
             </button>
           )}
@@ -327,11 +365,12 @@ export default function GestionesTable() {
         <table className="table-auto border-collapse w-full">
           <thead>
             <tr className="tabla-header">
+              <th className="p-4 border text-center whitespace-nowrap">Acciones</th>
               <th className="p-4 border text-center whitespace-nowrap min-w-[120px]">
                 Año
               </th>
               <th className="p-4 border text-center whitespace-nowrap min-w-[200px]">
-                Oficina
+                Sede
               </th>
               <th className="p-4 border text-center whitespace-nowrap min-w-[300px]">
                 Cargo
@@ -346,14 +385,31 @@ export default function GestionesTable() {
           </thead>
 
           <tbody className="tabla-cupos-content p-4">
-            {filteredRows.map((r, idx) => (
-              <tr key={idx}>
+          {filteredRows.map(r => {
+            const rowKey = getRowKey(r);
+            const isEditing = r.isNew || !!editingRows[rowKey];
+            const sedeValue = r.sede || "";
+            const cargoValue = r.cargo || "";
+            const hasSedeOption = oficinas.some(opt => opt.toUpperCase() === sedeValue.toUpperCase());
+            const hasCargoOption = cargos.some(opt => opt.toUpperCase() === cargoValue.toUpperCase());
+            return (
+            <tr key={rowKey}>
                 <td className="p-2 border text-center whitespace-nowrap">
-                  {r.isNew ? (
+                <button
+                  onClick={() => setEditingRows(prev => ({ ...prev, [rowKey]: !prev[rowKey] }))}
+                  className="px-3 py-1 border rounded cursor-pointer"
+                >
+                  {isEditing ? "Terminar" : "Editar"}
+                </button>
+                </td>
+                <td className="p-2 border text-center whitespace-nowrap">
+                  {isEditing ? (
                     <input
                       type="number"
-                      value={r.anio}
-                      onChange={e => handleChange(idx, "anio", e.target.value)}
+                      value={r.anio ?? ""}
+                      min={1900}
+                      max={2100}
+                    onChange={e => handleChange(rowKey, "anio", Number(e.target.value))}
                       className="px-2 py-1 w-full text-left border ml-1"
                     />
                   ) : (
@@ -361,57 +417,85 @@ export default function GestionesTable() {
                   )}
                 </td>
                 <td className="p-2 border text-center whitespace-nowrap">
+                  {isEditing ? (
                   <select
-                    value={r.oficina}
-                    onChange={e => {
-                      handleChange(idx, "oficina", e.target.value);
-                    }}
-                    className="border rounded p-1 w-full"
-                  >
-                    {oficinas.map(opt => (
-                      <option key={opt} value={opt}>
-                        {opt}
+                    value={sedeValue}
+                      onChange={e => {
+                        handleChange(rowKey, "sede", e.target.value);
+                      }}
+                      className="border rounded p-1 w-full"
+                    >
+                      <option value="" disabled>
+                        Selecciona sede…
                       </option>
-                    ))}
-                  </select>
+                      {!hasSedeOption && sedeValue && (
+                        <option value={sedeValue}>{sedeValue}</option>
+                      )}
+                      {oficinas.map(opt => (
+                        <option key={opt} value={opt}>
+                          {opt}
+                        </option>
+                      ))}
+                    </select>
+                  ) : (
+                    r.sede
+                  )}
                 </td>
                 <td className="p-2 border text-center whitespace-nowrap">
-                  <select
-                    value={r.cargo.toUpperCase()}
-                    onChange={e => {
-                      handleChange(idx, "cargo", e.target.value);
-                    }}
-                    className="border rounded p-1 w-full"
-                  >
-                    {cargos.map(opt => (
-                      <option key={opt} value={opt}>
-                        {opt}
+                  {isEditing ? (
+                    <select
+                      value={cargoValue}
+                      onChange={e => {
+                        handleChange(rowKey, "cargo", e.target.value);
+                      }}
+                      className="border rounded p-1 w-full"
+                    >
+                      <option value="" disabled>
+                        Selecciona cargo…
                       </option>
-                    ))}
-                  </select>
+                      {!hasCargoOption && cargoValue && (
+                        <option value={cargoValue}>{cargoValue}</option>
+                      )}
+                      {cargos.map(opt => (
+                        <option key={opt} value={opt}>
+                          {opt}
+                        </option>
+                      ))}
+                    </select>
+                  ) : (
+                    r.cargo
+                  )}
                 </td>
                 <td className="p-2 border text-center ">
-                  <input
-                    type="text"
-                    value={r.patologia}
-                    onChange={e => {
-                      handleChange(idx, "patologia", e.target.value);
-                    }}
-                    className="px-2 py-1 w-full text-left border ml-1"
-                  />
+                  {isEditing ? (
+                    <input
+                      type="text"
+                      value={r.patologia ?? ""}
+                      onChange={e => {
+                        handleChange(rowKey, "patologia", e.target.value);
+                      }}
+                      className="px-2 py-1 w-full text-left border ml-1"
+                    />
+                  ) : (
+                    r.patologia
+                  )}
                 </td>
                 <td className="p-2 border text-center ">
-                  <input
-                    type="text"
-                    value={r.restricciones}
-                    onChange={e => {
-                      handleChange(idx, "restricciones", e.target.value);
-                    }}
-                    className="px-2 py-1 w-full text-left border ml-1"
-                  />
+                  {isEditing ? (
+                    <input
+                      type="text"
+                      value={r.restricciones ?? ""}
+                      onChange={e => {
+                        handleChange(rowKey, "restricciones", e.target.value);
+                      }}
+                      className="px-2 py-1 w-full text-left border ml-1"
+                    />
+                  ) : (
+                    r.restricciones
+                  )}
                 </td>
               </tr>
-            ))}
+            );})}
           </tbody>
         </table>
       </div>

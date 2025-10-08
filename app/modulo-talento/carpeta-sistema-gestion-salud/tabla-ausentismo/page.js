@@ -21,6 +21,9 @@ export default function GestionesTable() {
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
   const [saving, setSaving] = useState(false);
+  const [editingRows, setEditingRows] = useState({});
+  const [statusMsg, setStatusMsg] = useState("");
+  const [statusType, setStatusType] = useState("info");
 
   useEffect(() => {
     async function load() {
@@ -56,19 +59,36 @@ export default function GestionesTable() {
   };
 
   const handleSave = async () => {
-    console.log("Saving edits:", editedRows);
-
-    // Example: send to backend
-    /*
-    await fetch("https://coofisam360.ngrok.io/api/update-records/", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(editedRows),
-    });
-    */
-
-    // clear edited state after saving
-    setEditedRows({});
+    try {
+      setSaving(true);
+      const idxs = Object.keys(editedRows).map(k => Number(k));
+      let ok = 0, fail = 0;
+      for (const i of idxs) {
+        const merged = { ...rows[i], ...(editedRows[i] || {}) };
+        try {
+          await saveAusentismoRow(merged);
+          ok++;
+        } catch (e) {
+          console.error(e);
+          fail++;
+        }
+      }
+      setEditedRows({});
+      const data = await listAusentismoRows({ limit: 500 });
+      setRows(data);
+      if (fail === 0 && ok > 0) {
+        setStatusType("success");
+        setStatusMsg("Información guardada correctamente.");
+      } else if (ok > 0 && fail > 0) {
+        setStatusType("info");
+        setStatusMsg(`Guardado parcial: ${ok} ok, ${fail} con error.`);
+      } else if (fail > 0) {
+        setStatusType("error");
+        setStatusMsg("Ocurrió un error guardando los cambios.");
+      }
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleDownload = () => {
@@ -116,6 +136,11 @@ export default function GestionesTable() {
         Ausentismo
       </h1>
       <div className="actions-container flex justify-between mb-4">
+        {statusMsg && (
+          <div className={`px-4 py-2 rounded text-sm ${statusType === 'success' ? 'bg-green-100 text-green-800' : statusType === 'error' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'}`}>
+            {statusMsg}
+          </div>
+        )}
         <div className="search-bar flex gap-2">
           <div className="search-bar flex gap-2">
             <input
@@ -131,9 +156,10 @@ export default function GestionesTable() {
           {Object.keys(editedRows).length > 0 && (
             <button
               onClick={handleSave}
+              disabled={saving}
               className="action-button flex gap-2 items-center justify-center cursor-pointer"
             >
-              Guardar cambios
+              {saving ? 'Guardando...' : 'Guardar cambios'}
               <FaRegSave />
             </button>
           )}
@@ -158,6 +184,7 @@ export default function GestionesTable() {
         <table className="table-auto border-collapse w-full">
           <thead>
             <tr className="tabla-header">
+              <th className="p-4 border text-center whitespace-nowrap">Acciones</th>
               <th className="p-4 border text-center whitespace-nowrap min-w-[120px]">
                 Año
               </th>
@@ -189,10 +216,13 @@ export default function GestionesTable() {
           </thead>
 
           <tbody className="tabla-cupos-content p-4">
-            {rows.map((r, idx) => (
+            {rows.map((r, idx) => { const isEditing = r.isNew || !!editingRows[idx]; return (
               <tr key={idx}>
+                <td className="p-2 border text-center whitespace-nowrap">
+                  <button onClick={() => setEditingRows(prev => ({...prev, [idx]: !prev[idx]}))} className="px-3 py-1 border rounded cursor-pointer">{isEditing ? "Terminar" : "Editar"}</button>
+                </td>
                 <td className="p-2 border text-left whitespace-nowrap">
-                  {r.isNew ? (
+                  {isEditing ? (
                     <input
                       type="number"
                       value={r.Año}
@@ -205,7 +235,7 @@ export default function GestionesTable() {
                 </td>
 
                 <td className="p-2 border text-left whitespace-nowrap">
-                  {r.isNew ? (
+                  {isEditing ? (
                     <select
                       value={r.Mes}
                       onChange={e => handleChange(idx, "Mes", e.target.value)}
@@ -260,30 +290,15 @@ export default function GestionesTable() {
                   />
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
-                  {r.isNew ? (
-                    <input
-                      type="number"
-                      value={r.TotalDiasIncapacidad}
-                      onChange={e =>
-                        handleChange(
-                          idx,
-                          "TotalDiasIncapacidad",
-                          e.target.value
-                        )
-                      }
-                      className="px-2 py-1 w-full border"
-                    />
-                  ) : (
-                    r.TotalDiasIncapacidad
-                  )}
+                  {r.TotalDiasIncapacidad}
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
-                  {r.isNew ? (
+                  {isEditing ? (
                     <input
                       type="number"
                       value={r.DiasLaboralesMes}
                       onChange={e =>
-                        handleChange(idx, "DioasLaboralesMes", e.target.value)
+                        handleChange(idx, "DiasLaboralesMes", e.target.value)
                       }
                       className="px-2 py-1 w-full border"
                     />
@@ -292,53 +307,23 @@ export default function GestionesTable() {
                   )}
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
-                  {r.isNew ? (
-                    <input
-                      type="number"
-                      value={r.NumeroTrabajadores}
-                      onChange={e =>
-                        handleChange(idx, "NumeroTrabajadores", e.target.value)
-                      }
-                      className="px-2 py-1 w-full border"
-                    />
-                  ) : (
-                    r.NumeroTrabajadores
-                  )}
+                  {r.NumeroTrabajadores}
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
-                  {r.isNew ? (
-                    <input
-                      type="number"
-                      value={r.DiasTrabajoProgramados}
-                      onChange={e =>
-                        handleChange(
-                          idx,
-                          "DiasTrabajoProgramados",
-                          e.target.value
-                        )
-                      }
-                      className="px-2 py-1 w-full border"
-                    />
-                  ) : (
-                    r.DiasTrabajoProgramados
-                  )}
+                  {r.DiasTrabajoProgramados}
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
-                  {r.isNew ? (
-                    <input
-                      type="number"
-                      value={r.AusentismoLaboral}
-                      onChange={e =>
-                        handleChange(idx, "AusentismoLaboral", e.target.value)
-                      }
-                      className="px-2 py-1 w-full border"
-                    />
-                  ) : (
-                    r.AusentismoLaboral
-                  )}
+                  {r.AusentismoLaboral ? (
+                    <span className="font-medium">
+                      {parseFloat(r.AusentismoLaboral).toLocaleString('es-CO', {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                      })}
+                    </span>
+                  ) : '-'}
                 </td>
               </tr>
-            ))}
+            );})}
           </tbody>
         </table>
       </div>

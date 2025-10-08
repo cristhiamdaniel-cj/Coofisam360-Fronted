@@ -15,6 +15,11 @@ export async function saveAscenso(payload = {}) {
   return data?.items ?? data ?? [];
 }
 
+export async function updateAscenso(payload = {}) {
+  const { data } = await api.put("/api/v1/talento/ascensos/", payload);
+  return data?.items ?? data ?? [];
+}
+
 /* ===== BONIFICACIÓN (anio+mes) ===== */
 export async function listBonificaciones(params = {}) {
   const { data } = await api.get("/api/v1/talento/bonos-mensual/", { params });

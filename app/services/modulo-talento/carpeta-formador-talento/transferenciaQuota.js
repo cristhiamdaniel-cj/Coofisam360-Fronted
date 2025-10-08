@@ -2,6 +2,7 @@ import {
   listTransferenciaConocimiento as listTransferenciaRaw,
   getTransferenciaConocimiento as getTransferenciaRaw,
   saveTransferenciaConocimiento as saveTransferenciaRaw,
+  updateTransferenciaConocimiento as updateTransferenciaRaw,
 } from "./talentTrainerService";
 import { toMonthNumber, num } from "./talentHelpers";
 
@@ -16,6 +17,9 @@ export async function getTransferenciaQuota(id, params = {}) {
 }
 export async function saveTransferenciaQuota(payload) {
   return await saveTransferenciaRaw(mapToApi(payload));
+}
+export async function updateTransferenciaQuota(payload) {
+  return await updateTransferenciaRaw(mapToApi(payload));
 }
 
 function mapFromApi(r) {
@@ -47,10 +51,11 @@ function mapToApi(r) {
     mes: toMonthNumber(r.Mes),
     comprension: num(r.Comprension),
     practica: num(r.Practica),
-    retencion_conocimiento: num(r.RetencionConocimiento),
+    // Nombres aceptados por backend
+    retencion: num(r.RetencionConocimiento),
     valoracion_desempeno: num(r.ValoracionDesempeno),
-    satisfaccion_trabajador: num(r.SatisfaccionTrabajador),
+    satisfaccion: num(r.SatisfaccionTrabajador),
     total: num(r.Total),
-    efectividad_transferencia: num(r.EfectividadTransferencia),
+    efectividad: num(r.EfectividadTransferencia),
   };
 }

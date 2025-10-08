@@ -24,6 +24,14 @@ export async function saveControlDisciplinario(payload = {}) {
   return data;
 }
 
+export async function updateControlDisciplinario(payload = {}) {
+  const { data } = await api.put(
+    "/api/v1/talento/control-disciplinario/",
+    payload
+  );
+  return data;
+}
+
 /* ========= EMPLEADOS (por oficina) ========= */
 
 export async function listEmpleados(params = {}) {

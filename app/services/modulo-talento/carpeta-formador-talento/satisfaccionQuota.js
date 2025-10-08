@@ -2,6 +2,7 @@ import {
   listSatisfaccionAprendizaje as listSatisfaccionRaw,
   getSatisfaccionAprendizaje as getSatisfaccionRaw,
   saveSatisfaccionAprendizaje as saveSatisfaccionRaw,
+  updateSatisfaccionAprendizaje as updateSatisfaccionRaw,
 } from "./talentTrainerService";
 import { toMonthNumber, num } from "./talentHelpers";
 
@@ -16,6 +17,9 @@ export async function getSatisfaccionQuota(id, params = {}) {
 }
 export async function saveSatisfaccionQuota(payload) {
   return await saveSatisfaccionRaw(mapToApi(payload));
+}
+export async function updateSatisfaccionQuota(payload) {
+  return await updateSatisfaccionRaw(mapToApi(payload));
 }
 
 function mapFromApi(r) {
@@ -39,10 +43,11 @@ function mapToApi(r) {
     id: r.id,
     anio: num(r.Año),
     mes: toMonthNumber(r.Mes),
-    formadores_con_recomendacion: num(r.NumeroFormadoresConRecomendacion),
+    // Nombres aceptados por backend
+    n_formadores_recomendacion: num(r.NumeroFormadoresConRecomendacion),
     total_formadores: num(r.TotalFormadores),
-    porcentaje_satisfaccion: String(r.PorcentajeSatisfaccion ?? ""),
-    formadores: r.Formadores ?? "",
-    recomendaciones: r.Recomendaciones ?? "",
+    pct_satisfaccion: String(r.PorcentajeSatisfaccion ?? ""),
+    formadores_o_area: r.Formadores ?? "",
+    recomendacion: r.Recomendaciones ?? "",
   };
 }

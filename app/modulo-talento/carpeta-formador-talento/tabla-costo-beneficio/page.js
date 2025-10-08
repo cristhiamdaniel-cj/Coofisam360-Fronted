@@ -11,6 +11,7 @@ import { FaArrowDownWideShort } from "react-icons/fa6";
 import {
   listCostoBeneficioQuota,
   saveCostoBeneficioQuota,
+  updateCostoBeneficioQuota,
 } from "../../../services/modulo-talento/carpeta-formador-talento/costoBeneficioQuota";
 import { toMonthNumber } from "@/app/services/modulo-talento/carpeta-formador-talento/talentHelpers";
 
@@ -24,6 +25,7 @@ export default function GestionesTable() {
   const [saving, setSaving] = useState(false);
   const [selectedYear, setSelectedYear] = useState();
   const [selectedMonth, setSelectedMonth] = useState();
+  const [editingRows, setEditingRows] = useState({});
 
   useEffect(() => {
     async function load() {
@@ -119,32 +121,72 @@ export default function GestionesTable() {
         if (!fullRow) return;
 
         const payload = {
-          id: fullRow.id,
+          // PK requerida por el backend para PUT
+          id: Number(fullRow.id) || undefined,
           anio: Number(fullRow.Año),
           mes: toMonthNumber(fullRow.Mes),
+          // Para ubicar exactamente el registro en PUT, usar valor original de PK si existe
+          modalidad: String(
+            fullRow.ModalidadPk ?? changes.Modalidad ?? fullRow.Modalidad ?? ""
+          ),
+          grupo: Number(fullRow.Grupo) || 1,
           total_gastos:
             Number(
               changes.TotalGastosTransferencia ??
                 fullRow.TotalGastosTransferencia
             ) || 0,
-          trabajadores_capacitados:
+          trabajadores_cap:
             Number(
               changes.TrabajadoresCapacitados ?? fullRow.TrabajadoresCapacitados
             ) || 0,
-          costo_por_trabajador: Number(fullRow.CostoPorTrabajador) || 0,
-          modalidad: changes.Modalidad ?? fullRow.Modalidad ?? "",
-          rentabilidad: changes.Rentabilidad ?? fullRow.Rentabilidad ?? "",
+          rentabilidad: String(
+            changes.Rentabilidad ?? fullRow.Rentabilidad ?? ""
+          ),
         };
 
         console.log(">>> Payload enviado al backend:", payload);
 
-        await saveCostoBeneficioQuota(payload);
+        // Validación mínima requerida
+        if (!payload.anio || !payload.mes || !payload.modalidad) {
+          throw new Error(
+            "Faltan campos obligatorios: Año, Mes y Modalidad"
+          );
+        }
+
+        // Validación de límites numéricos (numeric(14,2) < 1e12)
+        const MAX_NUM = 1_000_000_000_000 - 0.01; // 10^12 - 0.01
+        if (
+          Math.abs(payload.total_gastos) >= 1_000_000_000_000 ||
+          Math.abs(
+            payload.trabajadores_cap
+              ? Number((payload.total_gastos / payload.trabajadores_cap).toFixed(2))
+              : 0
+          ) >= 1_000_000_000_000
+        ) {
+          throw new Error(
+            "Valores demasiado grandes: verifique Total Gastos o Costo por Trabajador (< 10^12)"
+          );
+        }
+        // costo_por_trabajador es calculado siempre en backend; enviamos el valor esperado para consistencia
+        payload.costo_por_trabajador = payload.trabajadores_cap > 0
+          ? Number((payload.total_gastos / payload.trabajadores_cap).toFixed(2))
+          : 0;
+
+        if (fullRow.isNew) {
+          // Con PK por id ya no restringimos por (periodo, modalidad, grupo)
+          await saveCostoBeneficioQuota(payload);
+        } else {
+          await updateCostoBeneficioQuota(payload);
+        }
       });
 
       await Promise.all(updates);
 
       alert("Cambios guardados correctamente ✅");
       setEditedRows({});
+      // Recargar la lista desde el backend para reflejar persistencia
+      const data = await listCostoBeneficioQuota({ limit: 200 });
+      setRows(Array.isArray(data) ? data : data?.items || []);
     } catch (err) {
       console.error("Error guardando cambios:", err);
       alert("Error guardando cambios ❌");
@@ -178,7 +220,7 @@ export default function GestionesTable() {
     const newRow = {
       id: crypto.randomUUID(), // genera un id único
       Año: new Date().getFullYear(),
-      Mes: new Date().getMonth(), // o podrías poner el mes actual
+      Mes: "", // elige explícitamente el mes
       TotalGastosTransferencia: 0,
       TrabajadoresCapacitados: 0,
       CostoPorTrabajador: 0,
@@ -200,7 +242,7 @@ export default function GestionesTable() {
   return (
     <main className="pt-4 pb-0 px-12 overflow-auto">
       <h1 className="titulo-tabla-cupos text-3xl font-semibold pb-4">
-        Costo/Beneficio
+        Costo/Beneficio samir
       </h1>
       <div className="actions-container flex justify-between mb-4">
         <div className="search-bar flex gap-2">
@@ -268,6 +310,7 @@ export default function GestionesTable() {
         <table className="table-auto border-collapse w-full">
           <thead>
             <tr className="tabla-header">
+              <th className="p-4 border text-center whitespace-nowrap">Acciones</th>
               <th className="p-4 border text-center whitespace-nowrap min-w-[120px]">
                 Año
               </th>
@@ -291,10 +334,20 @@ export default function GestionesTable() {
           </thead>
 
           <tbody className="tabla-cupos-content p-4">
-            {filteredRows.map(r => (
+            {filteredRows.map(r => {
+              const isEditing = r.isNew || !!editingRows[r.id];
+              return (
               <tr key={r.id}>
+                <td className="p-2 border text-center whitespace-nowrap">
+                  <button
+                    onClick={() => setEditingRows(prev => ({ ...prev, [r.id]: !prev[r.id] }))}
+                    className="px-3 py-1 border rounded cursor-pointer"
+                  >
+                    {isEditing ? "Terminar" : "Editar"}
+                  </button>
+                </td>
                 <td className="p-2 border text-left whitespace-nowrap">
-                  {r.isNew ? (
+                  {isEditing ? (
                     <input
                       type="number"
                       value={r.Año}
@@ -307,7 +360,7 @@ export default function GestionesTable() {
                 </td>
 
                 <td className="p-2 border text-left whitespace-nowrap">
-                  {r.isNew ? (
+                  {isEditing ? (
                     <select
                       value={r.Mes}
                       onChange={e => handleChange(r.id, "Mes", e.target.value)}
@@ -339,79 +392,78 @@ export default function GestionesTable() {
 
                 <td className="p-1 border text-left whitespace-nowrap w-full">
                   $
-                  <input
-                    type="number"
-                    value={r.TotalGastosTransferencia}
-                    onChange={e => {
-                      handleChange(
-                        r.id,
-                        "TotalGastosTransferencia",
-                        e.target.value
-                      );
-                    }}
-                    className="px-2 py-1 w-full text-left border ml-1"
-                  />
-                </td>
-                <td className="p-2 border text-left whitespace-nowrap">
-                  <input
-                    type="number"
-                    value={r.TrabajadoresCapacitados}
-                    onChange={e => {
-                      handleChange(
-                        r.id,
-                        "TrabajadoresCapacitados",
-                        e.target.value
-                      );
-                    }}
-                    className="px-2 py-1 w-full text-left border ml-1"
-                  />
-                </td>
-                <td className="p-2 border text-left whitespace-nowrap">
-                  {r.isNew ? (
+                  {isEditing ? (
                     <input
                       type="number"
-                      value={r.CostoPorTrabajador}
-                      onChange={e =>
-                        handleChange(r.id, "CostoPorTrabajador", e.target.value)
-                      }
-                      className="px-2 py-1 w-full border"
+                      value={r.TotalGastosTransferencia}
+                      onChange={e => {
+                        handleChange(
+                          r.id,
+                          "TotalGastosTransferencia",
+                          e.target.value
+                        );
+                      }}
+                      className="px-2 py-1 w-full text-left border ml-1"
                     />
                   ) : (
-                    r.CostoPorTrabajador
+                    r.TotalGastosTransferencia
                   )}
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
-                  <select
+                  {isEditing ? (
+                    <input
+                      type="number"
+                      value={r.TrabajadoresCapacitados}
+                      onChange={e => {
+                        handleChange(
+                          r.id,
+                          "TrabajadoresCapacitados",
+                          e.target.value
+                        );
+                      }}
+                      className="px-2 py-1 w-full text-left border ml-1"
+                    />
+                  ) : (
+                    r.TrabajadoresCapacitados
+                  )}
+                </td>
+                <td className="p-2 border text-left whitespace-nowrap">
+                  {r.TrabajadoresCapacitados > 0
+                    ? Number((Number(r.TotalGastosTransferencia || 0) / Number(r.TrabajadoresCapacitados)).toFixed(2))
+                    : 0}
+                </td>
+                <td className="p-2 border text-left whitespace-nowrap">
+                  <select disabled={!isEditing}
                     value={r.Modalidad}
                     onChange={e => {
-                      handleChange(r.id, "Modalidad", e.target.value);
+                      handleChange(r.id, "Modalidad", e.target.value.toUpperCase());
                     }}
                     className="border rounded p-1 w-full"
                   >
-                    {["Virtual", "Presencial"].map(opt => (
-                      <option key={opt} value={opt}>
-                        {opt}
+                    {[{v:"VIRTUAL",l:"Virtual"},{v:"PRESENCIAL",l:"Presencial"}].map(opt => (
+                      <option key={opt.v} value={opt.v}>
+                        {opt.l}
                       </option>
                     ))}
                   </select>
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
-                  <select
+                  <select disabled={!isEditing}
                     value={r.Rentabilidad}
                     onChange={e => {
-                      handleChange(r.id, "Rentabilidad", e.target.value);
+                      handleChange(r.id, "Rentabilidad", e.target.value.toUpperCase());
                     }}
                     className="border rounded p-1 w-full"
                   >
-                    {["Baja", "Alta"].map(opt => (
-                      <option key={opt} value={opt}>
-                        {opt}
+                    {[{v:"BAJA",l:"Baja"},{v:"ALTA",l:"Alta"}].map(opt => (
+                      <option key={opt.v} value={opt.v}>
+                        {opt.l}
                       </option>
                     ))}
                   </select>
                 </td>
               </tr>
-            ))}
+            ); })}
           </tbody>
         </table>
       </div>

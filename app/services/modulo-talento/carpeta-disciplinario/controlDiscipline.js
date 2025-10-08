@@ -2,6 +2,7 @@ import {
   listControlDisciplinario as listRaw,
   getControlDisciplinarioBy as getByRaw,
   saveControlDisciplinario as saveRaw,
+  updateControlDisciplinario as updateRaw,
   listEmpleados as listEmpleadosRaw,
 } from "../carpeta-disciplinario/talentDisciplineService";
 
@@ -19,6 +20,9 @@ export async function getControlRowsBy(params = {}) {
 
 export async function saveControlRow(uiRow = {}) {
   const body = mapUiToApi(uiRow);
+  if (body && body.id) {
+    return await updateRaw(body);
+  }
   return await saveRaw(body);
 }
 
@@ -52,6 +56,8 @@ export function mapApiToUi(a = {}) {
   const mes = notif && !isNaN(notif) ? notif.getMonth() + 1 : undefined;
 
   return {
+    id: a.id,
+    trabajador_id: str(a.trabajador_id ?? ""),
     // Campos usados por el UI (búsqueda y selects)
     trabajador: str(a.trabajador_nombre ?? a.trabajador),
     oficina: str(a.oficina_nombre ?? a.oficina),
@@ -109,6 +115,7 @@ export function mapUiToApi(u = {}) {
       u.FECHA_DE_CONOCIMIENTO_DE_LOS_HECHOS
   );
   const payload = {
+    // id solo si es entero (registro existente en BD)
     anio: year,
     trabajador_nombre: str(u.trabajador ?? u.TRABAJADOR),
     oficina_nombre: str(u.oficina ?? u.OFICINA),
@@ -153,6 +160,12 @@ export function mapUiToApi(u = {}) {
     yearFrom(u.FECHA_EN_QUE_SUCEDIERON_LOS_HECHOS) ||
     yearFrom(u.FECHA_DE_CONOCIMIENTO_DE_LOS_HECHOS);
   if (anio) payload.anio = anio;
+  // Si aún no hay 'anio', usa el año actual
+  if (!payload.anio) payload.anio = new Date().getFullYear();
+  // Incluir id solo si es numérico válido (evita enviar UUIDs locales)
+  if (u.id != null && /^\d+$/.test(String(u.id))) {
+    payload.id = Number(u.id);
+  }
   // Limpiar null/undefined
   return Object.fromEntries(
     Object.entries(payload).filter(([, v]) => v !== undefined)

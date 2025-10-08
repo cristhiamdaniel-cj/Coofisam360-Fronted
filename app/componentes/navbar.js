@@ -35,10 +35,31 @@ export default function Navbar() {
       .normalize("NFD")
       .replace(/[\u0300-\u036f]/g, "");
 
-  // hasModuleAccess: user.acceso es un objeto con keys = nombres de módulo
+  // hasModuleAccess: user.acceso puede ser un array o un objeto
   const hasModuleAccess = moduleName => {
     if (!user || !user.acceso) return false;
-    // user.acceso expected to be object, e.g. { "Talento y Cultura": { ... } }
+    
+    // Si user.acceso es un array (nuevo formato)
+    if (Array.isArray(user.acceso)) {
+      return user.acceso.some(module => {
+        // Mapear nombres de módulos del backend a nombres del frontend
+        const moduleMap = {
+          'modulo-financiero': 'Financiera',
+          'modulo-talento': 'Talento y Cultura',
+          'modulo-cartera': 'Cartera',
+          'modulo-credito': 'Crédito',
+          'modulo-comercial': 'Comercial',
+          'modulo-gestion': 'Gestión Documental',
+          'modulo-ingenieria': 'Ingeniería Organizacional',
+          'modulo-juridico': 'Jurídico',
+          'modulo-cumplimiento': 'Oficial de Cumplimiento'
+        };
+        const frontendModuleName = moduleMap[module] || module;
+        return normalize(frontendModuleName) === normalize(moduleName);
+      });
+    }
+    
+    // Si user.acceso es un objeto (formato anterior)
     const keys = Object.keys(user.acceso || {});
     const found = keys.find(k => normalize(k) === normalize(moduleName));
     return !!found;

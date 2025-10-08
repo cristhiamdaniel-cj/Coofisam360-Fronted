@@ -2,6 +2,7 @@ import {
   listFormaciones as listFormacionesRaw,
   getFormacion as getFormacionRaw,
   saveFormacion as saveFormacionRaw,
+  updateFormacion as updateFormacionRaw,
 } from "./talentTrainerService";
 import { toMonthNumber, num } from "./talentHelpers";
 
@@ -16,6 +17,9 @@ export async function getFormacionQuota(id, params = {}) {
 }
 export async function saveFormacionQuota(payload) {
   return await saveFormacionRaw(mapToApi(payload));
+}
+export async function updateFormacionQuota(payload) {
+  return await updateFormacionRaw(mapToApi(payload));
 }
 
 function mapFromApi(r) {
@@ -42,7 +46,8 @@ function mapToApi(r) {
     id: r.id,
     anio: num(r.Año),
     mes: toMonthNumber(r.Mes),
-    cantidad_trabajadores: num(r.CantidadTrabajadores),
+    // Nombre esperado por backend: 'cant_trab_participaron'
+    cant_trab_participaron: num(r.CantidadTrabajadores),
     oficina: r.Oficina ?? "",
     roles: r.Roles ?? "",
     tema_formacion: r.TemaFormacion ?? "",
@@ -52,5 +57,7 @@ function mapToApi(r) {
     porcentaje_participacion: String(r.PorcentajeParticipacion ?? ""),
     veces_formado: num(r.NumeroVecesFormado),
     calificacion: num(r.Calificacion),
+    // PK compuesta requiere grupo; por defecto 1 si no se edita
+    grupo: num(r.Grupo) || 1,
   };
 }
