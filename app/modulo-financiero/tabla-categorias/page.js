@@ -225,10 +225,10 @@ export default function CategoriasTable() {
               </th>
 
               <th className="p-4 border text-center whitespace-nowrap ">
-                Cta PUC 14
+                Cartera de Crédito <br /> PUC 14
               </th>
               <th className="p-4 border text-center whitespace-nowrap ">
-                Cta PUC 21
+                Depósitos <br /> PUC 21
               </th>
               <th className="p-4 border text-center whitespace-nowrap ">
                 Asociados
