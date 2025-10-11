@@ -309,6 +309,58 @@ table thead th {
   color: var(--light-text);
 }
 
+/* Estilos unificados para botones, inputs y dropdowns */
+.unified-button {
+  background-color: white;
+  border: 2px solid var(--bright-red);
+  padding: 10px 20px;
+  border-radius: 25px;
+  color: var(--bright-red);
+  box-shadow: 4px 4px 10px rgb(162 157 157);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.unified-button:hover {
+  background-color: var(--bright-red);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 6px 6px 15px rgb(162 157 157);
+}
+
+.unified-input {
+  background-color: white;
+  border: 2px solid var(--bright-red);
+  padding: 10px 20px;
+  border-radius: 25px;
+  color: var(--bright-red);
+  box-shadow: 4px 4px 10px rgb(162 157 157);
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+.unified-input:focus {
+  border-color: var(--dark-red);
+  box-shadow: 6px 6px 15px rgb(162 157 157);
+}
+
+.unified-select {
+  background-color: white;
+  border: 2px solid var(--bright-red);
+  padding: 10px 20px;
+  border-radius: 25px;
+  color: var(--bright-red);
+  box-shadow: 4px 4px 10px rgb(162 157 157);
+  outline: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.unified-select:focus {
+  border-color: var(--dark-red);
+  box-shadow: 6px 6px 15px rgb(162 157 157);
+}
+
 .form-field {
   display: grid;
   grid-template-columns: 120px 1fr;

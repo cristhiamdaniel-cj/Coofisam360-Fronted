@@ -248,8 +248,8 @@ export default function AsignacionLlamadasTable() {
       </h1>
       <div className="actions-container flex justify-between mb-4">
         <div className="search-bar flex gap-2">
-          <input type="text" className="border w-[300px]" />
-          <button className="action-button flex gap-2 items-center justify-center cursor-pointer">
+          <input type="text" className="unified-input w-[300px]" placeholder="Buscar..." />
+          <button className="unified-button flex gap-2 items-center justify-center">
             Buscar
             <IoSearch />
           </button>
@@ -258,14 +258,14 @@ export default function AsignacionLlamadasTable() {
           {Object.keys(editedRows).length > 0 && (
             <button
               onClick={handleSave}
-              className="action-button flex gap-2 items-center justify-center cursor-pointer"
+              className="unified-button flex gap-2 items-center justify-center"
             >
               Guardar cambios
               <FaRegSave />
             </button>
           )}
           <button
-            className="action-button flex gap-2 items-center justify-center cursor-pointer"
+            className="unified-button flex gap-2 items-center justify-center"
             onClick={handleDownload}
           >
             Descargar

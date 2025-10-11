@@ -168,12 +168,12 @@ export default function GestionesTable() {
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Buscar por modalidad"
-            className="border w-[300px] px-2 py-1"
+            className="unified-input w-[300px]"
           />
           <select
             value={selectedYear}
             onChange={e => setSelectedYear(e.target.value)}
-            className="border px-2 py-1"
+            className="unified-select"
           >
             <option value="">Todos los años</option>
             {uniqueYears.map(y => (
@@ -185,7 +185,7 @@ export default function GestionesTable() {
           <select
             value={selectedMonth}
             onChange={e => setSelectedMonth(e.target.value)}
-            className="border px-2 py-1"
+            className="unified-select"
           >
             <option value="">Todos los meses</option>
             {availableMonths.map(m => (
@@ -200,21 +200,21 @@ export default function GestionesTable() {
           {Object.keys(editedRows).length > 0 && (
             <button
               onClick={handleSave}
-              className="action-button flex gap-2 items-center justify-center cursor-pointer"
+              className="unified-button flex gap-2 items-center justify-center"
             >
               Guardar cambios
               <FaRegSave />
             </button>
           )}
           <button
-            className="action-button flex gap-2 items-center justify-center cursor-pointer"
+            className="unified-button flex gap-2 items-center justify-center"
             onClick={handleDownload}
           >
             Descargar
             <FiDownload />
           </button>
           <button
-            className="action-button flex gap-2 items-center justify-center cursor-pointer"
+            className="unified-button flex gap-2 items-center justify-center"
             onClick={handleAddRow}
           >
             Añadir fila

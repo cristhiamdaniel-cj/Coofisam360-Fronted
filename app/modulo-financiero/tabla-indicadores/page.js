@@ -199,12 +199,12 @@ export default function IndicadoresTable() {
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Buscar por codigo u oficina"
-            className="border w-[300px] px-2 py-1"
+            className="unified-input w-[300px]"
           />
           <select
             value={selectedYear}
             onChange={e => setSelectedYear(e.target.value)}
-            className="border px-2 py-1"
+            className="unified-select"
           >
             <option value="">Todos los años</option>
             {uniqueYears.map(y => (
@@ -217,7 +217,7 @@ export default function IndicadoresTable() {
           <select
             value={selectedMonth}
             onChange={e => setSelectedMonth(e.target.value)}
-            className="border px-2 py-1"
+            className="unified-select"
           >
             <option value="">Todos los meses</option>
             {availableMonths.map(m => (
@@ -232,14 +232,14 @@ export default function IndicadoresTable() {
             <button
               onClick={handleSave}
               disabled={saving}
-              className="action-button flex gap-2 items-center justify-center cursor-pointer"
+              className="unified-button flex gap-2 items-center justify-center"
             >
               Guardar cambios <FaRegSave />
             </button>
           )}
           <button
             onClick={handleDownload}
-            className="action-button flex gap-2 items-center justify-center cursor-pointer"
+            className="unified-button flex gap-2 items-center justify-center"
           >
             Descargar <FiDownload />
           </button>

@@ -148,7 +148,7 @@ export default function GestionesTable() {
               value={search}
               onChange={e => setSearch(e.target.value)}
               placeholder="Buscar por codigo u oficina"
-              className="border w-[300px] px-2 py-1"
+              className="unified-input w-[300px]"
             />
           </div>
         </div>
@@ -157,21 +157,21 @@ export default function GestionesTable() {
             <button
               onClick={handleSave}
               disabled={saving}
-              className="action-button flex gap-2 items-center justify-center cursor-pointer"
+              className="unified-button flex gap-2 items-center justify-center"
             >
               {saving ? 'Guardando...' : 'Guardar cambios'}
               <FaRegSave />
             </button>
           )}
           <button
-            className="action-button flex gap-2 items-center justify-center cursor-pointer"
+            className="unified-button flex gap-2 items-center justify-center"
             onClick={handleDownload}
           >
             Descargar
             <FiDownload />
           </button>
           <button
-            className="action-button flex gap-2 items-center justify-center cursor-pointer"
+            className="unified-button flex gap-2 items-center justify-center"
             onClick={handleAddRow}
           >
             Añadir fila

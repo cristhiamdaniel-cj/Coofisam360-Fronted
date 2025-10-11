@@ -130,7 +130,7 @@ export default function CuposTable() {
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Buscar por codigo u oficina"
-            className="border w-[300px] px-2 py-1"
+            className="unified-input w-[300px]"
           />
         </div>
         <div className="flex gap-4">
@@ -138,14 +138,14 @@ export default function CuposTable() {
             <button
               onClick={handleSave}
               disabled={saving}
-              className="action-button flex gap-2 items-center justify-center cursor-pointer disabled:opacity-50"
+              className="unified-button flex gap-2 items-center justify-center disabled:opacity-50"
             >
               {saving ? "Guardando..." : "Guardar cambios"}
               <FaRegSave />
             </button>
           )}
           <button
-            className="action-button flex gap-2 items-center justify-center cursor-pointer"
+            className="unified-button flex gap-2 items-center justify-center"
             onClick={handleDownload}
           >
             Descargar

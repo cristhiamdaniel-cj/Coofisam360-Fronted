@@ -8,6 +8,8 @@ import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import { FaRegSave, FaFileDownload } from "react-icons/fa";
 import { IoSearch } from "react-icons/io5";
+import { FaRegFolderOpen, FaPlay } from "react-icons/fa";
+import { TbUpload } from "react-icons/tb";
 
 const initialRows = [
   {
@@ -407,12 +409,12 @@ export default function CategoriasTable() {
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Buscar por codigo u oficina"
-            className="border w-[300px] px-2 py-1"
+            className="unified-input w-[300px]"
           />
           <select
             value={selectedYear}
             onChange={e => setSelectedYear(e.target.value)}
-            className="border px-2 py-1"
+            className="unified-select"
           >
             <option value="">Todos los años</option>
             {uniqueYears.map(y => (
@@ -424,7 +426,7 @@ export default function CategoriasTable() {
           <select
             value={selectedMonth}
             onChange={e => setSelectedMonth(e.target.value)}
-            className="border px-2 py-1"
+            className="unified-select"
           >
             <option value="">Todos los meses</option>
             {availableMonths.map(m => (
@@ -434,18 +436,50 @@ export default function CategoriasTable() {
             ))}
           </select>
         </div>
+
         <div className="flex gap-4">
+          <div className="actions-container flex gap-4 pt-4">
+            {/* Cargar Balance */}
+            <label className="unified-button flex gap-2 items-center justify-center">
+              Cargar Presupuesto
+              <TbUpload />
+              <input
+                type="file"
+                accept=".xlsx,.csv"
+                className="hidden"
+                //onChange={handleUpload}
+              />
+            </label>
+
+            {/* Explorar */}
+            <button
+              className="unified-button flex gap-2 items-center justify-center"
+              //onClick={handleExplore}
+            >
+              Explorar
+              <FaRegFolderOpen />
+            </button>
+
+            {/* Ejecutar */}
+            <button
+              className="unified-button flex gap-2 items-center justify-center"
+              //onClick={handleRunETL}
+            >
+              Ejecutar
+              <FaPlay />
+            </button>
+          </div>
           {Object.keys(editedRows).length > 0 && (
             <button
               onClick={handleSave}
-              className="action-button flex gap-2 items-center justify-center cursor-pointer"
+              className="unified-button flex gap-2 items-center justify-center"
             >
               Guardar cambios
               <FaRegSave />
             </button>
           )}
           <button
-            className="action-button flex gap-2 items-center justify-center cursor-pointer"
+            className="unified-button flex gap-2 items-center justify-center"
             onClick={handleDownload}
           >
             Descargar
