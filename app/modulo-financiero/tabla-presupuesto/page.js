@@ -402,8 +402,8 @@ export default function CategoriasTable() {
       <h1 className="titulo-tabla-cupos text-3xl font-semibold pb-4">
         Presupuesto
       </h1>
-      <div className="actions-container flex justify-between mb-4">
-        <div className="search-bar flex gap-2">
+      <div className="actions-container  flex justify-between mb-4">
+        <div className="search-bar flex pt-4 gap-2">
           <input
             type="text"
             value={search}
@@ -468,6 +468,13 @@ export default function CategoriasTable() {
               Ejecutar
               <FaPlay />
             </button>
+            <button
+              className="unified-button flex gap-2 items-center justify-center"
+              onClick={handleDownload}
+            >
+              Descargar
+              <FaFileDownload />
+            </button>
           </div>
           {Object.keys(editedRows).length > 0 && (
             <button
@@ -478,13 +485,6 @@ export default function CategoriasTable() {
               <FaRegSave />
             </button>
           )}
-          <button
-            className="unified-button flex gap-2 items-center justify-center"
-            onClick={handleDownload}
-          >
-            Descargar
-            <FaFileDownload />
-          </button>
         </div>
       </div>
 
