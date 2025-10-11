@@ -215,7 +215,7 @@ table thead th {
 }
 
 /* Headers principales (primera fila) */
-.tabla-presupuesto-header tr:first-child th {
+.tabla-compuesta-header tr:first-child th {
   position: sticky;
   top: 0;
   z-index: 12;
@@ -224,10 +224,82 @@ table thead th {
 }
 
 /* Subheaders (segunda fila) */
-.tabla-presupuesto-header tr:last-child th {
+.tabla-compuesta-header tr:last-child th {
   position: sticky;
   top: 58px; /* Altura aproximada del header principal */
   z-index: 11;
+  background: var(--bright-red);
+  color: var(--light-text);
+}
+
+/* Headers fijos específicos para tabla-plan-trabajo */
+.tabla-plan-trabajo-header th {
+  position: sticky;
+  top: 0;
+  background: var(--bright-red);
+  z-index: 10;
+  color: var(--light-text);
+}
+
+/* Headers principales (primera fila) para tabla-plan-trabajo */
+.tabla-plan-trabajo-header tr:first-child th {
+  position: sticky;
+  top: 0;
+  z-index: 12;
+  background: var(--bright-red);
+  color: var(--light-text);
+}
+
+/* Subheaders (segunda fila) para tabla-plan-trabajo */
+.tabla-plan-trabajo-header tr:nth-child(2) th {
+  position: sticky;
+  top: 57px; /* Altura aproximada del header principal */
+  z-index: 11;
+  background: var(--bright-red);
+  color: var(--light-text);
+}
+
+/* Subheaders (tercera fila) para tabla-plan-trabajo */
+.tabla-plan-trabajo-header tr:last-child th {
+  position: sticky;
+  top: 89px; /* Altura aproximada de las dos filas anteriores */
+  z-index: 10;
+  background: var(--bright-red);
+  color: var(--light-text);
+}
+
+/* Headers fijos específicos para tabla-programa */
+.tabla-programa-header th {
+  position: sticky;
+  top: 0;
+  background: var(--bright-red);
+  z-index: 10;
+  color: var(--light-text);
+}
+
+/* Headers principales (primera fila) para tabla-programa */
+.tabla-programa-header tr:first-child th {
+  position: sticky;
+  top: 0;
+  z-index: 12;
+  background: var(--bright-red);
+  color: var(--light-text);
+}
+
+/* Subheaders (segunda fila) para tabla-programa */
+.tabla-programa-header tr:nth-child(2) th {
+  position: sticky;
+  top: 57px; /* Altura aproximada del header principal */
+  z-index: 11;
+  background: var(--bright-red);
+  color: var(--light-text);
+}
+
+/* Subheaders (tercera fila) para tabla-programa */
+.tabla-programa-header tr:last-child th {
+  position: sticky;
+  top: 89px; /* Altura aproximada de las dos filas anteriores */
+  z-index: 10;
   background: var(--bright-red);
   color: var(--light-text);
 }

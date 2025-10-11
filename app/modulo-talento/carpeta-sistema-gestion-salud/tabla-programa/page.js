@@ -299,8 +299,8 @@ export default function GestionesTable() {
 
       <div className="overflow-auto max-w-full table-container h-[65vh]">
         <table className="table-auto border-collapse w-full">
-          <thead>
-            <tr className="tabla-header">
+          <thead className="tabla-programa-header">
+            <tr>
               <th rowSpan="3" className="p-4 border text-center bg-white z-20 min-w-[250px]">ACTIVIDAD</th>
               <th colSpan="24" className="border text-center p-2 bg-white z-20">PROGRAMA DE CAPACITACIONES</th>
               <th rowSpan="3" className="p-4 border text-center bg-white z-20">Responsable(s)</th>
