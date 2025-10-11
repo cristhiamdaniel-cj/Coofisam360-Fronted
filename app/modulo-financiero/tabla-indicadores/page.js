@@ -274,9 +274,6 @@ export default function IndicadoresTable() {
               <th className="p-4 border text-center whitespace-nowrap">
                 Mes año actual
               </th>
-              <th className="py-4 px-28 border text-center whitespace-nowrap">
-                Análisis
-              </th>
             </tr>
           </thead>
           <tbody className="tabla-cupos-content p-4">
@@ -289,16 +286,6 @@ export default function IndicadoresTable() {
                 <td className="border p-2">{r.mes1a}%</td>
                 <td className="border p-2">{r.diciembre1a}%</td>
                 <td className="border p-2">{r.mesActual}%</td>
-                <td className="border p-2">
-                  <input
-                    type="text"
-                    value={r.analisis}
-                    onChange={e =>
-                      handleChange(r.id, "analisis", e.target.value)
-                    }
-                    className="px-2 py-1 w-full cursor-pointer border"
-                  />
-                </td>
               </tr>
             ))}
           </tbody>

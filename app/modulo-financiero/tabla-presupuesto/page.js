@@ -497,8 +497,8 @@ export default function CategoriasTable() {
             </tr>
           </thead>
           <tbody className="tabla-cupos-content p-4">
-            {filteredRows.map(row => (
-              <tr key={row.id}>
+            {filteredRows.map((row, index) => (
+              <tr key={index}>
                 <td>{row.codigo}</td>
                 <td>{row.nombre}</td>
                 <td>$ {row.valorAnterior}</td>
