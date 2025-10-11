@@ -38,27 +38,27 @@ export default function Navbar() {
   // hasModuleAccess: user.acceso puede ser un array o un objeto
   const hasModuleAccess = moduleName => {
     if (!user || !user.acceso) return false;
-    
+
     // Si user.acceso es un array (nuevo formato)
     if (Array.isArray(user.acceso)) {
       return user.acceso.some(module => {
         // Mapear nombres de módulos del backend a nombres del frontend
         const moduleMap = {
-          'modulo-financiero': 'Financiera',
-          'modulo-talento': 'Talento y Cultura',
-          'modulo-cartera': 'Cartera',
-          'modulo-credito': 'Crédito',
-          'modulo-comercial': 'Comercial',
-          'modulo-gestion': 'Gestión Documental',
-          'modulo-ingenieria': 'Ingeniería Organizacional',
-          'modulo-juridico': 'Jurídico',
-          'modulo-cumplimiento': 'Oficial de Cumplimiento'
+          "modulo-financiero": "Financiera",
+          "modulo-talento": "Talento y Cultura",
+          "modulo-cartera": "Cartera",
+          "modulo-credito": "Crédito",
+          "modulo-comercial": "Comercial",
+          "modulo-gestion": "Gestión Documental",
+          "modulo-ingenieria": "Ingeniería Organizacional",
+          "modulo-juridico": "Jurídico",
+          "modulo-cumplimiento": "Oficial de Cumplimiento",
         };
         const frontendModuleName = moduleMap[module] || module;
         return normalize(frontendModuleName) === normalize(moduleName);
       });
     }
-    
+
     // Si user.acceso es un objeto (formato anterior)
     const keys = Object.keys(user.acceso || {});
     const found = keys.find(k => normalize(k) === normalize(moduleName));
@@ -102,15 +102,17 @@ export default function Navbar() {
   return (
     <nav className="navbar-container px-12 flex items-center justify-between h-16 bg-white shadow-md relative">
       {/* Logo */}
-      <div className="logo">
-        <Image
-          src="/logo-coofisam.png"
-          alt="Company Logo"
-          width={200}
-          height={50}
-          priority
-        />
-      </div>
+      <Link href="/">
+        <div className="logo">
+          <Image
+            src="/logo-coofisam.png"
+            alt="Company Logo"
+            width={200}
+            height={50}
+            priority
+          />
+        </div>
+      </Link>
 
       <div className="flex gap-4 items-center">
         {/* Módulos */}
