@@ -400,7 +400,7 @@ export default function CategoriasTable() {
   return (
     <main className="pt-4 pb-0 px-12 overflow-auto">
       <h1 className="titulo-tabla-cupos text-3xl font-semibold pb-4">
-        Presupuesto
+        Ejecución Presupuestal
       </h1>
       <div className="actions-container  flex justify-between mb-4">
         <div className="search-bar flex pt-4 gap-2">

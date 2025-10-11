@@ -371,7 +371,7 @@ export default function FinancieroDashboard() {
               priority
             />
           </div>
-          Presupuesto
+          Ejecución Presupuestal
         </Link>
 
         <Link
