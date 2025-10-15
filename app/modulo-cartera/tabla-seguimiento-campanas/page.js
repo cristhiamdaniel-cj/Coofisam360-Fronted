@@ -221,11 +221,83 @@ const initialRows = [
 
 export default function Page() {
   const [rows, setRows] = useState(initialRows);
+  const [filteredRows, setFilteredRows] = useState(initialRows);
   const [editedRows, setEditedRows] = useState([]);
+  const [search, setSearch] = useState("");
+
+  // Live search (reactive as you type)
+  useEffect(() => {
+    const query = search.trim().toLowerCase();
+    const filtered = rows.filter(r => {
+      const matchesSearch =
+        !query ||
+        r.oficina?.toString().includes(query) ||
+        r.pagareVirtualCop?.toString().includes(query) ||
+        r.pagareOpa?.toString().includes(query) ||
+        r.cedula?.toLowerCase().includes(query) ||
+        r.nombre?.toLowerCase().includes(query) ||
+        r.saldoCapital?.toLowerCase().includes(query) ||
+        r.capitalCondonado?.toLowerCase().includes(query) ||
+        r.estadoObligacion?.toLowerCase().includes(query) ||
+        r.novedad?.toLowerCase().includes(query) ||
+        r.gestor?.toLowerCase().includes(query) ||
+        r.honorarios?.toLowerCase().includes(query) ||
+        r.abogado?.toLowerCase().includes(query);
+
+      return matchesSearch;
+    });
+    setFilteredRows(filtered);
+  }, [search, rows]);
+
+  // Opciones para los dropdowns
+  const estadoObligacionOptions = [
+    "JURIDICO",
+    "POSIBLE CASTIGO",
+    "CASTIGO-CJ",
+    "CASTIGO-LIAN",
+    "CASTIGO-SURCOLOMB.",
+    "CASTIGO-COOFISAM",
+  ];
+
+  const novedadOptions = ["PAZ Y SALVO", "ABONO P."];
+
+  const gestorOptions = [
+    "PAOLA",
+    "DANIELA",
+    "SANDRA",
+    "MARTHA",
+    "PAULA",
+    "CAMILA",
+    "CAROLINA",
+    "GRUPAL",
+    "INGRID",
+  ];
+
+  const abogadoOptions = [
+    "SANDRA CHARRY",
+    "MAGNOLIA ESPAÑA",
+    "CARMEN ALVAREZ",
+    "ARMANDO TAMAYO",
+    "DIEGO BAHAMON",
+    "PAOLA PERDOMO",
+    "MIGUEL FLORIANO",
+    "DIEGO RODRIGUEZ",
+    "LILI IBAÑEZ",
+    "YESSICA MATIZ",
+    "LINO ROJAS",
+    "MARIA JOSE MURCIA",
+    "CLARA INES",
+    "N/A",
+  ];
 
   const handleChange = (id, field, value) => {
     // update rows state immediately
     setRows(prev =>
+      prev.map(row => (row.id === id ? { ...row, [field]: value } : row))
+    );
+
+    // update filteredRows state immediately
+    setFilteredRows(prev =>
       prev.map(row => (row.id === id ? { ...row, [field]: value } : row))
     );
 
@@ -274,14 +346,20 @@ export default function Page() {
   };
 
   return (
-    <main className="pt-12 pb-0 px-12 overflow-auto">
-      <h1 className="titulo-tabla-cupos text-3xl font-semibold pb-12">
+    <main className="pt-4 pb-0 px-12 overflow-auto">
+      <h1 className="titulo-tabla-cupos text-3xl font-semibold pb-4">
         Asignación de llamadas
       </h1>
       <div className="actions-container flex justify-between mb-4">
         <div className="search-bar flex gap-2">
-          <input type="text" className="border w-[300px]" />
-          <button className="action-button flex gap-2 items-center justify-center cursor-pointer">
+          <input
+            type="text"
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            placeholder="Buscar por cédula, nombre, gestor, abogado..."
+            className="unified-input w-[300px]"
+          />
+          <button className="unified-button flex gap-2 items-center justify-center">
             Buscar
             <IoSearch />
           </button>
@@ -290,14 +368,14 @@ export default function Page() {
           {Object.keys(editedRows).length > 0 && (
             <button
               onClick={handleSave}
-              className="action-button flex gap-2 items-center justify-center cursor-pointer"
+              className="unified-button flex gap-2 items-center justify-center"
             >
               Guardar cambios
               <FaRegSave />
             </button>
           )}
           <button
-            className="action-button flex gap-2 items-center justify-center cursor-pointer"
+            className="unified-button flex gap-2 items-center justify-center"
             onClick={handleDownload}
           >
             Descargar
@@ -310,7 +388,7 @@ export default function Page() {
         <table className="table-auto border-collapse w-full">
           <thead className="tabla-header">
             <tr>
-              <th className="p-4 border text-center whitespace-nowrap">
+              <th className="p-4 border text-center whitespace-nowrap min-w-[100px]">
                 Oficina
               </th>
               <th className="p-4 border text-center whitespace-nowrap">
@@ -319,10 +397,10 @@ export default function Page() {
               <th className="p-4 border text-center whitespace-nowrap">
                 Pagaré OPA
               </th>
-              <th className="p-4 border text-center whitespace-nowrap">
+              <th className="p-4 border text-center whitespace-nowrap min-w-[180px]">
                 Cédula
               </th>
-              <th className="p-4 border text-center whitespace-nowrap">
+              <th className="p-4 border text-center whitespace-nowrap min-w-[250px]">
                 Nombre
               </th>
               <th className="p-4 border text-center whitespace-nowrap">
@@ -334,64 +412,191 @@ export default function Page() {
               <th className="p-4 border text-center whitespace-nowrap">
                 Estado de la Obligación
               </th>
-              <th className="p-4 border text-center whitespace-nowrap">
+              <th className="p-4 border text-center whitespace-nowrap min-w-[180px]">
                 Novedad
               </th>
               <th className="p-4 border text-center whitespace-nowrap">
                 Fecha
               </th>
-              <th className="p-4 border text-center whitespace-nowrap">
+              <th className="p-4 border text-center whitespace-nowrap min-w-[180px]">
                 Gestor
               </th>
-              <th className="p-4 border text-center whitespace-nowrap">
+              <th className="p-4 border text-center whitespace-nowrap min-w-[180px]">
                 Honorarios
               </th>
-              <th className="p-4 border text-center whitespace-nowrap">
+              <th className="p-4 border text-center whitespace-nowrap min-w-[250px]">
                 Abogado
               </th>
             </tr>
           </thead>
           <tbody className="tabla-cupos-content p-4">
-            {initialRows.map(row => (
+            {filteredRows.map(row => (
               <tr key={row.id}>
-                <td className="p-2 border text-left whitespace-nowrap">
-                  {row.oficina}
+                <td className="p-2 border text-center">
+                  <input
+                    type="number"
+                    value={row.oficina || ""}
+                    onChange={e =>
+                      handleChange(
+                        row.id,
+                        "oficina",
+                        parseInt(e.target.value) || 0
+                      )
+                    }
+                    className="w-full px-2 py-1 border rounded"
+                  />
                 </td>
-                <td className="p-2 border text-left whitespace-nowrap">
-                  {row.pagareVirtualCop}
+                <td className="p-2 border text-center">
+                  <input
+                    type="number"
+                    value={row.pagareVirtualCop || ""}
+                    onChange={e =>
+                      handleChange(
+                        row.id,
+                        "pagareVirtualCop",
+                        parseInt(e.target.value) || 0
+                      )
+                    }
+                    className="w-full px-2 py-1 border rounded"
+                  />
                 </td>
-                <td className="p-2 border text-left whitespace-nowrap">
-                  {row.pagareOpa}
+                <td className="p-2 border text-center">
+                  <input
+                    type="number"
+                    value={row.pagareOpa || ""}
+                    onChange={e =>
+                      handleChange(
+                        row.id,
+                        "pagareOpa",
+                        parseInt(e.target.value) || 0
+                      )
+                    }
+                    className="w-full px-2 py-1 border rounded"
+                  />
                 </td>
-                <td className="p-2 border text-left whitespace-nowrap">
-                  {row.cedula}
+                <td className="p-2 border text-center">
+                  <input
+                    type="text"
+                    value={row.cedula || ""}
+                    onChange={e =>
+                      handleChange(row.id, "cedula", e.target.value)
+                    }
+                    className="w-full px-2 py-1 border rounded"
+                  />
                 </td>
-                <td className="p-2 border text-left whitespace-nowrap">
-                  {row.nombre}
+                <td className="p-2 border text-center">
+                  <input
+                    type="text"
+                    value={row.nombre || ""}
+                    onChange={e =>
+                      handleChange(row.id, "nombre", e.target.value)
+                    }
+                    className="w-full px-2 py-1 border rounded"
+                  />
                 </td>
-                <td className="p-2 border text-left whitespace-nowrap">
-                  {row.saldoCapital}
+                <td className="p-2 border text-center">
+                  <input
+                    type="text"
+                    value={row.saldoCapital || ""}
+                    onChange={e =>
+                      handleChange(row.id, "saldoCapital", e.target.value)
+                    }
+                    className="w-full px-2 py-1 border rounded"
+                  />
                 </td>
-                <td className="p-2 border text-left whitespace-nowrap">
-                  {row.capitalCondonado}
+                <td className="p-2 border text-center">
+                  <input
+                    type="text"
+                    value={row.capitalCondonado || ""}
+                    onChange={e =>
+                      handleChange(row.id, "capitalCondonado", e.target.value)
+                    }
+                    className="w-full px-2 py-1 border rounded"
+                  />
                 </td>
-                <td className="p-2 border text-left whitespace-nowrap">
-                  {row.estadoObligacion}
+                <td className="p-2 border text-center">
+                  <select
+                    value={row.estadoObligacion || ""}
+                    onChange={e =>
+                      handleChange(row.id, "estadoObligacion", e.target.value)
+                    }
+                    className="w-full px-2 py-1 border rounded"
+                  >
+                    <option value="">Seleccionar estado</option>
+                    {estadoObligacionOptions.map(estado => (
+                      <option key={estado} value={estado}>
+                        {estado}
+                      </option>
+                    ))}
+                  </select>
                 </td>
-                <td className="p-2 border text-left whitespace-nowrap">
-                  {row.novedad}
+                <td className="p-2 border text-center">
+                  <select
+                    value={row.novedad || ""}
+                    onChange={e =>
+                      handleChange(row.id, "novedad", e.target.value)
+                    }
+                    className="w-full px-2 py-1 border rounded"
+                  >
+                    <option value="">Seleccionar novedad</option>
+                    {novedadOptions.map(novedad => (
+                      <option key={novedad} value={novedad}>
+                        {novedad}
+                      </option>
+                    ))}
+                  </select>
                 </td>
-                <td className="p-2 border text-left whitespace-nowrap">
-                  {row.fecha}
+                <td className="p-2 border text-center">
+                  <input
+                    type="date"
+                    value={row.fecha || ""}
+                    onChange={e =>
+                      handleChange(row.id, "fecha", e.target.value)
+                    }
+                    className="w-full px-2 py-1 border rounded"
+                  />
                 </td>
-                <td className="p-2 border text-left whitespace-nowrap">
-                  {row.gestor}
+                <td className="p-2 border text-center">
+                  <select
+                    value={row.gestor || ""}
+                    onChange={e =>
+                      handleChange(row.id, "gestor", e.target.value)
+                    }
+                    className="w-full px-2 py-1 border rounded"
+                  >
+                    <option value="">Seleccionar gestor</option>
+                    {gestorOptions.map(gestor => (
+                      <option key={gestor} value={gestor}>
+                        {gestor}
+                      </option>
+                    ))}
+                  </select>
                 </td>
-                <td className="p-2 border text-left whitespace-nowrap">
-                  {row.honorarios}
+                <td className="p-2 border text-center">
+                  <input
+                    type="text"
+                    value={row.honorarios || ""}
+                    onChange={e =>
+                      handleChange(row.id, "honorarios", e.target.value)
+                    }
+                    className="w-full px-2 py-1 border rounded"
+                  />
                 </td>
-                <td className="p-2 border text-left whitespace-nowrap">
-                  {row.abogado}
+                <td className="p-2 border text-center">
+                  <select
+                    value={row.abogado || ""}
+                    onChange={e =>
+                      handleChange(row.id, "abogado", e.target.value)
+                    }
+                    className="w-full px-2 py-1 border rounded"
+                  >
+                    <option value="">Seleccionar abogado</option>
+                    {abogadoOptions.map(abogado => (
+                      <option key={abogado} value={abogado}>
+                        {abogado}
+                      </option>
+                    ))}
+                  </select>
                 </td>
               </tr>
             ))}

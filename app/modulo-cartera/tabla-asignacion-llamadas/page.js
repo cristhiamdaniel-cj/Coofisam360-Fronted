@@ -10,6 +10,7 @@ import { FiDownload } from "react-icons/fi";
 
 const initialRows = [
   {
+    id: 1,
     agencia: "4 - OFICINA GIGANTE",
     numeroCredito: "1953289",
     lineaCredito: "CON LIBRE INVERSION",
@@ -32,6 +33,7 @@ const initialRows = [
     calificacion: "",
   },
   {
+    id: 2,
     agencia: "13 - OFICINA HOBO",
     numeroCredito: "1953298",
     lineaCredito: "CON LIBRE INVERSION",
@@ -54,6 +56,7 @@ const initialRows = [
     calificacion: "",
   },
   {
+    id: 3,
     agencia: "8 - OFICINA PITALITO",
     numeroCredito: "1953331",
     lineaCredito: "PRO POP.PROD.URBANO EMPRESARIAL",
@@ -76,6 +79,7 @@ const initialRows = [
     calificacion: "",
   },
   {
+    id: 4,
     agencia: "16 - OFICINA ESPINAL",
     numeroCredito: "1953334",
     lineaCredito: "MIC EMPRESARIAL",
@@ -98,6 +102,7 @@ const initialRows = [
     calificacion: "",
   },
   {
+    id: 5,
     agencia: "3 - OFICINA EL PITAL",
     numeroCredito: "1953344",
     lineaCredito: "CON LIBRE INVERSION",
@@ -189,11 +194,91 @@ const initialRows = [
 
 export default function AsignacionLlamadasTable() {
   const [rows, setRows] = useState(initialRows);
+  const [filteredRows, setFilteredRows] = useState(initialRows);
   const [editedRows, setEditedRows] = useState([]);
+  const [search, setSearch] = useState("");
+
+  // Live search (reactive as you type)
+  useEffect(() => {
+    const query = search.trim().toLowerCase();
+    const filtered = rows.filter(r => {
+      const matchesSearch =
+        !query ||
+        r.cedula.toLowerCase().includes(query) ||
+        r.nombre.toLowerCase().includes(query) ||
+        r.gestor?.toLowerCase().includes(query) ||
+        r.gestionTitular?.toLowerCase().includes(query) ||
+        r.gestionCodeudor?.toLowerCase().includes(query) ||
+        r.novedadGestion?.toLowerCase().includes(query) ||
+        r.programarVisita?.toLowerCase().includes(query) ||
+        r.gestorApoya?.toLowerCase().includes(query) ||
+        r.calificacion?.toLowerCase().includes(query);
+      
+      return matchesSearch;
+    });
+    setFilteredRows(filtered);
+  }, [search, rows]);
+
+  // Opciones para los dropdowns
+  const gestorOptions = [
+    "SANDRA",
+    "INGRID",
+    "PAOLA",
+    "CAMILA",
+    "DANIELA",
+    "MARTHA",
+  ];
+
+  const gestionTitularOptions = [
+    "NO CONTESTO",
+    "MENSAJE WHATSAPP",
+    "MENSAJE TEXTO",
+    "NOTIFICADO A.G",
+    "NOTIFICADO D.G",
+    "CORTA LLAMADA",
+    "DIFICIL CONTACTO",
+    "SE DEJA RAZÓN CON TERCERO",
+    "FALLECIO Q.E.P.D",
+    "NUMER. EQUIVOCADO",
+    "DELICADO SALUD TITULAR",
+    "DELICADO SALUD CODEUDOR",
+    "RECLAM. GARANT. AVAL",
+    "RECLAM. INCAPACIDAD",
+    "PTE RESPUESTA D.P",
+    "POSIB. ARRGL CARTER",
+    "PTE - CRUCE DE CTA",
+    "CASO ESPC. NO SE LLAM.",
+    "NOTIFICADO D.G.A",
+  ];
+
+  const novedadGestionOptions = [
+    "ABONA EN EL TRANSCURSO DEL MES",
+    "ACUERDO INCUMPLIDO",
+    "DESAPARECIDO",
+    "EN ESTUDIO CJ",
+    "JURIDICO",
+    "NO VA A PAGAR",
+    "POSIBLE CASTIGO",
+    "SIN ACUERDO",
+    "TERCERO RESPONSABLE",
+    "VISITA REALIZADA",
+    "PRESENTARSE EN OFICINA",
+    "AL DIA",
+    "CRUCE DE CTA",
+    "RADICADO FUERA DEL PAIS",
+    "ASOCIADO EN PROCESO DE EXCLUSION",
+  ];
+
+  const programarVisitaOptions = ["PROGRAMAR VISITA"];
 
   const handleChange = (id, field, value) => {
     // update rows state immediately
     setRows(prev =>
+      prev.map(row => (row.id === id ? { ...row, [field]: value } : row))
+    );
+    
+    // update filteredRows state immediately
+    setFilteredRows(prev =>
       prev.map(row => (row.id === id ? { ...row, [field]: value } : row))
     );
 
@@ -242,13 +327,19 @@ export default function AsignacionLlamadasTable() {
   };
 
   return (
-    <main className="pt-12 pb-0 px-12 overflow-auto">
-      <h1 className="titulo-tabla-cupos text-3xl font-semibold pb-12">
+    <main className="pt-4 pb-0 px-12 overflow-auto">
+      <h1 className="titulo-tabla-cupos text-3xl font-semibold pb-4">
         Asignación de llamadas
       </h1>
       <div className="actions-container flex justify-between mb-4">
         <div className="search-bar flex gap-2">
-          <input type="text" className="unified-input w-[300px]" placeholder="Buscar..." />
+          <input
+            type="text"
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            placeholder="Buscar por cédula, nombre, gestor..."
+            className="unified-input w-[300px]"
+          />
           <button className="unified-button flex gap-2 items-center justify-center">
             Buscar
             <IoSearch />
@@ -311,7 +402,7 @@ export default function AsignacionLlamadasTable() {
               <th className="p-4 border text-center whitespace-nowrap">
                 Estado
               </th>
-              <th className="p-4 border text-center whitespace-nowrap">
+              <th className="p-4 border text-center whitespace-nowrap min-w-[160px]">
                 Gestor
               </th>
               <th className="p-4 border text-center whitespace-nowrap">
@@ -341,7 +432,7 @@ export default function AsignacionLlamadasTable() {
             </tr>
           </thead>
           <tbody className="tabla-cupos-content p-4">
-            {rows.map(r => (
+            {filteredRows.map(r => (
               <tr key={r.id}>
                 <td>{r.agencia}</td>
                 <td>{r.numeroCredito}</td>
@@ -354,14 +445,120 @@ export default function AsignacionLlamadasTable() {
                 <td>{r.tipoGarantia}</td>
                 <td>{r.celular}</td>
                 <td>{r.estado}</td>
-                <td>{r.gestor}</td>
-                <td>{r.fechaGestion}</td>
-                <td>{r.fechaAcuerdo}</td>
-                <td>{r.gestionTitular}</td>
-                <td>{r.gestionCodeudor}</td>
-                <td>{r.novedadGestion}</td>
-                <td>{r.programarVisita}</td>
-                <td>{r.gestorApoya}</td>
+                <td className="p-4 border text-center">
+                  <select
+                    value={r.gestor || ""}
+                    onChange={e => handleChange(r.id, "gestor", e.target.value)}
+                    className="w-full px-2 py-1 border rounded"
+                  >
+                    <option value="">Seleccionar gestor</option>
+                    {gestorOptions.map(gestor => (
+                      <option key={gestor} value={gestor}>
+                        {gestor}
+                      </option>
+                    ))}
+                  </select>
+                </td>
+                <td className="p-4 border text-center">
+                  <input
+                    type="date"
+                    value={r.fechaGestion || ""}
+                    onChange={e =>
+                      handleChange(r.id, "fechaGestion", e.target.value)
+                    }
+                    className="w-full px-2 py-1 border rounded"
+                  />
+                </td>
+                <td className="p-4 border text-center">
+                  <input
+                    type="date"
+                    value={r.fechaAcuerdo || ""}
+                    onChange={e =>
+                      handleChange(r.id, "fechaAcuerdo", e.target.value)
+                    }
+                    className="w-full px-2 py-1 border rounded"
+                  />
+                </td>
+                <td className="p-4 border text-center">
+                  <select
+                    value={r.gestionTitular || ""}
+                    onChange={e =>
+                      handleChange(r.id, "gestionTitular", e.target.value)
+                    }
+                    className="w-full px-2 py-1 border rounded"
+                  >
+                    <option value="">Seleccionar gestión</option>
+                    {gestionTitularOptions.map(gestion => (
+                      <option key={gestion} value={gestion}>
+                        {gestion}
+                      </option>
+                    ))}
+                  </select>
+                </td>
+                <td className="p-4 border text-center">
+                  <select
+                    value={r.gestionCodeudor || ""}
+                    onChange={e =>
+                      handleChange(r.id, "gestionCodeudor", e.target.value)
+                    }
+                    className="w-full px-2 py-1 border rounded"
+                  >
+                    <option value="">Seleccionar gestión</option>
+                    {gestionTitularOptions.map(gestion => (
+                      <option key={gestion} value={gestion}>
+                        {gestion}
+                      </option>
+                    ))}
+                  </select>
+                </td>
+                <td className="p-4 border text-center">
+                  <select
+                    value={r.novedadGestion || ""}
+                    onChange={e =>
+                      handleChange(r.id, "novedadGestion", e.target.value)
+                    }
+                    className="w-full px-2 py-1 border rounded"
+                  >
+                    <option value="">Seleccionar novedad</option>
+                    {novedadGestionOptions.map(novedad => (
+                      <option key={novedad} value={novedad}>
+                        {novedad}
+                      </option>
+                    ))}
+                  </select>
+                </td>
+                <td className="p-4 border text-center">
+                  <select
+                    value={r.programarVisita || ""}
+                    onChange={e =>
+                      handleChange(r.id, "programarVisita", e.target.value)
+                    }
+                    className="w-full px-2 py-1 border rounded"
+                  >
+                    <option value="">Seleccionar</option>
+                    {programarVisitaOptions.map(visita => (
+                      <option key={visita} value={visita}>
+                        {visita}
+                      </option>
+                    ))}
+                  </select>
+                </td>
+                <td className="p-4 border text-center">
+                  <select
+                    value={r.gestorApoya || ""}
+                    onChange={e =>
+                      handleChange(r.id, "gestorApoya", e.target.value)
+                    }
+                    className="w-full px-2 py-1 border rounded"
+                  >
+                    <option value="">Seleccionar gestión</option>
+                    {gestionTitularOptions.map(gestion => (
+                      <option key={gestion} value={gestion}>
+                        {gestion}
+                      </option>
+                    ))}
+                  </select>
+                </td>
                 <td>{r.calificacion}</td>
               </tr>
             ))}

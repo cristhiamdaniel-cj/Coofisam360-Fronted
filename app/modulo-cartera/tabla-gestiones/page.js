@@ -147,11 +147,65 @@ const initialRows = [
 
 export default function GestionesTable() {
   const [rows, setRows] = useState(initialRows);
+  const [filteredRows, setFilteredRows] = useState(initialRows);
   const [editedRows, setEditedRows] = useState([]);
+  const [search, setSearch] = useState("");
+
+  // Live search (reactive as you type)
+  useEffect(() => {
+    const query = search.trim().toLowerCase();
+    const filtered = rows.filter(r => {
+      const matchesSearch =
+        !query ||
+        r.tipo?.toLowerCase().includes(query) ||
+        r.fechaGestion?.toLowerCase().includes(query) ||
+        r.comentario?.toLowerCase().includes(query) ||
+        r.nroProducto?.toLowerCase().includes(query) ||
+        r.cedula?.toLowerCase().includes(query) ||
+        r.nombre?.toLowerCase().includes(query) ||
+        r.usuarioGestion?.toLowerCase().includes(query) ||
+        r.oficina?.toLowerCase().includes(query) ||
+        r.gestionValidada?.toLowerCase().includes(query);
+      
+      return matchesSearch;
+    });
+    setFilteredRows(filtered);
+  }, [search, rows]);
+
+  // Opciones para los dropdowns de oficinas
+  const oficinaOptions = [
+    { codigo: 1, nombre: "GARZON" },
+    { codigo: 2, nombre: "GUADALUPE" },
+    { codigo: 3, nombre: "PITAL" },
+    { codigo: 4, nombre: "GIGANTE" },
+    { codigo: 5, nombre: "ACEVEDO" },
+    { codigo: 6, nombre: "TARQUI" },
+    { codigo: 7, nombre: "LA PLATA" },
+    { codigo: 8, nombre: "PITALITO" },
+    { codigo: 9, nombre: "SUAZA" },
+    { codigo: 10, nombre: "LA ARGENTINA" },
+    { codigo: 11, nombre: "NEIVA" },
+    { codigo: 12, nombre: "RIVERA" },
+    { codigo: 13, nombre: "HOBO" },
+    { codigo: 14, nombre: "IQUIRA" },
+    { codigo: 15, nombre: "SALADOBLANCO" },
+    { codigo: 16, nombre: "ESPINAL" },
+    { codigo: 17, nombre: "PLANADAS" },
+    { codigo: 18, nombre: "CHAPARRAL" },
+    { codigo: 19, nombre: "FLORENCIA" },
+  ];
+
+  // Opciones para gestión validada
+  const gestionValidadaOptions = ["SI", "NO"];
 
   const handleChange = (id, field, value) => {
     // update rows state immediately
     setRows(prev =>
+      prev.map(row => (row.id === id ? { ...row, [field]: value } : row))
+    );
+
+    // update filteredRows state immediately
+    setFilteredRows(prev =>
       prev.map(row => (row.id === id ? { ...row, [field]: value } : row))
     );
 
@@ -200,14 +254,20 @@ export default function GestionesTable() {
   };
 
   return (
-    <main className="pt-12 pb-0 px-12 overflow-auto">
-      <h1 className="titulo-tabla-cupos text-3xl font-semibold pb-12">
+    <main className="pt-4 pb-0 px-12 overflow-auto">
+      <h1 className="titulo-tabla-cupos text-3xl font-semibold pb-4">
         Gestiones
       </h1>
       <div className="actions-container flex justify-between mb-4">
         <div className="search-bar flex gap-2">
-          <input type="text" className="border w-[300px]" />
-          <button className="action-button flex gap-2 items-center justify-center cursor-pointer">
+          <input
+            type="text"
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            placeholder="Buscar por tipo, cédula, nombre, oficina..."
+            className="unified-input w-[300px]"
+          />
+          <button className="unified-button flex gap-2 items-center justify-center">
             Buscar
             <IoSearch />
           </button>
@@ -216,14 +276,14 @@ export default function GestionesTable() {
           {Object.keys(editedRows).length > 0 && (
             <button
               onClick={handleSave}
-              className="action-button flex gap-2 items-center justify-center cursor-pointer"
+              className="unified-button flex gap-2 items-center justify-center"
             >
               Guardar cambios
               <FaRegSave />
             </button>
           )}
           <button
-            className="action-button flex gap-2 items-center justify-center cursor-pointer"
+            className="unified-button flex gap-2 items-center justify-center"
             onClick={handleDownload}
           >
             Descargar
@@ -257,7 +317,7 @@ export default function GestionesTable() {
               <th className="p-4 border text-center whitespace-nowrap">
                 Usuario Gestión
               </th>
-              <th className="p-4 border text-center whitespace-nowrap">
+              <th className="p-4 border text-center whitespace-nowrap min-w-[200px]">
                 Oficina
               </th>
               <th className="p-4 border text-center whitespace-nowrap">
@@ -267,7 +327,7 @@ export default function GestionesTable() {
           </thead>
 
           <tbody className="tabla-cupos-content p-4">
-            {rows.map(r => (
+            {filteredRows.map(r => (
               <tr key={r.id}>
                 <td className="p-2 border text-center">{r.tipo}</td>
                 <td className="p-2 border text-center">{r.fechaGestion}</td>
@@ -276,8 +336,38 @@ export default function GestionesTable() {
                 <td className="p-2 border text-center">{r.cedula}</td>
                 <td className="p-2 border text-center">{r.nombre}</td>
                 <td className="p-2 border text-center">{r.usuarioGestion}</td>
-                <td className="p-2 border text-center">{r.oficina}</td>
-                <td className="p-2 border text-center">{r.gestionValidada}</td>
+                <td className="p-2 border text-center">
+                  <select
+                    value={r.oficina || ""}
+                    onChange={e =>
+                      handleChange(r.id, "oficina", e.target.value)
+                    }
+                    className="w-full px-2 py-1 border rounded"
+                  >
+                    <option value="">Seleccionar oficina</option>
+                    {oficinaOptions.map(oficina => (
+                      <option key={oficina.codigo} value={oficina.nombre}>
+                        {oficina.nombre}
+                      </option>
+                    ))}
+                  </select>
+                </td>
+                <td className="p-2 border text-center">
+                  <select
+                    value={r.gestionValidada || ""}
+                    onChange={e =>
+                      handleChange(r.id, "gestionValidada", e.target.value)
+                    }
+                    className="w-full px-2 py-1 border rounded"
+                  >
+                    <option value="">Seleccionar</option>
+                    {gestionValidadaOptions.map(option => (
+                      <option key={option} value={option}>
+                        {option}
+                      </option>
+                    ))}
+                  </select>
+                </td>
               </tr>
             ))}
           </tbody>

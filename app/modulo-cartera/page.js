@@ -7,11 +7,11 @@ import { TbUpload } from "react-icons/tb";
 
 export default function FinancieroDashboard() {
   return (
-    <main className="container-financiero flex-col p-12">
-      <h1 className="text-3xl font-semibold uppercase titulo-modulo">
+    <main className="container-financiero flex-col p-12 pt-4">
+      <h1 className="text-3xl font-semibold uppercase titulo-modulo pl-8">
         Formularios
       </h1>
-      <div className="actions-container flex gap-4 pt-12">
+      <div className="actions-container flex gap-4 pt-4">
         <label className="action-button flex gap-2 items-center justify-center cursor-pointer">
           Cargar Balance
           <TbUpload />
