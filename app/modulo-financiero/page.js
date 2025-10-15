@@ -363,7 +363,7 @@ export default function FinancieroDashboard() {
         >
           <div className="logo">
             <Image
-              src="/oficina.png"
+              src="/presupuesto.svg"
               className="module-image"
               alt="Categorías de oficinas"
               width={200}
@@ -371,7 +371,7 @@ export default function FinancieroDashboard() {
               priority
             />
           </div>
-          Presupuesto
+          Ejecución Presupuestal
         </Link>
 
         <Link
@@ -380,7 +380,7 @@ export default function FinancieroDashboard() {
         >
           <div className="logo">
             <Image
-              src="/oficina.png"
+              src="/analisis.svg"
               className="module-image"
               alt="Categorías de oficinas"
               width={200}

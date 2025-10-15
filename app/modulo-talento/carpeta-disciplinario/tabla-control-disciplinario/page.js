@@ -3,11 +3,10 @@ import { useEffect, useState } from "react";
 import {
   listControlRows,
   saveControlRow,
-  deleteControlRow,
   listEmpleadosByOficina,
 } from "../../../services/modulo-talento/carpeta-disciplinario/controlDiscipline";
 import { IoSearch } from "react-icons/io5";
-import { FaRegSave, FaFileDownload, FaEdit, FaTrash, FaCheck, FaTimes, FaPlus } from "react-icons/fa";
+import { FaRegSave, FaFileDownload } from "react-icons/fa";
 import { FaArrowDownWideShort } from "react-icons/fa6";
 import { TbUpload } from "react-icons/tb";
 import * as XLSX from "xlsx";
@@ -778,12 +777,12 @@ export default function GestionesTable() {
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Buscar por trabajador u oficina"
-            className="border w-[300px] px-2 py-1"
+            className="unified-input w-[300px]"
           />
           <select
             value={selectedYear}
             onChange={e => setSelectedYear(e.target.value)}
-            className="border px-2 py-1"
+            className="unified-select"
           >
             <option value="">Todos los años</option>
             {uniqueYears.map(y => (
@@ -795,7 +794,7 @@ export default function GestionesTable() {
           <select
             value={selectedMonth}
             onChange={e => setSelectedMonth(e.target.value)}
-            className="border px-2 py-1"
+            className="unified-select"
           >
             <option value="">Todos los meses</option>
             {availableMonths.map(m => (
@@ -809,21 +808,21 @@ export default function GestionesTable() {
           {Object.keys(editedRows).length > 0 && (
             <button
               onClick={handleSave}
-              className="action-button flex gap-2 items-center justify-center cursor-pointer"
+              className="unified-button flex gap-2 items-center justify-center"
             >
               Guardar cambios
               <FaRegSave />
             </button>
           )}
           <button
-            className="action-button flex gap-2 items-center justify-center cursor-pointer"
+            className="unified-button flex gap-2 items-center justify-center"
             onClick={handleDownload}
           >
             Descargar
             <FaFileDownload />
           </button>
           <button
-            className="action-button flex gap-2 items-center justify-center cursor-pointer"
+            className="unified-button flex gap-2 items-center justify-center"
             onClick={handleAddRow}
           >
             Añadir fila
@@ -943,96 +942,7 @@ export default function GestionesTable() {
             {filteredRows.map((r, idx) => { const isEditing = r.isNew || !!editingRows[idx]; return (
               <tr key={idx}>
                 <td className="p-2 border text-center whitespace-nowrap">
-                  {isEditing ? (
-                    <>
-                      <button 
-                        onClick={async () => {
-                          try {
-                            await saveControlRow(r);
-                            setEditedRows(prev => {
-                              const newEdited = { ...prev };
-                              delete newEdited[idx];
-                              return newEdited;
-                            });
-                            setEditingRows(prev => {
-                              const newEditing = { ...prev };
-                              delete newEditing[idx];
-                              return newEditing;
-                            });
-                            alert("Registro guardado correctamente");
-                          } catch (err) {
-                            console.error("Error guardando registro:", err);
-                            alert("Error al guardar registro");
-                          }
-                        }} 
-                        className="px-3 py-1 bg-green-500 text-white rounded cursor-pointer hover:bg-green-600 mr-2" 
-                        title="Guardar"
-                      >
-                        <FaCheck />
-                      </button>
-                      <button 
-                        onClick={() => {
-                          setEditingRows(prev => {
-                            const newEditing = { ...prev };
-                            delete newEditing[idx];
-                            return newEditing;
-                          });
-                          setEditedRows(prev => {
-                            const newEdited = { ...prev };
-                            delete newEdited[idx];
-                            return newEdited;
-                          });
-                        }} 
-                        className="px-3 py-1 bg-gray-500 text-white rounded cursor-pointer hover:bg-gray-600" 
-                        title="Cancelar"
-                      >
-                        <FaTimes />
-                      </button>
-                    </>
-                  ) : (
-                    <>
-                      <button 
-                        onClick={() => setEditingRows(prev => ({...prev, [idx]: true}))} 
-                        className="px-3 py-1 bg-blue-500 text-white rounded cursor-pointer hover:bg-blue-600 mr-2" 
-                        title="Editar"
-                      >
-                        <FaEdit />
-                      </button>
-                      <button 
-                        onClick={async () => {
-                          if (confirm("¿Está seguro de que desea eliminar este registro?")) {
-                            try {
-                              // Si tiene ID numérico, eliminar del backend
-                              if (r.id && /^\d+$/.test(String(r.id))) {
-                                await deleteControlRow(r.id);
-                              }
-                              // Eliminar de la UI
-                              setRows(prev => prev.filter((_, i) => i !== idx));
-                              setFilteredRows(prev => prev.filter((_, i) => i !== idx));
-                              setEditedRows(prev => {
-                                const newEdited = { ...prev };
-                                delete newEdited[idx];
-                                return newEdited;
-                              });
-                              setEditingRows(prev => {
-                                const newEditing = { ...prev };
-                                delete newEditing[idx];
-                                return newEditing;
-                              });
-                              alert("Registro eliminado correctamente");
-                            } catch (err) {
-                              console.error("Error eliminando registro:", err);
-                              alert("Error al eliminar registro");
-                            }
-                          }
-                        }} 
-                        className="px-3 py-1 bg-red-500 text-white rounded cursor-pointer hover:bg-red-600" 
-                        title="Eliminar"
-                      >
-                        <FaTrash />
-                      </button>
-                    </>
-                  )}
+                  <button onClick={() => setEditingRows(prev => ({...prev, [idx]: !prev[idx]}))} className="px-3 py-1 border rounded cursor-pointer">{isEditing ? "Terminar" : "Editar"}</button>
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap min-w-[240px]">
                   {(() => {

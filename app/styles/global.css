@@ -215,7 +215,7 @@ table thead th {
 }
 
 /* Headers principales (primera fila) */
-.tabla-presupuesto-header tr:first-child th {
+.tabla-compuesta-header tr:first-child th {
   position: sticky;
   top: 0;
   z-index: 12;
@@ -224,7 +224,7 @@ table thead th {
 }
 
 /* Subheaders (segunda fila) */
-.tabla-presupuesto-header tr:last-child th {
+.tabla-compuesta-header tr:last-child th {
   position: sticky;
   top: 58px; /* Altura aproximada del header principal */
   z-index: 11;
@@ -232,9 +232,133 @@ table thead th {
   color: var(--light-text);
 }
 
+/* Headers fijos específicos para tabla-plan-trabajo */
+.tabla-plan-trabajo-header th {
+  position: sticky;
+  top: 0;
+  background: var(--bright-red);
+  z-index: 10;
+  color: var(--light-text);
+}
+
+/* Headers principales (primera fila) para tabla-plan-trabajo */
+.tabla-plan-trabajo-header tr:first-child th {
+  position: sticky;
+  top: 0;
+  z-index: 12;
+  background: var(--bright-red);
+  color: var(--light-text);
+}
+
+/* Subheaders (segunda fila) para tabla-plan-trabajo */
+.tabla-plan-trabajo-header tr:nth-child(2) th {
+  position: sticky;
+  top: 57px; /* Altura aproximada del header principal */
+  z-index: 11;
+  background: var(--bright-red);
+  color: var(--light-text);
+}
+
+/* Subheaders (tercera fila) para tabla-plan-trabajo */
+.tabla-plan-trabajo-header tr:last-child th {
+  position: sticky;
+  top: 89px; /* Altura aproximada de las dos filas anteriores */
+  z-index: 10;
+  background: var(--bright-red);
+  color: var(--light-text);
+}
+
+/* Headers fijos específicos para tabla-programa */
+.tabla-programa-header th {
+  position: sticky;
+  top: 0;
+  background: var(--bright-red);
+  z-index: 10;
+  color: var(--light-text);
+}
+
+/* Headers principales (primera fila) para tabla-programa */
+.tabla-programa-header tr:first-child th {
+  position: sticky;
+  top: 0;
+  z-index: 12;
+  background: var(--bright-red);
+  color: var(--light-text);
+}
+
+/* Subheaders (segunda fila) para tabla-programa */
+.tabla-programa-header tr:nth-child(2) th {
+  position: sticky;
+  top: 57px; /* Altura aproximada del header principal */
+  z-index: 11;
+  background: var(--bright-red);
+  color: var(--light-text);
+}
+
+/* Subheaders (tercera fila) para tabla-programa */
+.tabla-programa-header tr:last-child th {
+  position: sticky;
+  top: 89px; /* Altura aproximada de las dos filas anteriores */
+  z-index: 10;
+  background: var(--bright-red);
+  color: var(--light-text);
+}
+
 .login-header {
   background-color: var(--dark-red);
   color: var(--light-text);
+}
+
+/* Estilos unificados para botones, inputs y dropdowns */
+.unified-button {
+  background-color: white;
+  border: 2px solid var(--bright-red);
+  padding: 10px 20px;
+  border-radius: 25px;
+  color: var(--bright-red);
+  box-shadow: 4px 4px 10px rgb(162 157 157);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.unified-button:hover {
+  background-color: var(--bright-red);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 6px 6px 15px rgb(162 157 157);
+}
+
+.unified-input {
+  background-color: white;
+  border: 2px solid var(--bright-red);
+  padding: 10px 20px;
+  border-radius: 25px;
+  color: var(--bright-red);
+  box-shadow: 4px 4px 10px rgb(162 157 157);
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+.unified-input:focus {
+  border-color: var(--dark-red);
+  box-shadow: 6px 6px 15px rgb(162 157 157);
+}
+
+.unified-select {
+  background-color: white;
+  border: 2px solid var(--bright-red);
+  padding: 10px 20px;
+  border-radius: 25px;
+  color: var(--bright-red);
+  box-shadow: 4px 4px 10px rgb(162 157 157);
+  outline: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.unified-select:focus {
+  border-color: var(--dark-red);
+  box-shadow: 6px 6px 15px rgb(162 157 157);
 }
 
 .form-field {

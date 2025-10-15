@@ -1,13 +1,12 @@
 "use client";
 import { useEffect, useState } from "react";
 import {
-  listAnalisisExplicativo,
-  saveAnalisisExplicativo,
-  deleteAnalisisExplicativo,
-} from "../../services/modulo-financiero/analisisExplicativo";
+  listCategoriesQuota,
+  saveCategoryQuota,
+} from "../../services/modulo-financiero/categoriesQuota";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
-import { FaRegSave, FaFileDownload, FaEdit, FaTrash, FaCheck, FaTimes } from "react-icons/fa";
+import { FaRegSave, FaFileDownload } from "react-icons/fa";
 import { IoSearch } from "react-icons/io5";
 
 const initialRows = [
@@ -233,9 +232,6 @@ export default function CategoriasTable() {
   const [rows, setRows] = useState(initialRows);
   const [filteredRows, setFilteredRows] = useState(initialRows);
   const [editedRows, setEditedRows] = useState({});
-  const [editingRows, setEditingRows] = useState({});
-  const [statusMsg, setStatusMsg] = useState("");
-  const [statusType, setStatusType] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
@@ -243,21 +239,15 @@ export default function CategoriasTable() {
   const [selectedYear, setSelectedYear] = useState();
   const [selectedMonth, setSelectedMonth] = useState();
 
-  async function loadData() {
+  /*async function loadData() {
     setLoading(true);
     try {
-      const data = await listAnalisisExplicativo({ limit: 900 });
+      const data = await listCategoriesQuota({ limit: 900 });
 
-      // Sort by anio and mes (most recent first)
-      const sorted = [...data].sort((a, b) => {
-        // Sort by year first (descending), then by month (descending)
-        if (a.anio !== b.anio) return b.anio - a.anio;
-        const monthOrder = [
-          "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
-          "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
-        ];
-        return monthOrder.indexOf(b.mes) - monthOrder.indexOf(a.mes);
-      });
+      // Sort by codigo numerically
+      const sorted = [...data].sort(
+        (a, b) => Number(a.codigo) - Number(b.codigo)
+      );
 
       setRows(sorted);
       setFilteredRows(sorted);
@@ -272,6 +262,7 @@ export default function CategoriasTable() {
   useEffect(() => {
     loadData();
   }, []);
+  */
 
   // Live search (reactive as you type)
   useEffect(() => {
@@ -292,7 +283,7 @@ export default function CategoriasTable() {
         return matchesSearch && matchesYear && matchesMonth;
       })
       .sort((a, b) => {
-        // Sort by year first (descending), then by month (descending)
+        // Sort by year first (descending), then by month (descending) to show most recent first
         if (a.anio !== b.anio) return b.anio - a.anio;
         const monthOrder = [
           "Enero",
@@ -314,6 +305,42 @@ export default function CategoriasTable() {
     setFilteredRows(filtered);
   }, [search, rows, selectedYear, selectedMonth]);
 
+  /*
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      const updates = Object.entries(editedRows).map(async ([id, changes]) => {
+        // id es string; no lo conviertas a número
+        const fullRow = rows.find(r => String(r.id) === String(id));
+        if (!fullRow) return; // nada que guardar
+
+        const payload = {
+          codigo: fullRow.codigo,
+          anio: Number(fullRow.anio),
+          mes: Number(fullRow.mes),
+          nombre: (changes.nombre ?? fullRow.nombre) || undefined,
+          // No enviar fecha si no se edita explícitamente en formato ISO (YYYY-MM-DD)
+          // fecha: (changes.fecha ?? fullRow.fecha) || undefined,
+          asociados: Number(changes.asociados ?? fullRow.asociados),
+          entidades: Number(changes.entidades ?? fullRow.entidades),
+          poblacion: Number(changes.poblacion ?? fullRow.poblacion),
+        };
+
+        await saveCategoryQuota(payload);
+      });
+
+      await Promise.all(updates);
+      alert("Cambios guardados correctamente");
+      setEditedRows({});
+      await loadData();
+    } catch (err) {
+      console.error(err);
+      alert(err.message || "Error guardando cambios");
+    } finally {
+      setSaving(false);
+    }
+  };
+
   if (loading) {
     return <div className="p-12 text-center">Cargando datos...</div>;
   }
@@ -321,6 +348,7 @@ export default function CategoriasTable() {
   if (error) {
     return <div className="p-12 text-center text-red-500">{error}</div>;
   }
+    */
 
   const handleDownload = () => {
     const worksheet = XLSX.utils.json_to_sheet(filteredRows);
@@ -390,129 +418,18 @@ export default function CategoriasTable() {
     }));
   };
 
-  const handleAddRow = () => {
-    const newId = `new_${Date.now()}`;
-    const newRow = {
-      id: newId,
-      anio: 2025,
-      mes: "Enero",
-      categoria: "",
-      subcategoria: "",
-      descripcion: "",
-      isNew: true,
-      created_at: new Date().toISOString() // Timestamp para indicador visual
-    };
-    
-    setRows(prev => [newRow, ...prev]);
-    setFilteredRows(prev => [newRow, ...prev]);
-    setEditingRows(prev => ({ ...prev, [newId]: true }));
-    setEditedRows(prev => ({ ...prev, [newId]: {} }));
-  };
-
   const handleSave = async () => {
     setSaving(true);
-    setStatusMsg("");
-    setStatusType("");
-    
     try {
-      const updates = [];
-      
-      console.log("=== DEBUG handleSave ===");
-      console.log("editedRows:", editedRows);
-      console.log("editingRows:", editingRows);
-      console.log("rows:", rows);
-      
-      // Procesar todas las filas que están siendo editadas (excluyendo las nuevas)
-      Object.entries(editedRows).forEach(([id, changes]) => {
-        const fullRow = rows.find(r => String(r.id) === String(id));
-        if (!fullRow || fullRow.isNew) return; // Saltar filas nuevas
-
-        const payload = {
-          anio: Number(fullRow.anio),
-          mes: fullRow.mes,
-          categoria: fullRow.categoria,
-          subcategoria: fullRow.subcategoria,
-          descripcion: (changes.descripcion ?? fullRow.descripcion) || "",
-        };
-
-        console.log("Procesando fila editada:", id, payload);
-        updates.push(saveAnalisisExplicativo(payload));
-      });
-
-      // Procesar filas nuevas que están en editingRows
-      Object.keys(editingRows).forEach(id => {
-        const fullRow = rows.find(r => String(r.id) === String(id));
-        if (fullRow && fullRow.isNew) {
-          // Si la fila nueva ya está en editedRows, usar esos cambios
-          const changes = editedRows[id] || {};
-          const payload = {
-            anio: Number(changes.anio ?? fullRow.anio),
-            mes: changes.mes ?? fullRow.mes,
-            categoria: changes.categoria ?? fullRow.categoria,
-            subcategoria: changes.subcategoria ?? fullRow.subcategoria,
-            descripcion: (changes.descripcion ?? fullRow.descripcion) || "",
-          };
-
-          // Validar que todos los campos requeridos estén llenos
-          if (!payload.anio || !payload.mes || !payload.categoria || !payload.subcategoria) {
-            console.log("Fila nueva con campos faltantes:", id, payload);
-            setStatusMsg("Por favor complete todos los campos requeridos (Año, Mes, Categoría, Subcategoría)");
-            setStatusType("error");
-            return;
-          }
-
-          console.log("Procesando fila nueva:", id, payload);
-          updates.push(saveAnalisisExplicativo(payload));
-        }
-      });
-
-      console.log("Total updates:", updates.length);
-
-      if (updates.length === 0) {
-        setStatusMsg("No hay cambios para guardar");
-        setStatusType("info");
-        return;
-      }
-
-      await Promise.all(updates);
-      setStatusMsg("Cambios guardados correctamente");
-      setStatusType("success");
+      // Here you would typically save to backend
+      console.log("Saving edits:", editedRows);
+      alert("Cambios guardados correctamente");
       setEditedRows({});
-      setEditingRows({});
-      await loadData();
     } catch (err) {
       console.error(err);
-      setStatusMsg(err.message || "Error guardando cambios");
-      setStatusType("error");
+      alert(err.message || "Error guardando cambios");
     } finally {
       setSaving(false);
-    }
-  };
-
-  const handleDelete = async (id, categoria, subcategoria) => {
-    // Primera confirmación
-    const firstConfirm = window.confirm(
-      `¿Está seguro que desea eliminar el análisis de "${categoria} - ${subcategoria}"?`
-    );
-    
-    if (!firstConfirm) return;
-    
-    // Segunda confirmación
-    const secondConfirm = window.confirm(
-      `⚠️ ADVERTENCIA: Esta acción no se puede deshacer.\n\n¿Confirma que desea ELIMINAR permanentemente este análisis?`
-    );
-    
-    if (!secondConfirm) return;
-    
-    try {
-      await deleteAnalisisExplicativo(id);
-      setStatusMsg("Análisis eliminado correctamente");
-      setStatusType("success");
-      await loadData();
-    } catch (err) {
-      console.error(err);
-      setStatusMsg(err.message || "Error eliminando análisis");
-      setStatusType("error");
     }
   };
 
@@ -522,27 +439,18 @@ export default function CategoriasTable() {
         Análisis Explicativo
       </h1>
       <div className="actions-container flex justify-between mb-4">
-        {statusMsg && (
-          <div className={`px-4 py-2 rounded text-sm ${
-            statusType === 'success' ? 'bg-green-100 text-green-800' : 
-            statusType === 'error' ? 'bg-red-100 text-red-800' : 
-            'bg-yellow-100 text-yellow-800'
-          }`}>
-            {statusMsg}
-          </div>
-        )}
         <div className="search-bar flex gap-2">
           <input
             type="text"
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Buscar por categoría, subcategoría o descripción"
-            className="border w-[300px] px-2 py-1"
+            className="unified-input w-[300px]"
           />
           <select
             value={selectedYear}
             onChange={e => setSelectedYear(e.target.value)}
-            className="border-2 border-red-700 text-red-700 px-2 py-1"
+            className="unified-select"
           >
             <option value="">Todos los años</option>
             {uniqueYears.map(y => (
@@ -565,23 +473,17 @@ export default function CategoriasTable() {
           </select>
         </div>
         <div className="flex gap-4">
-          <button
-            onClick={handleAddRow}
-            className="action-button flex gap-2 items-center justify-center cursor-pointer"
-          >
-            Añadir fila
-          </button>
           {Object.keys(editedRows).length > 0 && (
             <button
               onClick={handleSave}
-              className="action-button flex gap-2 items-center justify-center cursor-pointer"
+              className="unified-button flex gap-2 items-center justify-center"
             >
               Guardar cambios
               <FaRegSave />
             </button>
           )}
           <button
-            className="action-button flex gap-2 items-center justify-center cursor-pointer"
+            className="unified-button flex gap-2 items-center justify-center"
             onClick={handleDownload}
           >
             Descargar
@@ -592,7 +494,7 @@ export default function CategoriasTable() {
 
       <div className="overflow-x-auto max-w-full table-container h-[65vh]">
         <table className="table-auto border-collapse w-full">
-          <thead className="tabla-header">
+          <thead className="tabla-cupos-header">
             <tr>
               <th className="p-4 border text-center whitespace-nowrap ">AÑO</th>
               <th className="p-4 border text-center whitespace-nowrap ">MES</th>
@@ -605,234 +507,85 @@ export default function CategoriasTable() {
               <th className="p-4 border text-center whitespace-nowrap ">
                 TEXTO: ANÁLISIS EXPLICATIVO
               </th>
-              <th className="p-4 border text-center whitespace-nowrap ">
-                ACCIONES
-              </th>
             </tr>
           </thead>
           <tbody className="tabla-cupos-content p-4">
-            {filteredRows.map(row => {
-              const isEditing = editingRows[row.id] || row.isNew;
-              const isRecentlyCreated = row.isNew; // Solo para filas realmente nuevas
-              return (
-                <tr key={row.id} className={isRecentlyCreated ? "bg-green-50" : ""}>
-                  <td className="p-4 border text-center">
-                    <div className="flex items-center justify-center gap-2">
-                      {isRecentlyCreated && (
-                        <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
-                          NUEVO
-                        </span>
-                      )}
-                      {isEditing ? (
-                        <select
-                          value={row.anio || ""}
-                          onChange={e =>
-                            handleChange(row.id, "anio", parseInt(e.target.value))
-                          }
-                          className="w-full px-2 py-1 border rounded"
-                        >
-                          <option value="">Seleccionar año</option>
-                          {yearOptions.map(year => (
-                            <option key={year} value={year}>
-                              {year}
-                            </option>
-                          ))}
-                        </select>
-                      ) : (
-                        row.anio
-                      )}
-                    </div>
-                  </td>
-                  <td className="p-4 border text-center">
-                    {isEditing ? (
-                      <select
-                        value={row.mes || ""}
-                        onChange={e => handleChange(row.id, "mes", e.target.value)}
-                        className="w-full px-2 py-1 border rounded"
-                      >
-                        <option value="">Seleccionar mes</option>
-                        {monthNames.map(month => (
-                          <option key={month} value={month}>
-                            {month}
-                          </option>
-                        ))}
-                      </select>
-                    ) : (
-                      row.mes
-                    )}
-                  </td>
-                  <td className="p-4 border text-center">
-                    {isEditing ? (
-                      <select
-                        value={row.categoria || ""}
-                        onChange={e =>
-                          handleChange(row.id, "categoria", e.target.value)
-                        }
-                        className="w-full px-2 py-1 border rounded"
-                      >
-                        <option value="">Seleccionar panel</option>
-                        {panelOptions.map(panel => (
-                          <option key={panel} value={panel}>
-                            {panel}
-                          </option>
-                        ))}
-                      </select>
-                    ) : (
-                      row.categoria
-                    )}
-                  </td>
-                  <td className="p-4 border text-center">
-                    {isEditing ? (
-                      <select
-                        value={row.subcategoria || ""}
-                        onChange={e =>
-                          handleChange(row.id, "subcategoria", e.target.value)
-                        }
-                        className="w-full px-2 py-1 border rounded"
-                      >
-                        <option value="">Seleccionar título</option>
-                        {titleOptions.map(title => (
-                          <option key={title} value={title}>
-                            {title}
-                          </option>
-                        ))}
-                      </select>
-                    ) : (
-                      row.subcategoria
-                    )}
-                  </td>
-                  <td className="p-4 border text-left max-w-md">
-                    {isEditing ? (
-                      <textarea
-                        value={row.descripcion || ""}
-                        onChange={e =>
-                          handleChange(row.id, "descripcion", e.target.value)
-                        }
-                        className="w-full px-2 py-1 border rounded min-h-[100px]"
-                        rows={4}
-                      />
-                    ) : (
-                      <div className="max-h-[100px] overflow-y-auto">
-                        {row.descripcion}
-                      </div>
-                    )}
-                  </td>
-                  <td className="p-2 border text-center whitespace-nowrap">
-                    <div className="flex gap-2 justify-center">
-                      {isEditing ? (
-                        <>
-                          <button
-                            onClick={async () => {
-                              try {
-                                if (row.isNew) {
-                                  // Para filas nuevas, validar campos requeridos
-                                  const changes = editedRows[row.id] || {};
-                                  const payload = {
-                                    anio: Number(changes.anio ?? row.anio),
-                                    mes: changes.mes ?? row.mes,
-                                    categoria: changes.categoria ?? row.categoria,
-                                    subcategoria: changes.subcategoria ?? row.subcategoria,
-                                    descripcion: (changes.descripcion ?? row.descripcion) || "",
-                                  };
-
-                                  if (!payload.anio || !payload.mes || !payload.categoria || !payload.subcategoria) {
-                                    setStatusMsg("Por favor complete todos los campos requeridos (Año, Mes, Categoría, Subcategoría)");
-                                    setStatusType("error");
-                                    return;
-                                  }
-
-                                  await saveAnalisisExplicativo(payload);
-                                  setStatusMsg("Análisis guardado correctamente");
-                                  setStatusType("success");
-                                  await loadData(); // Recargar datos para obtener el ID real
-                                } else {
-                                  // Para filas existentes, guardar cambios
-                                  const changes = editedRows[row.id] || {};
-                                  const payload = {
-                                    anio: Number(row.anio),
-                                    mes: row.mes,
-                                    categoria: row.categoria,
-                                    subcategoria: row.subcategoria,
-                                    descripcion: (changes.descripcion ?? row.descripcion) || "",
-                                  };
-
-                                  await saveAnalisisExplicativo(payload);
-                                  setStatusMsg("Cambios guardados correctamente");
-                                  setStatusType("success");
-                                  await loadData();
-                                }
-
-                                // Salir del modo de edición
-                                setEditingRows(prev => {
-                                  const newState = { ...prev };
-                                  delete newState[row.id];
-                                  return newState;
-                                });
-                                setEditedRows(prev => {
-                                  const newState = { ...prev };
-                                  delete newState[row.id];
-                                  return newState;
-                                });
-                              } catch (err) {
-                                console.error(err);
-                                setStatusMsg(err.message || "Error guardando cambios");
-                                setStatusType("error");
-                              }
-                            }}
-                            className="px-3 py-1 bg-green-500 text-white rounded cursor-pointer hover:bg-green-600"
-                            title="Guardar"
-                          >
-                            <FaCheck />
-                          </button>
-                          <button
-                            onClick={() => {
-                              if (row.isNew) {
-                                // Si es nueva y se cancela, eliminar la fila
-                                setRows(prev => prev.filter(r => r.id !== row.id));
-                                setFilteredRows(prev => prev.filter(r => r.id !== row.id));
-                              }
-                              setEditingRows(prev => {
-                                const newState = { ...prev };
-                                delete newState[row.id];
-                                return newState;
-                              });
-                              setEditedRows(prev => {
-                                const newState = { ...prev };
-                                delete newState[row.id];
-                                return newState;
-                              });
-                            }}
-                            className="px-3 py-1 bg-gray-500 text-white rounded cursor-pointer hover:bg-gray-600"
-                            title="Cancelar"
-                          >
-                            <FaTimes />
-                          </button>
-                        </>
-                      ) : (
-                        <>
-                          <button
-                            onClick={() => setEditingRows(prev => ({ ...prev, [row.id]: true }))}
-                            className="px-3 py-1 bg-blue-500 text-white rounded cursor-pointer hover:bg-blue-600"
-                            title="Editar"
-                          >
-                            <FaEdit />
-                          </button>
-                          {!row.isNew && (
-                            <button
-                              onClick={() => handleDelete(row.id, row.categoria, row.subcategoria)}
-                              className="px-3 py-1 bg-red-500 text-white rounded cursor-pointer hover:bg-red-600"
-                              title="Eliminar análisis"
-                            >
-                              <FaTrash />
-                            </button>
-                          )}
-                        </>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              );
-            })}
+            {filteredRows.map(row => (
+              <tr key={row.id}>
+                <td className="p-4 border text-center">
+                  <select
+                    value={row.anio || ""}
+                    onChange={e =>
+                      handleChange(row.id, "anio", parseInt(e.target.value))
+                    }
+                    className="w-full px-2 py-1 border rounded"
+                  >
+                    <option value="">Seleccionar año</option>
+                    {yearOptions.map(year => (
+                      <option key={year} value={year}>
+                        {year}
+                      </option>
+                    ))}
+                  </select>
+                </td>
+                <td className="p-4 border text-center">
+                  <select
+                    value={row.mes || ""}
+                    onChange={e => handleChange(row.id, "mes", e.target.value)}
+                    className="w-full px-2 py-1 border rounded"
+                  >
+                    <option value="">Seleccionar mes</option>
+                    {monthNames.map(month => (
+                      <option key={month} value={month}>
+                        {month}
+                      </option>
+                    ))}
+                  </select>
+                </td>
+                <td className="p-4 border text-center">
+                  <select
+                    value={row.categoria || ""}
+                    onChange={e =>
+                      handleChange(row.id, "categoria", e.target.value)
+                    }
+                    className="w-full px-2 py-1 border rounded"
+                  >
+                    <option value="">Seleccionar panel</option>
+                    {panelOptions.map(panel => (
+                      <option key={panel} value={panel}>
+                        {panel}
+                      </option>
+                    ))}
+                  </select>
+                </td>
+                <td className="p-4 border text-center">
+                  <select
+                    value={row.subcategoria || ""}
+                    onChange={e =>
+                      handleChange(row.id, "subcategoria", e.target.value)
+                    }
+                    className="w-full px-2 py-1 border rounded"
+                  >
+                    <option value="">Seleccionar título</option>
+                    {titleOptions.map(title => (
+                      <option key={title} value={title}>
+                        {title}
+                      </option>
+                    ))}
+                  </select>
+                </td>
+                <td className="p-4 border text-left max-w-md">
+                  <textarea
+                    value={row.descripcion || ""}
+                    onChange={e =>
+                      handleChange(row.id, "descripcion", e.target.value)
+                    }
+                    className="w-full px-2 py-1 border rounded min-h-[100px]"
+                    rows={4}
+                  />
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>
