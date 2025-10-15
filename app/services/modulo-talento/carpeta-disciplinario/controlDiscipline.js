@@ -3,6 +3,7 @@ import {
   getControlDisciplinarioBy as getByRaw,
   saveControlDisciplinario as saveRaw,
   updateControlDisciplinario as updateRaw,
+  deleteControlDisciplinario as deleteRaw,
   listEmpleados as listEmpleadosRaw,
 } from "../carpeta-disciplinario/talentDisciplineService";
 
@@ -24,6 +25,10 @@ export async function saveControlRow(uiRow = {}) {
     return await updateRaw(body);
   }
   return await saveRaw(body);
+}
+
+export async function deleteControlRow(id) {
+  return await deleteRaw(id);
 }
 
 export async function listEmpleadosByOficina(oficinaNombre, cargoNombre) {

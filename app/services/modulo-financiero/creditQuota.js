@@ -21,6 +21,28 @@ export async function saveCreditQuota(payload) {
   return r;
 }
 
+// Función para eliminar cupo de crédito
+export async function deleteCreditQuota(id) {
+  try {
+    const response = await fetch(`/api/v1/finanzas/cupos/${id}/`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Token ${localStorage.getItem('authToken')}`,
+        'Content-Type': 'application/json',
+      },
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Error ${response.status}: ${response.statusText}`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error("Error al eliminar cupo de crédito:", error);
+    throw error;
+  }
+}
+
 function mapCreditRow(r) {
   const asignado = num(r.cupo_asignado ?? r.assigned_amount);
   const ejecutado = num(r.cupo_ejecutado ?? r.executed_amount);
@@ -31,7 +53,7 @@ function mapCreditRow(r) {
     r.utilizacion ??
       r.utilizacion_pct ??
       r.porcentaje_utilizacion ??
-      (asignado ? (ejecutado / asignado) * 100 : 0)
+      0
   );
 
   return {
@@ -48,19 +70,21 @@ function mapCreditRow(r) {
     plazo: str(
       r.plazo ?? (r.plazo_meses ? `${r.plazo_meses} meses` : "") ?? r.term ?? ""
     ),
-    tasa: num(r.tasa ?? r.tasa_pct),
+    tasa: str(r.tasa ?? r.tasa_pct),
   };
 }
 
 function num(v) {
   if (v == null) return 0;
-  const n = Number(String(v).replace(/\./g, "").replace(/,/g, "."));
+  // Solo remover comas, no puntos (para preservar decimales)
+  const n = Number(String(v).replace(/,/g, ""));
   return Number.isFinite(n) ? n : 0;
 }
 
 function percent(v) {
   const n = num(v);
-  return n <= 1 ? Math.round(n * 100) : Math.round(n);
+  // El valor ya viene formateado de la base de datos
+  return n;
 }
 
 function str(v) {

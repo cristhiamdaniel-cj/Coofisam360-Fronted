@@ -4,6 +4,30 @@ import {
   saveCategory as saveCategoryRaw,
 } from "../modulo-financiero/financialService";
 
+// Función para obtener oficinas disponibles
+export async function getOficinasDisponibles() {
+  try {
+    const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:8060";
+    const response = await fetch(`${API_BASE_URL}/api/v1/finanzas/oficinas-disponibles/`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Token ${localStorage.getItem('authToken')}`,
+        'Content-Type': 'application/json',
+      },
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Error ${response.status}: ${response.statusText}`);
+    }
+    
+    const data = await response.json();
+    return data.oficinas || [];
+  } catch (error) {
+    console.error("Error al obtener oficinas disponibles:", error);
+    throw error;
+  }
+}
+
 export async function listCategoriesQuota(params = {}) {
   const raw = await listCategoriesRaw(params);
   const rows = Array.isArray(raw) ? raw : raw?.items || raw?.data || [];
@@ -17,6 +41,29 @@ export async function getCategoryQuota(id, params = {}) {
 
 export async function saveCategoryQuota(payload) {
   return await saveCategoryRaw(payload);
+}
+
+// Función para eliminar categoría de oficina
+export async function deleteCategoryQuota(codigo, anio, mes) {
+  try {
+    const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:8060";
+    const response = await fetch(`${API_BASE_URL}/api/v1/finanzas/oficinas/${codigo}/?year=${anio}&month=${mes}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Token ${localStorage.getItem('authToken')}`,
+        'Content-Type': 'application/json',
+      },
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Error ${response.status}: ${response.statusText}`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error("Error al eliminar categoría de oficina:", error);
+    throw error;
+  }
 }
 
 function mapCategoryRow(r) {

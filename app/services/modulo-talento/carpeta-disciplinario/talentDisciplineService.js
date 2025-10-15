@@ -32,6 +32,13 @@ export async function updateControlDisciplinario(payload = {}) {
   return data;
 }
 
+export async function deleteControlDisciplinario(id) {
+  const { data } = await api.delete(
+    `/api/v1/talento/control-disciplinario/${id}/`
+  );
+  return data;
+}
+
 /* ========= EMPLEADOS (por oficina) ========= */
 
 export async function listEmpleados(params = {}) {

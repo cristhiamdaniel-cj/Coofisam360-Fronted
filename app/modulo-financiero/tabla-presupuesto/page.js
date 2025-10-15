@@ -1,275 +1,88 @@
 "use client";
 import { useEffect, useState } from "react";
 import {
-  listCategoriesQuota,
-  saveCategoryQuota,
-} from "../../services/modulo-financiero/categoriesQuota";
+  listPresupuesto,
+  listPresupuestoCompleto,
+  savePresupuesto,
+  savePresupuestoCompleto,
+  deletePresupuesto,
+  formatNumber,
+  formatPercentage,
+  parseNumber,
+  getCuentasDisponibles,
+} from "../../services/modulo-financiero/presupuesto";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
-import { FaRegSave, FaFileDownload } from "react-icons/fa";
+import { FaRegSave, FaFileDownload, FaPlus, FaEdit, FaTrash, FaCheck, FaTimes } from "react-icons/fa";
 import { IoSearch } from "react-icons/io5";
 
-const initialRows = [
-  {
-    codigo: "1",
-    nombre: "ACTIVO",
-    valorAnterior: 220342007644,
-    valorActual: 245897984209,
-  },
-  {
-    codigo: "11",
-    nombre: "EFECTIVO Y EQUIVALENTE AL EFECTIVO",
-    valorAnterior: 33608702242,
-    valorActual: 31024411867,
-  },
-  {
-    codigo: "1105",
-    nombre: "CAJA",
-    valorAnterior: 7013409950,
-    valorActual: 7530682598,
-  },
-  {
-    codigo: "110505",
-    nombre: "CAJA GENERAL",
-    valorAnterior: 7000692677,
-    valorActual: 7530682598,
-  },
-  {
-    codigo: "110510",
-    nombre: "CAJA MENOR",
-    valorAnterior: 12717273,
-    valorActual: 0,
-  },
-  {
-    codigo: "1110",
-    nombre: "BANCOS Y OTRAS ENTIDADES CON ACTIVIDAD FINANCIERA",
-    valorAnterior: 24166833885,
-    valorActual: 14608262200,
-  },
-  {
-    codigo: "111005",
-    nombre: "BANCOS COMERCIALES",
-    valorAnterior: 15186233294,
-    valorActual: 12350471621,
-  },
-  {
-    codigo: "111010",
-    nombre: "BANCOS COOPERATIVOS",
-    valorAnterior: 8980600591,
-    valorActual: 2257790579,
-  },
-  {
-    codigo: "1115",
-    nombre: "EQUIVALENTES AL EFECTIVO (compromiso de pago)",
-    valorAnterior: 2428458407,
-    valorActual: 720533035,
-  },
-  {
-    codigo: "111515",
-    nombre: "FONDOS FIDUCIARIOS A LA VISTA",
-    valorAnterior: 2428458407,
-    valorActual: 720533035,
-  },
-  {
-    codigo: "1120",
-    nombre: "EFECTIVO DE USO RESTRINGIDO Y/O CON DESTINACIÓN ESPECÍFICA",
-    valorAnterior: 0,
-    valorActual: 8164934034,
-  },
-  {
-    codigo: "112005",
-    nombre: "FONDO DE LIQUIDEZ - CUENTAS DE AHORRO",
-    valorAnterior: 0,
-    valorActual: 8164934034,
-  },
-  {
-    codigo: "12",
-    nombre: "INVERSIONES",
-    valorAnterior: 31307973362,
-    valorActual: 36405650608,
-  },
-  {
-    codigo: "1203",
-    nombre: "FONDO DE LIQUIDEZ",
-    valorAnterior: 0,
-    valorActual: 9278952205,
-  },
-  {
-    codigo: "120305",
-    nombre: "FONDO DE LIQUIDEZ - CERTIFICADOS DE DEPÓSITO A TÉRMINO - CDT",
-    valorAnterior: 0,
-    valorActual: 9278952205,
-  },
-  {
-    codigo: "1220",
-    nombre: "INVERSIONES EN ENTIDADES ASOCIADAS",
-    valorAnterior: 0,
-    valorActual: 247000000,
-  },
-  {
-    codigo: "122001",
-    nombre: "INVERSIONES CONTABILIZADAS AL COSTO",
-    valorAnterior: 0,
-    valorActual: 247000000,
-  },
-  {
-    codigo: "1226",
-    nombre: "OTRAS INVERSIONES EN INSTRUMENTOS DE PATRIMONIO",
-    valorAnterior: 8240711718,
-    valorActual: 1093141384,
-  },
-  {
-    codigo: "122602",
-    nombre: "APORTES SOCIALES EN ENTIDADES ECONOMÍA SOLIDARIA",
-    valorAnterior: 8240711718,
-    valorActual: 1093141384,
-  },
-  {
-    codigo: "1228",
-    nombre: "INVERSIONES CONTABILIZADAS A COSTO AMORTIZADO",
-    valorAnterior: 23067261644,
-    valorActual: 25786557019,
-  },
-  {
-    codigo: "122811",
-    nombre:
-      "TÍTULOS EMITIDOS AVALADOS ACEPTADOS O GARANTIZADOS POR INSTITUCIONES VIGILADAS POR LA SUPERINTENDENCIA FINANCIERA (INCLUIDOS LOS BONOS OBLIGATORIA U OPCIONALMENTE CONVERTIBLES EN ACCIONES)",
-    valorAnterior: 23051200245,
-    valorActual: 25786557019,
-  },
-  {
-    codigo: "122895",
-    nombre: "OTROS TÍTULOS",
-    valorAnterior: 16061399,
-    valorActual: 0,
-  },
-  {
-    codigo: "14",
-    nombre: "CARTERA DE CRÉDITOS",
-    valorAnterior: 145372293807,
-    valorActual: 167755661823,
-  },
-  {
-    codigo: "1404",
-    nombre: "CRÉDITOS DE VIVIENDA - CON LIBRANZA",
-    valorAnterior: 76706744,
-    valorActual: 77575007,
-  },
-  {
-    codigo: "140405",
-    nombre: "CATEGORÍA A RIESGO NORMAL",
-    valorAnterior: 76706744,
-    valorActual: 77575007,
-  },
-  {
-    codigo: "1405",
-    nombre: "CRÉDITOS DE VIVIENDA - SIN LIBRANZA",
-    valorAnterior: 3398553120,
-    valorActual: 3394362783,
-  },
-  {
-    codigo: "140505",
-    nombre: "CATEGORÍA A RIESGO NORMAL",
-    valorAnterior: 3282817343,
-    valorActual: 3256962444,
-  },
-  {
-    codigo: "140510",
-    nombre: "CATEGORÍA B RIESGO ACEPTABLE",
-    valorAnterior: 53190115,
-    valorActual: 37957138,
-  },
-  {
-    codigo: "140515",
-    nombre: "CATEGORÍA C RIESGO APRECIABLE",
-    valorAnterior: 0,
-    valorActual: 65463710,
-  },
-  {
-    codigo: "140520",
-    nombre: "CATEGORÍA D RIESGO SIGNIFICATIVO",
-    valorAnterior: 0,
-    valorActual: 23768741,
-  },
-  {
-    codigo: "140525",
-    nombre: "CATEGORÍA E RIESGO DE INCOBRABILIDAD",
-    valorAnterior: 62545661,
-    valorActual: 10210750,
-  },
-  {
-    codigo: "1406",
-    nombre: "INTERESES CRÉDITOS DE VIVIENDA",
-    valorAnterior: 39933966,
-    valorActual: 41763231,
-  },
-  {
-    codigo: "140605",
-    nombre: "CATEGORÍA A RIESGO NORMAL",
-    valorAnterior: 26950314,
-    valorActual: 29862798,
-  },
-  {
-    codigo: "140610",
-    nombre: "CATEGORÍA B RIESGO ACEPTABLE",
-    valorAnterior: 1993107,
-    valorActual: 1117200,
-  },
-  {
-    codigo: "140615",
-    nombre: "CATEGORÍA C RIESGO APRECIABLE",
-    valorAnterior: 3385192,
-    valorActual: 2143109,
-  },
-  {
-    codigo: "140620",
-    nombre: "CATEGORÍA D RIESGO SIGNIFICATIVO",
-    valorAnterior: 0,
-    valorActual: 899424,
-  },
-  {
-    codigo: "140625",
-    nombre: "CATEGORÍA E RIESGO DE INCOBRABILIDAD",
-    valorAnterior: 683311,
-    valorActual: 627277,
-  },
-  {
-    codigo: "140630",
-    nombre: "INTERESES DE CRÉDITOS CON PERIODOS DE GRACIA",
-    valorAnterior: 6922043,
-    valorActual: 7113423,
-  },
-  {
-    codigo: "1407",
-    nombre: "PAGOS POR CUENTA DE ASOCIADOS - CRÉDITOS VIVIENDA",
-    valorAnterior: 904976,
-    valorActual: 763670,
-  },
-];
-
-export default function CategoriasTable() {
-  const [rows, setRows] = useState(initialRows);
+export default function PresupuestoTable() {
+  const [rows, setRows] = useState([]);
   const [filteredRows, setFilteredRows] = useState([]);
-  const [editedRows, setEditedRows] = useState({});
+  const [editingRows, setEditingRows] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
   const [saving, setSaving] = useState(false);
-  const [selectedYear, setSelectedYear] = useState();
-  const [selectedMonth, setSelectedMonth] = useState();
+  const [selectedYear, setSelectedYear] = useState("2025");
+  const [selectedMonth, setSelectedMonth] = useState(1);
+  const [statusMessage, setStatusMessage] = useState("");
+  const [statusType, setStatusType] = useState("");
+  const [cuentasDisponibles, setCuentasDisponibles] = useState([]);
 
-  /*async function loadData() {
+  // Función para cargar cuentas disponibles
+  async function loadCuentasDisponibles() {
+    try {
+      const cuentas = await getCuentasDisponibles();
+      setCuentasDisponibles(cuentas);
+    } catch (error) {
+      console.error("Error cargando cuentas disponibles:", error);
+    }
+  }
+
+  // Función para cargar datos desde la API
+  async function loadData() {
     setLoading(true);
     try {
-      const data = await listCategoriesQuota({ limit: 900 });
+      const filters = {};
+      if (selectedYear) filters.year = selectedYear;
+      if (selectedMonth) filters.month = parseInt(selectedMonth);
+      
+      const data = await listPresupuestoCompleto({ ...filters, limit: 10000 });
+      
+      // Transformar datos para el formato esperado
+      const transformedData = data.map(item => ({
+        id: `${item.cuenta}_${item.anio}_${item.mes}`,
+        codigo: item.cuenta,
+        nombre: item.nombre_cuenta,
+        anio: parseInt(item.anio),
+        mes: parseInt(item.mes),
+        proyectado: item.proyectado || item.presupuesto || 0,
+        historico: item.historico || 0,
+        diferencia: item.diferencia || 0,
+        porcentaje: item.porcentaje || 0,
+        escenario: item.escenario || '',
+        denominacion: item.nombre_cuenta || '',
+        created_at: item.created_at || new Date().toISOString(),
+        isNew: false
+      }));
 
-      // Sort by codigo numerically
-      const sorted = [...data].sort(
-        (a, b) => Number(a.codigo) - Number(b.codigo)
-      );
+      // Separar filas nuevas de las existentes
+      const newRows = rows.filter(r => r.isNew);
+      const existingRows = [...transformedData];
+      
+      // Ordenar solo las filas existentes por código
+      const sortedExisting = existingRows.sort((a, b) => {
+        const codeA = parseInt(a.codigo) || 0;
+        const codeB = parseInt(b.codigo) || 0;
+        return codeA - codeB;
+      });
+      
+      // Mantener filas nuevas al principio
+      const finalRows = [...newRows, ...sortedExisting];
 
-      setRows(sorted);
-      setFilteredRows(sorted);
+      setRows(finalRows);
+      setFilteredRows(finalRows);
       setError("");
     } catch (e) {
       setError(e.message || "Error cargando datos");
@@ -280,8 +93,17 @@ export default function CategoriasTable() {
 
   useEffect(() => {
     loadData();
+  }, [selectedYear, selectedMonth]);
+
+  useEffect(() => {
+    loadCuentasDisponibles();
   }, []);
-  */
+
+  // Función para obtener el nombre de la cuenta por código
+  function getNombreCuenta(codigo) {
+    const cuenta = cuentasDisponibles.find(c => c.cuenta === codigo);
+    return cuenta ? cuenta.nombre : '';
+  }
 
   // Live search (reactive as you type)
   useEffect(() => {
@@ -290,66 +112,199 @@ export default function CategoriasTable() {
       .filter(r => {
         const matchesSearch =
           !query ||
-          r.indicador.toLowerCase().includes(query) ||
-          r.alcance.toLowerCase().includes(query);
+          r.codigo.toLowerCase().includes(query) ||
+          r.nombre.toLowerCase().includes(query);
 
-        const matchesYear = !selectedYear || r.anio === Number(selectedYear);
-        const matchesMonth = !selectedMonth || r.mes === Number(selectedMonth);
-
-        return matchesSearch && matchesYear && matchesMonth;
+        return matchesSearch;
       })
-      .sort((a, b) => Number(a.codigo) - Number(b.codigo));
+      .sort((a, b) => {
+        // Mantener filas nuevas al principio
+        if (a.isNew && !b.isNew) return -1;
+        if (!a.isNew && b.isNew) return 1;
+        
+        // Ordenar por código solo si no son filas nuevas
+        if (!a.isNew && !b.isNew) {
+          const codeA = parseInt(a.codigo) || 0;
+          const codeB = parseInt(b.codigo) || 0;
+          return codeA - codeB;
+        }
+        
+        return 0;
+      });
 
     setFilteredRows(filtered);
-  }, [search, rows, selectedYear, selectedMonth]);
+  }, [search, rows]);
 
+  // Función para manejar cambios en los campos
   const handleChange = (id, field, value) => {
+    const updates = { [field]: value };
+    
+    // Si se cambia el código, auto-completar el nombre
+    if (field === 'codigo') {
+      const nombreCuenta = getNombreCuenta(value);
+      if (nombreCuenta) {
+        updates.nombre = nombreCuenta;
+      }
+    }
+    
     setRows(prev =>
-      prev.map(row => (row.id === id ? { ...row, [field]: value } : row))
+      prev.map(row => (row.id === id ? { ...row, ...updates } : row))
     );
     setFilteredRows(prev =>
-      prev.map(row => (row.id === id ? { ...row, [field]: value } : row))
+      prev.map(row => (row.id === id ? { ...row, ...updates } : row))
     );
-    setEditedRows(prev => ({
+    setEditingRows(prev => ({
       ...prev,
-      [id]: { ...prev[id], [field]: value },
+      [id]: { ...prev[id], ...updates },
     }));
   };
 
-  /*
-  const handleSave = async () => {
+  // Función para añadir nueva fila
+  const handleAddRow = () => {
+    const newId = `new_${Date.now()}`;
+    const newRow = {
+      id: newId,
+      codigo: "",
+      nombre: "",
+      anio: parseInt(selectedYear),
+      mes: parseInt(selectedMonth),
+      proyectado: 0,
+      historico: 0,
+      created_at: new Date().toISOString(),
+      isNew: true
+    };
+
+    setRows(prev => [newRow, ...prev]);
+    setFilteredRows(prev => [newRow, ...prev]);
+    setEditingRows(prev => ({ ...prev, [newId]: {} }));
+  };
+
+  // Función para guardar cambios
+  const handleSave = async (id) => {
     setSaving(true);
     try {
-      const updates = Object.entries(editedRows).map(async ([id, changes]) => {
-        // id es string; no lo conviertas a número
-        const fullRow = rows.find(r => String(r.id) === String(id));
-        if (!fullRow) return; // nada que guardar
+      const row = rows.find(r => r.id === id);
+      if (!row) return;
 
-        const payload = {
-          codigo: fullRow.codigo,
-          anio: Number(fullRow.anio),
-          mes: Number(fullRow.mes),
-          nombre: (changes.nombre ?? fullRow.nombre) || undefined,
-          // No enviar fecha si no se edita explícitamente en formato ISO (YYYY-MM-DD)
-          // fecha: (changes.fecha ?? fullRow.fecha) || undefined,
-          asociados: Number(changes.asociados ?? fullRow.asociados),
-          entidades: Number(changes.entidades ?? fullRow.entidades),
-          poblacion: Number(changes.poblacion ?? fullRow.poblacion),
-        };
+      const changes = editingRows[id] || {};
+      
+      // Validar campos requeridos para nuevas filas
+      if (row.isNew) {
+        if (!changes.codigo || !changes.nombre) {
+          setStatusMessage("Código y nombre son campos requeridos");
+          setStatusType("error");
+          setTimeout(() => setStatusMessage(""), 3000);
+          return;
+        }
+      }
 
-        await saveCategoryQuota(payload);
+      const payload = {
+        cuenta: changes.codigo || row.codigo,
+        anio: row.anio,
+        mes: row.mes,
+        presupuesto: parseNumber(changes.proyectado) || row.proyectado,
+        denominacion: changes.denominacion || row.denominacion || row.nombre,
+        monto_historico: parseNumber(changes.historico) || row.historico,
+        monto_proyectado: parseNumber(changes.proyectado) || row.proyectado,
+        escenario: changes.escenario || row.escenario || ''
+      };
+
+      await savePresupuestoCompleto(payload);
+      
+      setStatusMessage("Datos guardados correctamente");
+      setStatusType("success");
+      setTimeout(() => setStatusMessage(""), 3000);
+      
+      setEditingRows(prev => {
+        const newEditing = { ...prev };
+        delete newEditing[id];
+        return newEditing;
       });
-
-      await Promise.all(updates);
-      alert("Cambios guardados correctamente");
-      setEditedRows({});
-      await loadData();
+      
+      // Si es una fila nueva, recargar datos para obtener el registro con ID correcto
+      if (row.isNew) {
+        await loadData();
+      } else {
+        // Si es una fila existente, solo marcar como no nueva
+        setRows(prev =>
+          prev.map(r => r.id === id ? { ...r, isNew: false } : r)
+        );
+        setFilteredRows(prev =>
+          prev.map(r => r.id === id ? { ...r, isNew: false } : r)
+        );
+      }
+      
     } catch (err) {
       console.error(err);
-      alert(err.message || "Error guardando cambios");
+      setStatusMessage(err.message || "Error guardando cambios");
+      setStatusType("error");
+      setTimeout(() => setStatusMessage(""), 3000);
     } finally {
       setSaving(false);
     }
+  };
+
+  // Función para eliminar fila
+  const handleDelete = async (id) => {
+    const row = rows.find(r => r.id === id);
+    if (!row) return;
+
+    const confirmMessage = row.isNew 
+      ? "¿Está seguro de que desea eliminar esta fila?"
+      : "¿Está seguro de que desea eliminar esta fila? Esta acción no se puede deshacer.";
+
+    if (!confirm(confirmMessage)) return;
+
+    if (!confirm("¿Confirma la eliminación?")) return;
+
+    try {
+      if (!row.isNew) {
+        // Si no es nueva, eliminar de la base de datos
+        await deletePresupuesto(id);
+      }
+
+      setRows(prev => prev.filter(r => r.id !== id));
+      setFilteredRows(prev => prev.filter(r => r.id !== id));
+      setEditingRows(prev => {
+        const newEditing = { ...prev };
+        delete newEditing[id];
+        return newEditing;
+      });
+
+      setStatusMessage("Fila eliminada correctamente");
+      setStatusType("success");
+      setTimeout(() => setStatusMessage(""), 3000);
+    } catch (err) {
+      console.error(err);
+      setStatusMessage(err.message || "Error eliminando fila");
+      setStatusType("error");
+      setTimeout(() => setStatusMessage(""), 3000);
+    }
+  };
+
+  // Función para iniciar edición
+  const handleEdit = (id) => {
+    setEditingRows(prev => ({ ...prev, [id]: {} }));
+  };
+
+  // Función para cancelar edición
+  const handleCancel = (id) => {
+    const row = rows.find(r => r.id === id);
+    if (row && row.isNew) {
+      // Si es nueva y se cancela, eliminar la fila
+      setRows(prev => prev.filter(r => r.id !== id));
+      setFilteredRows(prev => prev.filter(r => r.id !== id));
+    }
+    setEditingRows(prev => {
+      const newEditing = { ...prev };
+      delete newEditing[id];
+      return newEditing;
+    });
+  };
+
+  // Función para verificar si una fila es recién creada
+  const isRecentlyCreated = (row) => {
+    return row.isNew;
   };
 
   if (loading) {
@@ -359,54 +314,69 @@ export default function CategoriasTable() {
   if (error) {
     return <div className="p-12 text-center text-red-500">{error}</div>;
   }
-    */
 
+  // Función para descargar Excel
   const handleDownload = () => {
-    const worksheet = XLSX.utils.json_to_sheet(filteredRows);
+    const exportData = filteredRows.map(row => {
+      const diferencia = row.diferencia !== undefined ? row.diferencia : (row.proyectado - row.historico);
+      const porcentaje = row.porcentaje !== undefined ? row.porcentaje : (row.proyectado === 0 ? 0 : (diferencia / row.proyectado) * 100);
+      
+      return {
+        "Código": row.codigo,
+        "Denominación": row.nombre,
+        "Año": row.anio,
+        "Mes": row.mes,
+        "Proyectado": row.proyectado,
+        "Histórico": row.historico,
+        "Diferencia": diferencia,
+        "Porcentaje": porcentaje,
+        "Escenario": row.escenario || '',
+        "Fecha Creación": row.created_at
+      };
+    });
+
+    const worksheet = XLSX.utils.json_to_sheet(exportData);
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Categoria de Oficinas");
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Presupuesto");
     const excelBuffer = XLSX.write(workbook, {
       bookType: "xlsx",
       type: "array",
     });
     const data = new Blob([excelBuffer], { type: "application/octet-stream" });
-    saveAs(data, "Categoria_Oficinas.xlsx");
+    saveAs(data, `Presupuesto_${selectedYear}_${selectedMonth}.xlsx`);
   };
 
-  const uniqueYears = [...new Set(rows.map(r => r.anio).filter(Boolean))];
-  const uniqueMonths = [...new Set(rows.map(r => r.mes).filter(Boolean))];
-
+  // Generar opciones de años y meses
+  const years = Array.from({ length: 10 }, (_, i) => 2020 + i);
   const monthNames = [
-    "Enero",
-    "Febrero",
-    "Marzo",
-    "Abril",
-    "Mayo",
-    "Junio",
-    "Julio",
-    "Agosto",
-    "Septiembre",
-    "Octubre",
-    "Noviembre",
-    "Diciembre",
+    "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+    "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
   ];
-
-  const availableMonths = monthNames
-    .map((name, index) => ({ name, number: index + 1 }))
-    .filter(m => uniqueMonths.includes(m.number));
 
   return (
     <main className="pt-4 pb-0 px-12 overflow-auto">
       <h1 className="titulo-tabla-cupos text-3xl font-semibold pb-4">
         Presupuesto
       </h1>
+      
+      {/* Mensaje de estado */}
+      {statusMessage && (
+        <div className={`mb-4 px-4 py-2 rounded text-sm ${
+          statusType === "success" 
+            ? "bg-green-100 text-green-800 border border-green-200" 
+            : "bg-red-100 text-red-800 border border-red-200"
+        }`}>
+          {statusMessage}
+        </div>
+      )}
+
       <div className="actions-container flex justify-between mb-4">
         <div className="search-bar flex gap-2">
           <input
             type="text"
             value={search}
             onChange={e => setSearch(e.target.value)}
-            placeholder="Buscar por codigo u oficina"
+            placeholder="Buscar por código u oficina"
             className="border w-[300px] px-2 py-1"
           />
           <select
@@ -414,8 +384,7 @@ export default function CategoriasTable() {
             onChange={e => setSelectedYear(e.target.value)}
             className="border px-2 py-1"
           >
-            <option value="">Todos los años</option>
-            {uniqueYears.map(y => (
+            {years.map(y => (
               <option key={y} value={y}>
                 {y}
               </option>
@@ -423,27 +392,24 @@ export default function CategoriasTable() {
           </select>
           <select
             value={selectedMonth}
-            onChange={e => setSelectedMonth(e.target.value)}
+            onChange={e => setSelectedMonth(parseInt(e.target.value))}
             className="border px-2 py-1"
           >
-            <option value="">Todos los meses</option>
-            {availableMonths.map(m => (
-              <option key={m.number} value={m.number}>
-                {m.name}
+            {monthNames.map((name, index) => (
+              <option key={index + 1} value={index + 1}>
+                {name}
               </option>
             ))}
           </select>
         </div>
         <div className="flex gap-4">
-          {Object.keys(editedRows).length > 0 && (
-            <button
-              onClick={handleSave}
-              className="action-button flex gap-2 items-center justify-center cursor-pointer"
-            >
-              Guardar cambios
-              <FaRegSave />
-            </button>
-          )}
+          <button
+            onClick={handleAddRow}
+            className="action-button flex gap-2 items-center justify-center cursor-pointer"
+          >
+            Añadir fila
+            <FaPlus />
+          </button>
           <button
             className="action-button flex gap-2 items-center justify-center cursor-pointer"
             onClick={handleDownload}
@@ -460,69 +426,170 @@ export default function CategoriasTable() {
             <tr>
               <th
                 rowSpan="2"
-                className="p-4 border text-center whitespace-nowrap "
+                className="p-4 border text-center whitespace-nowrap bg-red-800 text-white"
               >
-                Codigo
+                Código
               </th>
               <th
                 rowSpan="2"
-                className="p-4 border text-center whitespace-nowrap "
+                className="p-4 border text-center whitespace-nowrap bg-red-800 text-white"
               >
                 Denominación
               </th>
-              <th className="p-4 border text-center whitespace-nowrap ">
-                ene-2025 Proyectado
+              <th className="p-4 border text-center whitespace-nowrap bg-red-800 text-white">
+                {monthNames[parseInt(selectedMonth) - 1]}-{selectedYear} Proyectado
               </th>
-              <th className="p-4 border text-center whitespace-nowrap ">
-                ene-2025 Histórico
+              <th className="p-4 border text-center whitespace-nowrap bg-red-800 text-white">
+                {monthNames[parseInt(selectedMonth) - 1]}-{selectedYear} Histórico
               </th>
               <th
                 colSpan="2"
-                className="p-4 border text-center whitespace-nowrap "
+                className="p-4 border text-center whitespace-nowrap bg-red-800 text-white"
               >
-                ene-2025 Proyectado VS ene-2025 Histórico
+                {monthNames[parseInt(selectedMonth) - 1]}-{selectedYear} Proyectado VS {monthNames[parseInt(selectedMonth) - 1]}-{selectedYear} Histórico
+              </th>
+              <th
+                rowSpan="2"
+                className="p-4 border text-center whitespace-nowrap bg-red-800 text-white"
+              >
+                Acciones
               </th>
             </tr>
             <tr>
-              <th className="p-4 border text-center whitespace-nowrap ">
+              <th className="p-4 border text-center whitespace-nowrap bg-red-800 text-white">
                 Monto
               </th>
-              <th className="p-4 border text-center whitespace-nowrap ">
+              <th className="p-4 border text-center whitespace-nowrap bg-red-800 text-white">
                 Monto
               </th>
-              <th className="p-4 border text-center whitespace-nowrap ">
+              <th className="p-4 border text-center whitespace-nowrap bg-red-800 text-white">
                 Monto
               </th>
-              <th className="p-4 border text-center whitespace-nowrap ">%</th>
+              <th className="p-4 border text-center whitespace-nowrap bg-red-800 text-white">%</th>
             </tr>
           </thead>
-          <tbody className="tabla-cupos-content p-4">
-            {filteredRows.map(row => (
-              <tr key={row.id}>
-                <td>{row.codigo}</td>
-                <td>{row.nombre}</td>
-                <td>$ {row.valorAnterior}</td>
-                <td>$ {row.valorActual}</td>
-                <td>$ {row.valorActual - row.valorAnterior}</td>
-                <td>
-                  {(row.valorAnterior === 0
-                    ? 100
-                    : ((row.valorActual - row.valorAnterior) /
-                        row.valorAnterior) *
-                      100
-                  ).toFixed(2)}
-                  %
-                </td>
-              </tr>
-            ))}
+          <tbody className="tabla-cupos-content">
+            {filteredRows.map(row => {
+              const isEditing = editingRows[row.id];
+              const isNew = isRecentlyCreated(row);
+              // Usar los valores calculados del backend si están disponibles, sino calcular en el frontend
+              const diferencia = row.diferencia !== undefined ? row.diferencia : (row.proyectado - row.historico);
+              const porcentaje = row.porcentaje !== undefined ? row.porcentaje : (row.proyectado === 0 ? 0 : (diferencia / row.proyectado) * 100);
 
-            {/*records.map((r) => (
-            <tr key={r.id}>
-              <td>{r.id}</td>
-              <td>{r.amount}</td>
-              <td>{r.description}</td>
-            </tr>
-          ))*/}
+              return (
+                <tr key={row.id} className={isNew ? "bg-green-50" : ""}>
+                  <td className="p-2 border text-center">
+                    {isEditing ? (
+                      <select
+                        value={editingRows[row.id]?.codigo ?? row.codigo}
+                        onChange={e => handleChange(row.id, "codigo", e.target.value)}
+                        className="w-full px-2 py-1 border rounded"
+                      >
+                        <option value="">Seleccionar código</option>
+                        {cuentasDisponibles.map(cuenta => (
+                          <option key={cuenta.cuenta} value={cuenta.cuenta}>
+                            {cuenta.cuenta} - {cuenta.nombre}
+                          </option>
+                        ))}
+                      </select>
+                    ) : (
+                      <span className="font-mono">{row.codigo}</span>
+                    )}
+                    {isNew && (
+                      <span className="ml-2 px-2 py-1 bg-green-500 text-white text-xs rounded">
+                        NUEVO
+                      </span>
+                    )}
+                  </td>
+                  <td className="p-2 border text-left">
+                    {isEditing ? (
+                      <input
+                        type="text"
+                        value={editingRows[row.id]?.nombre ?? row.nombre}
+                        onChange={e => handleChange(row.id, "nombre", e.target.value)}
+                        className="w-full px-2 py-1 border rounded bg-gray-50"
+                        placeholder="Denominación (se auto-completa)"
+                        readOnly
+                      />
+                    ) : (
+                      row.nombre
+                    )}
+                  </td>
+                  <td className="p-2 border text-right">
+                    {isEditing ? (
+                      <input
+                        type="text"
+                        value={editingRows[row.id]?.proyectado ?? row.proyectado}
+                        onChange={e => handleChange(row.id, "proyectado", e.target.value)}
+                        className="w-full px-2 py-1 border rounded text-right"
+                        placeholder="0"
+                      />
+                    ) : (
+                      `$ ${formatNumber(row.proyectado)}`
+                    )}
+                  </td>
+                  <td className="p-2 border text-right">
+                    {isEditing ? (
+                      <input
+                        type="text"
+                        value={editingRows[row.id]?.historico ?? row.historico}
+                        onChange={e => handleChange(row.id, "historico", e.target.value)}
+                        className="w-full px-2 py-1 border rounded text-right"
+                        placeholder="0"
+                      />
+                    ) : (
+                      `$ ${formatNumber(row.historico)}`
+                    )}
+                  </td>
+                  <td className="p-2 border text-right">
+                    $ {formatNumber(diferencia)}
+                  </td>
+                  <td className="p-2 border text-right">
+                    {formatPercentage(porcentaje)}
+                  </td>
+                  <td className="p-2 border text-center">
+                    <div className="flex gap-2 justify-center">
+                      {isEditing ? (
+                        <>
+                          <button
+                            onClick={() => handleSave(row.id)}
+                            disabled={saving}
+                            className="px-3 py-1 bg-green-500 text-white rounded cursor-pointer hover:bg-green-600 disabled:opacity-50"
+                            title="Guardar"
+                          >
+                            <FaCheck />
+                          </button>
+                          <button
+                            onClick={() => handleCancel(row.id)}
+                            className="px-3 py-1 bg-gray-500 text-white rounded cursor-pointer hover:bg-gray-600"
+                            title="Cancelar"
+                          >
+                            <FaTimes />
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <button
+                            onClick={() => handleEdit(row.id)}
+                            className="px-3 py-1 bg-blue-500 text-white rounded cursor-pointer hover:bg-blue-600"
+                            title="Editar"
+                          >
+                            <FaEdit />
+                          </button>
+                          <button
+                            onClick={() => handleDelete(row.id)}
+                            className="px-3 py-1 bg-red-500 text-white rounded cursor-pointer hover:bg-red-600"
+                            title="Eliminar"
+                          >
+                            <FaTrash />
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
