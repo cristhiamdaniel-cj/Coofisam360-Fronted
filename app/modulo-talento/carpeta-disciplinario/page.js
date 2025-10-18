@@ -17,7 +17,7 @@ export default function FinancieroDashboard() {
         >
           <div className="logo">
             <Image
-              src="/indicadores.svg" // Path relative to /public
+              src="/disciplinario.svg" // Path relative to /public
               className="module-image"
               alt="Company Logo"
               width={200} // required
