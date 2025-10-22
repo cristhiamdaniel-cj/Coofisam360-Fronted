@@ -28,18 +28,18 @@ function Modal({ open, onClose, title, children, width = 700, height = 520 }) {
   );
 }
 
-function Tree({ data, onDownload, onDelete }) {
+function Tree({ data, onDownload, onDelete, canDelete = true }) {
   if (!data || !Array.isArray(data)) return null;
   return (
     <ul style={{ listStyle: "none", paddingLeft: 12, margin: 0 }}>
       {data.map((n, i) => (
-        <Node key={i} node={n} onDownload={onDownload} onDelete={onDelete} />
+        <Node key={i} node={n} onDownload={onDownload} onDelete={onDelete} canDelete={canDelete} />
       ))}
     </ul>
   );
 }
 
-function Node({ node, onDownload, onDelete }) {
+function Node({ node, onDownload, onDelete, canDelete = true }) {
   const [open, setOpen] = useState(false);
   if (node.type === "dir") {
     return (
@@ -58,6 +58,7 @@ function Node({ node, onDownload, onDelete }) {
                 node={c}
                 onDownload={onDownload}
                 onDelete={onDelete}
+                canDelete={canDelete}
               />
             ))}
           </ul>
@@ -78,7 +79,7 @@ function Node({ node, onDownload, onDelete }) {
             <FiDownload />
           </button>
         )}
-        {!!node.rel && (
+        {!!node.rel && canDelete && (
           <button
             onClick={() => onDelete?.(node.rel, node.name)}
             title="Eliminar"
@@ -134,6 +135,19 @@ export default function FinancieroDashboard() {
           .normalize("NFD")
           .replace(/[\u0300-\u036f]/g, "")
     );
+  };
+
+  // función para verificar si el usuario puede eliminar archivos
+  const canUserDelete = () => {
+    if (!user || !user.username) return true;
+    
+    // Usuarios que NO pueden eliminar archivos
+    const restrictedUsers = [
+      "subgerenciafinanciera@coofisam.com",
+      "contabilidad@coofisam.com"
+    ];
+    
+    return !restrictedUsers.includes(user.username);
   };
 
   useEffect(() => {
@@ -303,7 +317,7 @@ export default function FinancieroDashboard() {
           <p style={{ color: "crimson", marginBottom: 8 }}>Error: {error}</p>
         )}
         {tree && tree.length ? (
-          <Tree data={tree} onDownload={downloadFile} onDelete={deleteFile} />
+          <Tree data={tree} onDownload={downloadFile} onDelete={deleteFile} canDelete={canUserDelete()} />
         ) : (
           <div style={{ opacity: 0.7 }}>
             Sin datos. Usa Cargar Balance o refresca.
