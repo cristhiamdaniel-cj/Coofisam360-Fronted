@@ -1,3 +1,9 @@
+/**
+ *********************************************
+ *   Servicio: Análisis Explicativo            *
+ *********************************************
+ * CRUD de textos explicativos por panel/título
+ */
 import axios from "axios";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:8060";
@@ -32,7 +38,9 @@ api.interceptors.request.use(
   }
 );
 
-// Función para listar análisis explicativo
+/* -------------------------------------
+ *  Listar análisis explicativo
+ * ------------------------------------- */
 export async function listAnalisisExplicativo(params = {}) {
   try {
     const response = await api.get("/analisis/explicativo/", { params });
@@ -43,7 +51,9 @@ export async function listAnalisisExplicativo(params = {}) {
   }
 }
 
-// Función para guardar análisis explicativo
+/* -------------------------------------
+ *  Guardar análisis explicativo        
+ * ------------------------------------- */
 export async function saveAnalisisExplicativo(data) {
   try {
     const response = await api.post("/analisis/explicativo/", data);
@@ -54,7 +64,9 @@ export async function saveAnalisisExplicativo(data) {
   }
 }
 
-// Función para actualizar análisis explicativo
+/* -------------------------------------
+ *  Actualizar análisis explicativo     
+ * ------------------------------------- */
 export async function updateAnalisisExplicativo(id, data) {
   try {
     const response = await api.put(`/analisis/explicativo/${id}/`, data);
@@ -65,7 +77,9 @@ export async function updateAnalisisExplicativo(id, data) {
   }
 }
 
-// Función para eliminar análisis explicativo
+/* -------------------------------------
+ *  Eliminar análisis explicativo       
+ * ------------------------------------- */
 export async function deleteAnalisisExplicativo(id) {
   try {
     const response = await api.delete(`/analisis/explicativo/${id}/`);

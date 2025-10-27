@@ -1,0 +1,25 @@
+# Dependencies and build output
+node_modules
+.next
+
+# VCS and local
+.git
+.gitignore
+Dockerfile*
+.dockerignore
+
+# Env and logs
+.env*
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Editor/OS
+.DS_Store
+*.swp
+*.swo
+
+# Docs and archives not needed in image
+docs/_archive
+Formacion_participacion.txt
+

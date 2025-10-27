@@ -1,30 +1,49 @@
+/**
+ *********************************************
+ *        Servicio: Cupos de Crédito          *
+ *********************************************
+ * Adaptadores y normalización para la UI.
+ */
 import {
   listCredits as listCreditsRaw,
-  getCredit as getCreditRaw,
   saveCredit as saveCreditRaw,
 } from "../modulo-financiero/financialService";
 
+/**
+ * +-----------------------------------+
+ * | listCreditQuota                   |
+ * |-----------------------------------|
+ * | Lista cupos y normaliza columnas  |
+ * +-----------------------------------+
+ */
 export async function listCreditQuota(params = {}) {
   const raw = await listCreditsRaw(params);
   const rows = Array.isArray(raw) ? raw : raw?.data || [];
   return rows.map(mapCreditRow);
 }
 
-export async function getCreditQuota(id, params = {}) {
-  const r = await getCreditRaw(id, params);
-  return r ? mapCreditRow(r) : null;
-}
+// getCreditQuota: removido porque no existe uso actual en el frontend
 
+/**
+ * +-----------------------------------+
+ * | saveCreditQuota                   |
+ * |-----------------------------------|
+ * | Crea/actualiza registro de cupo   |
+ * +-----------------------------------+
+ */
 export async function saveCreditQuota(payload) {
   // payload: { entidad_financiera, cuenta, fecha_renovado, cupo_asignado, ... }
   const r = await saveCreditRaw(payload);
   return r;
 }
 
-// Función para eliminar cupo de crédito
+/* -------------------------------------
+ *  Eliminar cupo de crédito
+ * ------------------------------------- */
 export async function deleteCreditQuota(id) {
   try {
-    const response = await fetch(`/api/v1/finanzas/cupos/${id}/`, {
+    const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:8060";
+    const response = await fetch(`${API_BASE_URL}/api/v1/finanzas/cupos-credito/?id=${id}`, {
       method: 'DELETE',
       headers: {
         'Authorization': `Token ${localStorage.getItem('authToken')}`,
@@ -43,6 +62,13 @@ export async function deleteCreditQuota(id) {
   }
 }
 
+/**
+ * +-----------------------------------+
+ * | mapCreditRow                      |
+ * |-----------------------------------|
+ * | Normaliza una fila de cupos       |
+ * +-----------------------------------+
+ */
 function mapCreditRow(r) {
   const asignado = num(r.cupo_asignado ?? r.assigned_amount);
   const ejecutado = num(r.cupo_ejecutado ?? r.executed_amount);
@@ -59,18 +85,19 @@ function mapCreditRow(r) {
   return {
     id: r.id ?? r.cupo_id,
     fechaRenovado: fmtDate(r.fecha_renovado ?? r.renewed_at),
-    fechaRenovadoRaw: r.fechaRenovado ?? r.renewed_at,
+    fechaRenovadoRaw: r.fecha_renovado ?? r.renewed_at,
     cuenta: str(r.cuenta ?? r.account ?? r.account_number),
     entidadFinanciera: str(r.entidad_financiera ?? r.bank ?? r.bank_name),
     cupoAsignado: asignado,
     cupoEjecutado: ejecutado,
     disponible,
-    garantia: str(r.garantia ?? r.guarantee),
+    garantia: str(r.garantia ?? r.guarantee ?? ""),
     porcentajeUtilizacion: utilPct,
     plazo: str(
-      r.plazo ?? (r.plazo_meses ? `${r.plazo_meses} meses` : "") ?? r.term ?? ""
+      r.plazo ? (r.plazo.includes('meses') ? r.plazo : `${r.plazo} meses`) : 
+      (r.plazo_meses ? `${r.plazo_meses} meses` : "") ?? r.term ?? ""
     ),
-    tasa: str(r.tasa ?? r.tasa_pct),
+    tasa: str(r.tasa ?? r.tasa_pct ?? ""),
   };
 }
 

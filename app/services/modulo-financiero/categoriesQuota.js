@@ -1,31 +1,62 @@
+/**
+ *********************************************
+ *     Servicio: Categorías de Oficinas       *
+ *********************************************
+ * Adaptadores de datos para tablas del UI.
+ */
 import {
   listCategories as listCategoriesRaw,
   getCategory as getCategoryRaw,
   saveCategory as saveCategoryRaw,
 } from "../modulo-financiero/financialService";
 
-// Función para obtener oficinas disponibles
+/* -------------------------------------
+ *  Función utilitaria
+ *  Obtener catálogo de oficinas
+ * ------------------------------------- */
 export async function getOficinasDisponibles() {
   try {
     const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:8060";
+    const token = localStorage.getItem('authToken');
+    
+    if (!token) {
+      console.warn("No hay token de autenticación, usando datos de prueba");
+      return getOficinasPrueba();
+    }
+    
     const response = await fetch(`${API_BASE_URL}/api/v1/finanzas/oficinas-disponibles/`, {
       method: 'GET',
       headers: {
-        'Authorization': `Token ${localStorage.getItem('authToken')}`,
+        'Authorization': `Token ${token}`,
         'Content-Type': 'application/json',
       },
     });
     
     if (!response.ok) {
-      throw new Error(`Error ${response.status}: ${response.statusText}`);
+      console.warn(`Error ${response.status}: ${response.statusText}, usando datos de prueba`);
+      return getOficinasPrueba();
     }
     
     const data = await response.json();
     return data.oficinas || [];
   } catch (error) {
     console.error("Error al obtener oficinas disponibles:", error);
-    throw error;
+    console.warn("Usando datos de prueba como fallback");
+    return getOficinasPrueba();
   }
+}
+
+function getOficinasPrueba() {
+  return [
+    { codigo: "1", nombre: "Garzón" },
+    { codigo: "2", nombre: "Pitalito" },
+    { codigo: "3", nombre: "Neiva" },
+    { codigo: "4", nombre: "Gigante" },
+    { codigo: "7", nombre: "La Plata" },
+    { codigo: "10", nombre: "La Argentina" },
+    { codigo: "11", nombre: "Neiva" },
+    { codigo: "18", nombre: "Chaparral" }
+  ];
 }
 
 export async function listCategoriesQuota(params = {}) {
@@ -39,11 +70,20 @@ export async function getCategoryQuota(id, params = {}) {
   return r ? mapCategoryRow(r) : null;
 }
 
+/**
+ * +-----------------------------------+
+ * | saveCategoryQuota                 |
+ * |-----------------------------------|
+ * | Crea/actualiza registro de oficina|
+ * +-----------------------------------+
+ */
 export async function saveCategoryQuota(payload) {
   return await saveCategoryRaw(payload);
 }
 
-// Función para eliminar categoría de oficina
+/* -------------------------------------
+ *  Eliminar categoría de oficina
+ * ------------------------------------- */
 export async function deleteCategoryQuota(codigo, anio, mes) {
   try {
     const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:8060";
@@ -66,11 +106,33 @@ export async function deleteCategoryQuota(codigo, anio, mes) {
   }
 }
 
+/**
+ * +-----------------------------------+
+ * | mapCategoryRow                    |
+ * |-----------------------------------|
+ * | Normaliza y formatea una fila     |
+ * +-----------------------------------+
+ */
 function mapCategoryRow(r) {
+  console.log("Mapeando fila:", r); // Debug
+  const fixEncoding = (str) => {
+    try {
+      if (!str) return "";
+      const s = String(str);
+      if (/[ÃÂ�]/.test(s)) {
+        const bytes = new Uint8Array([...s].map((c) => c.charCodeAt(0) & 0xff));
+        const decoded = new TextDecoder("utf-8").decode(bytes);
+        if (/[áéíóúñÁÉÍÓÚÑ]/.test(decoded)) return decoded;
+      }
+      return s;
+    } catch (_) {
+      return String(str || "");
+    }
+  };
   return {
     id: String(r.id ?? r.categoria_id ?? r.id_categoria ?? ""), // forzar string
     codigo: str(r.codigo ?? r.codigo_oficina ?? r.office_code ?? r.cod),
-    nombre: str(r.nombre ?? r.nombre_oficina ?? r.office_name),
+    nombre: fixEncoding(str(r.nombre ?? r.nombre_oficina ?? r.office_name)),
     fecha: fmtDate(r.fecha ?? r.fecha_apertura ?? r.opened_at),
     ctaPuc14: formatNumeric(
       r.ctaPuc14 ?? r.saldo_c14 ?? r.saldoC14 ?? r.cta_puc_14 ?? r.puc14 ?? r.account_14

@@ -12,8 +12,10 @@ import {
   listCostoBeneficioQuota,
   saveCostoBeneficioQuota,
   updateCostoBeneficioQuota,
+  deleteCostoBeneficioQuota,
 } from "../../../services/modulo-talento/carpeta-formador-talento/costoBeneficioQuota";
-import { toMonthNumber } from "@/app/services/modulo-talento/carpeta-formador-talento/talentHelpers";
+import { FaEdit, FaTrash, FaCheck, FaTimes } from "react-icons/fa";
+import { toMonthNumber, fmtMoneyCOP, moneyToNumber } from "@/app/services/modulo-talento/carpeta-formador-talento/talentHelpers";
 
 export default function GestionesTable() {
   const [rows, setRows] = useState([]);
@@ -196,53 +198,145 @@ export default function GestionesTable() {
   };
 
   const handleDownload = () => {
-    // Convert JSON to worksheet
-    const worksheet = XLSX.utils.json_to_sheet(rows);
-
-    // Create a new workbook
+    // Usar filteredRows para respetar los filtros aplicados
+    const dataToExport = filteredRows.length > 0 ? filteredRows : rows;
+    const worksheet = XLSX.utils.json_to_sheet(dataToExport);
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(
-      workbook,
-      worksheet,
-      "Indicadores Financieros"
-    );
-
-    // Write workbook and save
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Costo Beneficio");
     const excelBuffer = XLSX.write(workbook, {
       bookType: "xlsx",
       type: "array",
     });
     const data = new Blob([excelBuffer], { type: "application/octet-stream" });
-    saveAs(data, "cupos.xlsx");
+    
+    // Nombre del archivo basado en si hay filtros aplicados
+    const fileName = filteredRows.length > 0 && filteredRows.length < rows.length 
+      ? `costo-beneficio-filtrado-${filteredRows.length}-registros.xlsx`
+      : "costo-beneficio-completo.xlsx";
+    
+    saveAs(data, fileName);
+  };
+
+  const handleSaveSingle = async (rowId) => {
+    try {
+      const finalRow = rows.find(r => String(r.id) === String(rowId));
+      if (!finalRow) {
+        console.warn("⚠️ No se encontró la fila con id:", rowId);
+        return;
+      }
+      const payload = {
+        id: Number(finalRow.id) || undefined,
+        anio: Number(finalRow.Año),
+        mes: toMonthNumber(finalRow.Mes),
+        modalidad: String(finalRow.Modalidad ?? ""),
+        grupo: Number(finalRow.Grupo) || 1,
+        total_gastos: Number(finalRow.TotalGastosTransferencia) || 0,
+        trabajadores_cap: Number(finalRow.TrabajadoresCapacitados) || 0,
+        rentabilidad: String(finalRow.Rentabilidad ?? ""),
+      };
+
+      console.log(">>> DEBUG handleSaveSingle:");
+      console.log(">>> finalRow:", finalRow);
+      console.log(">>> payload:", payload);
+
+      // Validación mínima requerida
+      if (!payload.anio || !payload.mes || !payload.modalidad) {
+        console.error(">>> Campos faltantes:", {
+          anio: payload.anio,
+          mes: payload.mes,
+          modalidad: payload.modalidad
+        });
+        throw new Error("Faltan campos obligatorios: Año, Mes y Modalidad");
+      }
+
+      if (finalRow.isNew) {
+        await saveCostoBeneficioQuota(payload);
+        alert("✅ Nueva fila creada correctamente");
+      } else {
+        await updateCostoBeneficioQuota(payload);
+        alert("✅ Registro modificado correctamente");
+      }
+
+      // Cerrar modo edición
+      setEditingRows(prev => ({ ...prev, [finalRow.id]: false }));
+      setEditedRows(prev => {
+        const newEdited = { ...prev };
+        delete newEdited[finalRow.id];
+        return newEdited;
+      });
+
+      // Recargar datos
+      const data = await listCostoBeneficioQuota({ limit: 200 });
+      setRows(Array.isArray(data) ? data : data?.items || []);
+    } catch (err) {
+      console.error("Error guardando registro:", err);
+      alert(`Error al guardar el registro: ${err.message}`);
+    }
+  };
+
+  const handleDelete = async (rowId) => {
+    const row = rows.find(r => String(r.id) === String(rowId));
+    if (!row) {
+      console.warn("⚠️ No se encontró la fila con id:", rowId);
+      return;
+    }
+    if (!row.id || row.isNew) {
+      // Si es una fila nueva, solo la removemos del estado
+      setRows(prev => prev.filter(r => String(r.id) !== String(rowId)));
+      setFilteredRows(prev => prev.filter(r => String(r.id) !== String(rowId)));
+      return;
+    }
+
+    if (confirm(`¿Estás seguro de que quieres eliminar este registro?`)) {
+      try {
+        await deleteCostoBeneficioQuota(row.id);
+        
+        // Remover de los estados
+        setRows(prev => prev.filter(r => String(r.id) !== String(rowId)));
+        setFilteredRows(prev => prev.filter(r => String(r.id) !== String(rowId)));
+        
+        alert("Registro eliminado correctamente ✅");
+      } catch (err) {
+        console.error("Error eliminando registro:", err);
+        alert(`Error al eliminar el registro: ${err.message}`);
+      }
+    }
   };
 
   const handleAddRow = () => {
     const newRow = {
       id: crypto.randomUUID(), // genera un id único
       Año: new Date().getFullYear(),
-      Mes: "", // elige explícitamente el mes
+      Mes: "ENERO", // valor por defecto
       TotalGastosTransferencia: 0,
       TrabajadoresCapacitados: 0,
       CostoPorTrabajador: 0,
-      Modalidad: "",
-      Rentabilidad: "",
+      Modalidad: "PRESENCIAL", // valor por defecto
+      Rentabilidad: "BAJA", // valor por defecto
+      Grupo: 1, // valor por defecto
       isNew: true,
     };
 
     setRows(prev => [newRow, ...prev]);
     setFilteredRows(prev => [newRow, ...prev]);
 
-    // opcional: marcarla como editada inmediatamente
+    // Marcar la nueva fila como editada y en modo de edición
     setEditedRows(prev => ({
       ...prev,
       [newRow.id]: newRow,
+    }));
+    
+    // Abrir automáticamente en modo de edición
+    setEditingRows(prev => ({
+      ...prev,
+      [newRow.id]: true,
     }));
   };
 
   return (
     <main className="pt-4 pb-0 px-12 overflow-auto">
       <h1 className="titulo-tabla-cupos text-3xl font-semibold pb-4">
-        Costo/Beneficio samir
+        Costo/Beneficio
       </h1>
       <div className="actions-container flex justify-between mb-4">
         <div className="search-bar flex gap-2">
@@ -339,12 +433,43 @@ export default function GestionesTable() {
               return (
               <tr key={r.id}>
                 <td className="p-2 border text-center whitespace-nowrap">
-                  <button
-                    onClick={() => setEditingRows(prev => ({ ...prev, [r.id]: !prev[r.id] }))}
-                    className="px-3 py-1 border rounded cursor-pointer"
-                  >
-                    {isEditing ? "Terminar" : "Editar"}
-                  </button>
+                  {isEditing ? (
+                    <div className="flex gap-2 justify-center">
+                      <button
+                        onClick={() => handleSaveSingle(r.id)}
+                        className="p-2 text-green-600 hover:bg-green-100 rounded"
+                        title="Guardar cambios"
+                      >
+                        <FaCheck />
+                      </button>
+                      <button
+                        onClick={() => setEditingRows(prev => ({ ...prev, [r.id]: false }))}
+                        className="p-2 text-red-600 hover:bg-red-100 rounded"
+                        title="Cancelar edición"
+                      >
+                        <FaTimes />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex gap-2 justify-center">
+                      <button
+                        onClick={() => setEditingRows(prev => ({ ...prev, [r.id]: true }))}
+                        className="p-2 text-blue-600 hover:bg-blue-100 rounded"
+                        title="Editar registro"
+                      >
+                        <FaEdit />
+                      </button>
+                      {!r.isNew && (
+                        <button
+                          onClick={() => handleDelete(r.id)}
+                          className="p-2 text-red-600 hover:bg-red-100 rounded"
+                          title="Eliminar registro"
+                        >
+                          <FaTrash />
+                        </button>
+                      )}
+                    </div>
+                  )}
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
                   {isEditing ? (
@@ -391,22 +516,25 @@ export default function GestionesTable() {
                 </td>
 
                 <td className="p-1 border text-left whitespace-nowrap w-full">
-                  $
                   {isEditing ? (
-                    <input
-                      type="number"
-                      value={r.TotalGastosTransferencia}
-                      onChange={e => {
-                        handleChange(
-                          r.id,
-                          "TotalGastosTransferencia",
-                          e.target.value
-                        );
-                      }}
-                      className="px-2 py-1 w-full text-left border ml-1"
-                    />
+                    <div className="flex items-center">
+                      <span className="text-gray-600 mr-1">$</span>
+                      <input
+                        type="number"
+                        value={r.TotalGastosTransferencia}
+                        onChange={e => {
+                          handleChange(
+                            r.id,
+                            "TotalGastosTransferencia",
+                            e.target.value
+                          );
+                        }}
+                        className="px-2 py-1 w-full text-left border"
+                        placeholder="0"
+                      />
+                    </div>
                   ) : (
-                    r.TotalGastosTransferencia
+                    fmtMoneyCOP(r.TotalGastosTransferencia)
                   )}
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
@@ -429,8 +557,8 @@ export default function GestionesTable() {
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
                   {r.TrabajadoresCapacitados > 0
-                    ? Number((Number(r.TotalGastosTransferencia || 0) / Number(r.TrabajadoresCapacitados)).toFixed(2))
-                    : 0}
+                    ? fmtMoneyCOP(Number((Number(r.TotalGastosTransferencia || 0) / Number(r.TrabajadoresCapacitados)).toFixed(2)))
+                    : fmtMoneyCOP(0)}
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
                   <select disabled={!isEditing}

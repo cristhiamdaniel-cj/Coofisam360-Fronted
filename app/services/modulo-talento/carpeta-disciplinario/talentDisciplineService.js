@@ -25,11 +25,22 @@ export async function saveControlDisciplinario(payload = {}) {
 }
 
 export async function updateControlDisciplinario(payload = {}) {
-  const { data } = await api.put(
-    "/api/v1/talento/control-disciplinario/",
-    payload
-  );
-  return data;
+  const { id, ...data } = payload;
+  if (!id) {
+    throw new Error("ID es requerido para actualizar un registro");
+  }
+  console.log("🚀 ENVIANDO PUT request:", { id, data });
+  try {
+    const { data: response } = await api.put(
+      `/api/v1/talento/control-disciplinario/${id}/`,
+      data
+    );
+    console.log("✅ RESPUESTA EXITOSA:", response);
+    return response;
+  } catch (error) {
+    console.log("❌ ERROR EN PUT:", error);
+    throw error;
+  }
 }
 
 export async function deleteControlDisciplinario(id) {

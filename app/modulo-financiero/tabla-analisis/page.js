@@ -1,252 +1,49 @@
+/**
+ *********************************************
+ *   Pantalla: Análisis Explicativo            *
+ *********************************************
+ * CRUD de textos explicativos por panel/mes.
+ */
 "use client";
 import { useEffect, useState } from "react";
 import {
-  listCategoriesQuota,
-  saveCategoryQuota,
-} from "../../services/modulo-financiero/categoriesQuota";
+  listAnalisisExplicativo,
+  saveAnalisisExplicativo,
+  updateAnalisisExplicativo,
+  deleteAnalisisExplicativo,
+} from "../../services/modulo-financiero/analisisExplicativo";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
-import { FaRegSave, FaFileDownload } from "react-icons/fa";
+import { FaRegSave, FaFileDownload, FaEdit, FaTrash, FaCheck, FaTimes } from "react-icons/fa";
 import { IoSearch } from "react-icons/io5";
 
-const initialRows = [
-  {
-    id: 1,
-    anio: 2025,
-    mes: "Junio",
-    categoria: "Activos",
-    subcategoria: "Comportamiento de los Activos",
-    descripcion:
-      "Al corte de junio de 2025, los activos presentaron un incremento del 0,52% respecto al mes de diciembre de 2024, lo que equivale a un aumento de aproximadamente $1.290 millones de pesos. Esta variacion se debe principalmente  al  recimiento de la cartera de credito y adquisicion de elementos de propiedad, planta y equipo.",
-  },
-  {
-    id: 2,
-    anio: 2025,
-    mes: "Junio",
-    categoria: "Activos",
-    subcategoria: "Comportamiento de la Cartera de Crédito",
-    descripcion:
-      "Al corte del mes de junio de 2025, la cartera de credito incluyendo capital, intereses y provisiones, alcanzo un valor de $170.696 millones, lo que representa un  recimiento del 1,93% en comparacion con el cierre de diciembre de 2024.\n\nPor otro lado, la cartera bruta registro un saldo de 182.760 millones, reflejando una disminucion del -0,57% frente al mes de mayo de 2025.\n\nEn cuanto a la calidad de la cartera, se presentó un incremento de 0,4 puntos porcentuales con respecto a mayo de 2025, cerrando el indicador en 8,44%.",
-  },
-  {
-    id: 3,
-    anio: 2025,
-    mes: "Junio",
-    categoria: "Pasivos",
-    subcategoria: "Obligaciones Financieras",
-    descripcion:
-      "Las obligaciones financieras presentan una reduccion en el año de $1.567 millones cumpliendo así con el compromiso de pago oportuno de estas.",
-  },
-  {
-    id: 4,
-    anio: 2025,
-    mes: "Junio",
-    categoria: "Pasivos",
-    subcategoria: "Comportamento del Pasivo",
-    descripcion:
-      "Los pasivos presentan decrecimiento al corte del mes de junio principalmente por la disminucion de cuentas por pagar cumpliendo con los compromisos contractuales adquiridos con proveedores y demas.",
-  },
-  {
-    id: 5,
-    anio: 2025,
-    mes: "Junio",
-    categoria: "Patrimonio",
-    subcategoria: "Comportamiento de Excedentes",
-    descripcion:
-      "Durante junio, se registro un excedente de $464 millones.\n\nEl excedente acumulado alcanzó los $3.067 millones, destacandose que cerca de $900 millones provienen de la recuperacion del deterioro de cartera, conforme al modelo de pérdida esperada.",
-  },
-  {
-    id: 6,
-    anio: 2025,
-    mes: "Junio",
-    categoria: "Ingresos",
-    subcategoria: "Analisis de Ingresos",
-    descripcion:
-      "El ingreso total para junio 2025 fue de $3.700 millones con un acumulado en el ano de $23.580 millones de los cuales $17.176 millones corresponden a ingresos por colocacion de cartera de crédito y $6.403 millones corresponden a otros ingresos.\n\nLos rubros que mayor aportan a la generacion de otros ingresos son: la recuperacion de deterioro con un saldo de $4.176 millones, igualmente aportan los ingresos por valoracion de inversiones con $1.458 millones y otros ingresos con $680 millones que corresponden basicamente a las diferentes comisiones que cobra COOFISAM en el desarrollo del objeto social.\n\nEl ingreso recibido por cartera de credito en el mes fue de $2.932 millones, presentando una leve disminucion para el corte de junio, y continua siendo menor al ingreso promedio generado en el año 2024 ($3.087), esto a causa de disminucion en tasa que se viene presentado, por lo cual es importante continuar con la dinamica de crecimiento de la cartera ofertando las diferentes campanas pero tambien enfocados a la par en las lineas que nos generan mayor ingreso.",
-  },
-  {
-    id: 7,
-    anio: 2025,
-    mes: "Junio",
-    categoria: "Gastos",
-    subcategoria: "Análisis de Gastos",
-    descripcion:
-      "Los gastos al corte del junio 2025 ascendieron a $16.972 millones dentro de los cuales $14.980 millones corresponde a gastos administrativos y $1.992 millones corresponden a otros gastos.\n\nEl gasto por deterioro de cartera se situa en $4.734 millones.\n\nLos gastos varios fueron de $1.352 millones, dentro de los cuales encontramos erogaciones mas representativas por contrato de cooperacion con Fundacoofisam $649 millones e impuestos asumidos por $424 millones.",
-  },
-  {
-    id: 8,
-    anio: 2025,
-    mes: "Junio",
-    categoria: "Costos",
-    subcategoria: "Análisis de Costos",
-    descripcion:
-      "Para el mes de Junio, los intereses causados por los Depositos a la vista fueron de $73 millones y el interes causado del ahorro a termino fue de $463 Millones.\n\nLos intereses de las obligaciones financieras ascendieron a $29 millones.",
-  },
-  {
-    id: 9,
-    anio: 2025,
-    mes: "Julio",
-    categoria: "Activos",
-    subcategoria: "Comportamiento de los Activos",
-    descripcion:
-      "Al corte de julio de 2025, los activos presentaron un incremento del 6,56% respecto al mes de diciembre de 2024, lo que equivale a un aumento de aproximadamente $16.361 millones de pesos. Esta variacion se debe principalmente a la constitucion de inversiones, con el fin de generar mayor rentabilidad a os recursos por la liquidez presentada.",
-  },
-  {
-    id: 10,
-    anio: 2025,
-    mes: "Julio",
-    categoria: "Activos",
-    subcategoria: "Comportamiento de la Cartera de Crédito",
-    descripcion:
-      "Al corte del mes de julio de 2025, la cartera de credito incluyendo capital, intereses y provisiones, alcanzo un valor de $171.170 millones, lo que representa un crecimiento del 2,21% en comparacion con el cierre de diciembre de 2024.\n\nPor otro lado, la cartera bruta registro un saldo de 183.296 millones, reflejando un incremento del 0,29% frente al mes de junio de 2025.\n\nEn cuanto a la calidad de la cartera, se presento disminucion de 0,33 puntos porcentuales con respecto a junio de 2025, cerrando el indicador en 8,11%.",
-  },
-  {
-    id: 11,
-    anio: 2025,
-    mes: "Julio",
-    categoria: "Pasivos",
-    subcategoria: "Obligaciones Financieras",
-    descripcion:
-      "Las obligaciones financieras presentan una reduccion en el año de $1.868 millones cumpliendo así con el compromiso de pago oportuno de estas.",
-  },
-  {
-    id: 12,
-    anio: 2025,
-    mes: "Julio",
-    categoria: "Pasivos",
-    subcategoria: "Comportamento del Pasivo",
-    descripcion:
-      "Los pasivos presentan incremento al corte del mes de julio principalmente por la dinamica de crecimietno de los ahorros.",
-  },
-  {
-    id: 13,
-    anio: 2025,
-    mes: "Julio",
-    categoria: "Patrimonio",
-    subcategoria: "Comportamiento de Excedentes",
-    descripcion:
-      "Durante julio, se genero un excedente de $632 millones, como resultado a la adecuado gestion de la cartera vencida.\n\nEl excedente acumulado alcanzo los $3.700 millones, destacandose que cerca de $900 millones provienen de la recuperacion del deterioro de cartera, conforme al modelo de perdida esperada.",
-  },
-  {
-    id: 14,
-    anio: 2025,
-    mes: "Julio",
-    categoria: "Ingresos",
-    subcategoria: "Analisis de Ingresos",
-    descripcion:
-      "El ingreso total para julio 2025 fue de $3.803 millones con un acumulado en el ano de $27,383 millones de los cuales $20,696 millones corresponden a ingresos por colocacion de cartera de credito y $7,317 millones corresponden a otros ingresos.\n\nLos rubros que mayor aportan a la generacion de otros ingresos son: la recuperacion de deterioro con un saldo de $4,646 millones, igualmente aportan los ingresos por valoracion de inversiones con $1,773 millones y otros ingresos con $795 millones que corresponden basicamente a las diferentes comisiones que cobra COOFISAM en el desarrollo del objeto social.\n\nEl ingreso recibido por cartera de credito en el mes fue de $2,914 millones, presentando una leve disminucion para el corte de julio, y continua siendo menor al ingreso promedio generado en el año 2024 ($3.087), esto a causa de disminucion en tasa que se viene presentado, por lo cual es importante continuar con la dinamica de crecimiento de la cartera ofertando las diferentes campanas pero tambien enfocados a la par en las lineas que nos generan mayor ingreso.",
-  },
-  {
-    id: 15,
-    anio: 2025,
-    mes: "Julio",
-    categoria: "Gastos",
-    subcategoria: "Análisis de Gastos",
-    descripcion:
-      "Los gastos al corte del julio 2025 ascendieron a $19.526 millones dentro de los cuales $17.176 millones corresponde a gastos administrativos y $2.359 millones corresponden a otros gastos.\n\nEl gasto por deterioro de cartera se situa en $4.874 millones.\n\nLos gastos varios fueron de $1.597 millones, dentro de los cuales encontramos erogaciones mas representativas por contrato de cooperacion con Fundacoofisam $727 millones e impuestos asumidos por $518 millones.",
-  },
-  {
-    id: 16,
-    anio: 2025,
-    mes: "Julio",
-    categoria: "Costos",
-    subcategoria: "Análisis de Costos",
-    descripcion:
-      "Para el mes de Julio, los intereses causados por los Depósitos a la vista fueron de $87 millones y el interes causado del ahorro a termino fue de $496 Millones.\n\nLos intereses de las obligaciones inancieras ascendieron a $27 millones.",
-  },
-  {
-    id: 17,
-    anio: 2025,
-    mes: "Agosto",
-    categoria: "Activos",
-    subcategoria: "Comportamiento de los Activos",
-    descripcion:
-      "Los activos presentaron un incremento del 12.19% respecto al mes de diciembre de 2024, lo que equivale a un aumento de aproximadamente $30.408 millones de pesos. Esta variación se debe principalmente a la constitución de inversiones, con el fin de generar mayor rentabilidad a los recursos por la liquidez presentada.",
-  },
-  {
-    id: 18,
-    anio: 2025,
-    mes: "Agosto",
-    categoria: "Activos",
-    subcategoria: "Comportamiento de la Cartera de Crédito",
-    descripcion:
-      "La cartera de crédito incluyendo capital, intereses y provisiones, alcanzó un valor de $169.563 millones, lo que representa un crecimiento del 1.25% en comparación con el cierre de diciembre de 2024.\n\nPor otro lado, la cartera bruta registró un saldo de $181.021 millones, reflejando una disminución del 1.2% frente al mes de julio de 2025.\n\nEn cuanto a la calidad de la cartera, se presentó disminución de 1.01 puntos porcentuales con respecto a julio de 2025, cerrando el indicador en el 7.10%.",
-  },
-  {
-    id: 19,
-    anio: 2025,
-    mes: "Agosto",
-    categoria: "Pasivos",
-    subcategoria: "Obligaciones Financieras",
-    descripcion:
-      "Las obligaciones financieras presentan una reducción en el año de $2.148 millones cumpliendo así con el compromiso de pago oportuno de estas.",
-  },
-  {
-    id: 20,
-    anio: 2025,
-    mes: "Agosto",
-    categoria: "Pasivos",
-    subcategoria: "Comportamento del Pasivo",
-    descripcion:
-      "Los pasivos presentan incremento al corte del mes de agosto principalmente por la dinámica de crecimiento de los ahorros.",
-  },
-  {
-    id: 21,
-    anio: 2025,
-    mes: "Agosto",
-    categoria: "Patrimonio",
-    subcategoria: "Comportamiento de Excedentes",
-    descripcion:
-      "Durante el mes de agosto, se generó un excedente de $149 millones. No obstante, el resultado del mes se vio impactado en $362 millones debido al incremento del 0,2% en la provisión general de la cartera de crédito en cumplimiento a direccionamiento de la Superintendencia de la Economía Solidaria.\n\nEl excedente acumulado alcanzó los $3.850 millones.",
-  },
-  {
-    id: 22,
-    anio: 2025,
-    mes: "Agosto",
-    categoria: "Ingresos",
-    subcategoria: "Analisis de Ingresos",
-    descripcion:
-      "Para agosto 2025 fue de $3.882 millones con un acumulado en el año de $31.265 millones de los cuales $22.965 millones corresponden a ingresos por colocación de cartera de crédito y $8.300 millones corresponden a otros ingresos.\n\nLos rubros que mayor aportan a la generación de otros ingresos son: la recuperación de deterioro con un saldo de $5.096 millones, igualmente aportan los ingresos por valoración de inversiones con $2.161 millones y otros ingresos con $929 millones que corresponden básicamente a las diferentes comisiones que cobra COOFISAM en el desarrollo del objeto social.\n\nEl ingreso recibido por cartera de crédito en el mes fue de $2.928 millones, presentando un leve crecimiento para el corte de agosto, y continúa siendo menor al ingreso promedio generado en el año 2024 ($3.087), esto a causa de disminución en tasa que se viene presentado, por lo cual es importante continuar con la dinámica de crecimiento de la cartera ofertando las diferentes campañas, pero también enfocados a la par en las líneas que nos generan mayor ingreso.",
-  },
-  {
-    id: 23,
-    anio: 2025,
-    mes: "Agosto",
-    categoria: "Gastos",
-    subcategoria: "Análisis de Gastos",
-    descripcion:
-      "Al corte del agosto 2025 ascendieron a $22.622 millones dentro de los cuales $19.933 millones corresponde a gastos administrativos y $2.688 millones corresponden a otros gastos.\n\nEl gasto por deterioro de cartera se sitúa en $5.752 millones.\n\nLos gastos varios fueron de $1.823 millones, dentro de los cuales encontramos erogaciones más representativas por contrato de cooperación con Fundacoofisam $795 millones e impuestos asumidos por $605 millones.",
-  },
-  {
-    id: 24,
-    anio: 2025,
-    mes: "Agosto",
-    categoria: "Costos",
-    subcategoria: "Análisis de Costos",
-    descripcion:
-      "Para el mes de agosto, los intereses causados por los Depósitos a la vista fueron de $95 millones y el interés causado del ahorro a término fue de $509 Millones.\n\nLos intereses de las obligaciones financieras ascendieron a $25 millones.",
-  },
-];
+const initialRows = [];
 
 export default function CategoriasTable() {
+  /***************************************
+   *       Bloque de lógica principal     *
+   ***************************************/
   const [rows, setRows] = useState(initialRows);
   const [filteredRows, setFilteredRows] = useState(initialRows);
   const [editedRows, setEditedRows] = useState({});
+  const [editingRows, setEditingRows] = useState({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
   const [saving, setSaving] = useState(false);
   const [selectedYear, setSelectedYear] = useState();
   const [selectedMonth, setSelectedMonth] = useState();
+  const [statusMsg, setStatusMsg] = useState("");
+  const [statusType, setStatusType] = useState("");
 
-  /*async function loadData() {
+  async function loadData() {
     setLoading(true);
     try {
-      const data = await listCategoriesQuota({ limit: 900 });
+      const data = await listAnalisisExplicativo({ limit: 900 });
 
-      // Sort by codigo numerically
+      // Sort by id numerically
       const sorted = [...data].sort(
-        (a, b) => Number(a.codigo) - Number(b.codigo)
+        (a, b) => Number(a.id) - Number(b.id)
       );
 
       setRows(sorted);
@@ -262,13 +59,56 @@ export default function CategoriasTable() {
   useEffect(() => {
     loadData();
   }, []);
-  */
+
+  const handleChange = (id, field, value) => {
+    setRows(prev =>
+      prev.map(row => (row.id === id ? { ...row, [field]: value } : row))
+    );
+    setFilteredRows(prev =>
+      prev.map(row => (row.id === id ? { ...row, [field]: value } : row))
+    );
+    setEditedRows(prev => ({
+      ...prev,
+      [id]: { ...prev[id], [field]: value },
+    }));
+  };
+
+  const handleAddRow = () => {
+    const newRow = {
+      id: `new-${Date.now()}`,
+      anio: new Date().getFullYear(),
+      mes: "Enero",
+      categoria: "",
+      subcategoria: "",
+      descripcion: "",
+      isNew: true,
+    };
+    // Agregar al inicio para que quede visible arriba
+    setRows(prev => [newRow, ...(prev || [])]);
+    setFilteredRows(prev => [newRow, ...(prev || [])]);
+    setEditingRows(prev => ({ ...(prev || {}), [newRow.id]: true }));
+  };
+
+  const handleDelete = async (id, categoria, subcategoria) => {
+    if (window.confirm(`¿Está seguro de eliminar el análisis de ${categoria} - ${subcategoria}?`)) {
+      try {
+        await deleteAnalisisExplicativo(id);
+        setStatusMsg("Análisis eliminado correctamente");
+        setStatusType("success");
+        await loadData();
+      } catch (err) {
+        setStatusMsg(err.message || "Error eliminando análisis");
+        setStatusType("error");
+      }
+    }
+  };
 
   // Live search (reactive as you type)
   useEffect(() => {
     const query = search.trim().toLowerCase();
     const filtered = rows
       .filter(r => {
+        if (r && r.isNew) return true;
         const matchesSearch =
           !query ||
           r.categoria.toLowerCase().includes(query) ||
@@ -405,39 +245,23 @@ export default function CategoriasTable() {
     "Análisis de Costos",
   ];
 
-  const handleChange = (id, field, value) => {
-    setRows(prev =>
-      prev.map(row => (row.id === id ? { ...row, [field]: value } : row))
-    );
-    setFilteredRows(prev =>
-      prev.map(row => (row.id === id ? { ...row, [field]: value } : row))
-    );
-    setEditedRows(prev => ({
-      ...prev,
-      [id]: { ...prev[id], [field]: value },
-    }));
-  };
-
-  const handleSave = async () => {
-    setSaving(true);
-    try {
-      // Here you would typically save to backend
-      console.log("Saving edits:", editedRows);
-      alert("Cambios guardados correctamente");
-      setEditedRows({});
-    } catch (err) {
-      console.error(err);
-      alert(err.message || "Error guardando cambios");
-    } finally {
-      setSaving(false);
-    }
-  };
 
   return (
     <main className="pt-4 pb-0 px-12 overflow-auto">
       <h1 className="titulo-tabla-cupos text-3xl font-semibold pb-4">
         Análisis Explicativo
       </h1>
+
+      {/* Status Message */}
+      {statusMsg && (
+        <div className={`mb-4 p-3 rounded ${
+          statusType === "success" 
+            ? "bg-green-100 text-green-700 border border-green-300" 
+            : "bg-red-100 text-red-700 border border-red-300"
+        }`}>
+          {statusMsg}
+        </div>
+      )}
       <div className="actions-container flex justify-between mb-4">
         <div className="search-bar flex gap-2">
           <input
@@ -473,15 +297,13 @@ export default function CategoriasTable() {
           </select>
         </div>
         <div className="flex gap-4">
-          {Object.keys(editedRows).length > 0 && (
-            <button
-              onClick={handleSave}
-              className="unified-button flex gap-2 items-center justify-center"
-            >
-              Guardar cambios
-              <FaRegSave />
-            </button>
-          )}
+          <button
+            onClick={handleAddRow}
+            className="unified-button flex gap-2 items-center justify-center"
+          >
+            Agregar Fila
+            <FaRegSave />
+          </button>
           <button
             className="unified-button flex gap-2 items-center justify-center"
             onClick={handleDownload}
@@ -496,23 +318,83 @@ export default function CategoriasTable() {
         <table className="table-auto border-collapse w-full">
           <thead className="tabla-cupos-header">
             <tr>
+              <th className="p-4 border text-center whitespace-nowrap ">Acciones</th>
               <th className="p-4 border text-center whitespace-nowrap ">AÑO</th>
               <th className="p-4 border text-center whitespace-nowrap ">MES</th>
-              <th className="p-4 border text-center whitespace-nowrap ">
-                PANEL
-              </th>
-              <th className="p-4 border text-center whitespace-nowrap ">
-                TITULO
-              </th>
-              <th className="p-4 border text-center whitespace-nowrap ">
-                TEXTO: ANÁLISIS EXPLICATIVO
-              </th>
+              <th className="p-4 border text-center whitespace-nowrap ">PANEL</th>
+              <th className="p-4 border text-center whitespace-nowrap ">TITULO</th>
+              <th className="p-4 border text-center whitespace-nowrap ">TEXTO: ANÁLISIS EXPLICATIVO</th>
             </tr>
           </thead>
           <tbody className="tabla-cupos-content p-4">
             {filteredRows.map(row => (
               <tr key={row.id}>
+                {/* Acciones primero */}
+                <td className="p-2 border text-center">
+                  {editingRows[row.id] || row.isNew ? (
+                  <div className="flex gap-2 justify-center">
+                    <button
+                      onClick={async () => {
+                        try {
+                          if (row.isNew) {
+                            if (!row.anio || !row.mes || !row.categoria || !row.subcategoria) {
+                              setStatusMsg("Por favor complete Año, Mes, Panel y Título");
+                              setStatusType("error");
+                              return;
+                            }
+                            await saveAnalisisExplicativo(row);
+                            const data = await listAnalisisExplicativo({ limit: 200 });
+                            setRows(data); setFilteredRows(data);
+                            setStatusMsg("Análisis guardado correctamente");
+                            setStatusType("success");
+                          } else {
+                            await updateAnalisisExplicativo(row.id, row);
+                            const data = await listAnalisisExplicativo({ limit: 200 });
+                            setRows(data); setFilteredRows(data);
+                            setStatusMsg("Cambios guardados correctamente");
+                            setStatusType("success");
+                          }
+                          setEditingRows(prev => ({...prev, [row.id]: false}));
+                        } catch (err) {
+                          console.error(err);
+                          setStatusMsg(err.message || "Error guardando cambios");
+                          setStatusType("error");
+                        }
+                      }}
+                      className="px-3 py-1 bg-green-500 text-white rounded cursor-pointer hover:bg-green-600"
+                      title="Guardar"
+                    >
+                      <FaCheck />
+                    </button>
+                    <button
+                      onClick={() => setEditingRows(prev => ({...prev, [row.id]: false}))}
+                      className="px-3 py-1 bg-gray-500 text-white rounded cursor-pointer hover:bg-gray-600"
+                      title="Cancelar"
+                    >
+                      <FaTimes />
+                    </button>
+                  </div>
+                  ) : (
+                  <div className="flex gap-2 justify-center">
+                    <button
+                      onClick={() => setEditingRows(prev => ({...prev, [row.id]: true}))}
+                      className="px-3 py-1 bg-blue-500 text-white rounded cursor-pointer hover:bg-blue-600"
+                      title="Editar"
+                    >
+                      <FaEdit />
+                    </button>
+                    <button
+                      onClick={() => handleDelete(row.id, row.categoria, row.subcategoria)}
+                      className="px-3 py-1 bg-red-500 text-white rounded cursor-pointer hover:bg-red-600"
+                      title="Eliminar análisis"
+                    >
+                      <FaTrash />
+                    </button>
+                  </div>
+                  )}
+                </td>
                 <td className="p-4 border text-center">
+                  {editingRows[row.id] || row.isNew ? (
                   <select
                     value={row.anio || ""}
                     onChange={e =>
@@ -527,8 +409,12 @@ export default function CategoriasTable() {
                       </option>
                     ))}
                   </select>
+                  ) : (
+                    row.anio
+                  )}
                 </td>
                 <td className="p-4 border text-center">
+                  {editingRows[row.id] || row.isNew ? (
                   <select
                     value={row.mes || ""}
                     onChange={e => handleChange(row.id, "mes", e.target.value)}
@@ -541,8 +427,12 @@ export default function CategoriasTable() {
                       </option>
                     ))}
                   </select>
+                  ) : (
+                    row.mes
+                  )}
                 </td>
                 <td className="p-4 border text-center">
+                  {editingRows[row.id] || row.isNew ? (
                   <select
                     value={row.categoria || ""}
                     onChange={e =>
@@ -557,8 +447,12 @@ export default function CategoriasTable() {
                       </option>
                     ))}
                   </select>
+                  ) : (
+                    row.categoria
+                  )}
                 </td>
                 <td className="p-4 border text-center">
+                  {editingRows[row.id] || row.isNew ? (
                   <select
                     value={row.subcategoria || ""}
                     onChange={e =>
@@ -573,8 +467,12 @@ export default function CategoriasTable() {
                       </option>
                     ))}
                   </select>
+                  ) : (
+                    row.subcategoria
+                  )}
                 </td>
                 <td className="p-4 border text-left max-w-md">
+                  {editingRows[row.id] || row.isNew ? (
                   <textarea
                     value={row.descripcion || ""}
                     onChange={e =>
@@ -583,7 +481,11 @@ export default function CategoriasTable() {
                     className="w-full px-2 py-1 border rounded min-h-[100px]"
                     rows={4}
                   />
+                  ) : (
+                    <div className="whitespace-pre-wrap">{row.descripcion}</div>
+                  )}
                 </td>
+                {/* Acciones moved to first column; trailing cell removed */}
               </tr>
             ))}
           </tbody>

@@ -20,7 +20,8 @@ export function moneyToNumber(v) {
 
 export function num(v, d = 0) {
   if (v == null || v === "") return d;
-  const s = String(v).replace(/\./g, "").replace(",", ".");
+  // Solo reemplazar comas por puntos, no remover puntos decimales
+  const s = String(v).replace(",", ".");
   const n = Number(s);
   return Number.isFinite(n) ? n : d;
 }

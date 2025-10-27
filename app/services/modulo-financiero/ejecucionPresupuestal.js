@@ -1,6 +1,19 @@
+/**
+ *********************************************
+ *   Servicio: Ejecución Presupuestal (PUC6)  *
+ *********************************************
+ * CRUD y carga de archivos para ejecución.
+ */
 import api from "../api";
 
 // Función para listar registros de ejecución presupuestal
+/**
+ * +-----------------------------------+
+ * | listEjecucionPresupuestal         |
+ * |-----------------------------------|
+ * | Lista registros con filtros       |
+ * +-----------------------------------+
+ */
 export async function listEjecucionPresupuestal(filters = {}) {
   try {
     const { data } = await api.get("/api/v1/finanzas/ejecucion-presupuestal/", { params: filters });
@@ -12,6 +25,13 @@ export async function listEjecucionPresupuestal(filters = {}) {
 }
 
 // Función para guardar registro de ejecución presupuestal
+/**
+ * +-----------------------------------+
+ * | saveEjecucionPresupuestal         |
+ * |-----------------------------------|
+ * | Crea/actualiza un registro        |
+ * +-----------------------------------+
+ */
 export async function saveEjecucionPresupuestal(data) {
   try {
     const { data: response } = await api.post("/api/v1/finanzas/ejecucion-presupuestal/", data);
@@ -23,6 +43,9 @@ export async function saveEjecucionPresupuestal(data) {
 }
 
 // Función para eliminar registro de ejecución presupuestal
+/* -------------------------------------
+ *  Eliminación de registro por id
+ * ------------------------------------- */
 export async function deleteEjecucionPresupuestal(id) {
   try {
     const { data } = await api.delete(`/api/v1/finanzas/ejecucion-presupuestal/${id}/`);
@@ -31,6 +54,34 @@ export async function deleteEjecucionPresupuestal(id) {
     console.error("Error al eliminar ejecución presupuestal:", error);
     throw error;
   }
+}
+
+// Función para cargar (ETL) un archivo de ejecución presupuestal
+/* -------------------------------------
+ *  Carga de archivo (ETL)              
+ * ------------------------------------- */
+export async function uploadEjecucionPresupuestal({ file, anio, mes }) {
+  const form = new FormData();
+  form.append('file', file);
+  form.append('anio', String(anio));
+  form.append('mes', String(mes));
+  const { data } = await api.post('/api/v1/finanzas/ejecucion-presupuestal/upload/', form, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+  return data;
+}
+
+/**
+ * +-----------------------------------+
+ * | listEjecucionFiles                |
+ * |-----------------------------------|
+ * | Lista archivos por año            |
+ * +-----------------------------------+
+ */
+export async function listEjecucionFiles(year) {
+  const params = year ? { year } : {};
+  const { data } = await api.get('/api/v1/finanzas/ejecucion-presupuestal/files/', { params });
+  return data?.files || [];
 }
 
 // Función para formatear números con separadores de miles
@@ -65,6 +116,6 @@ export function parseNumber(value) {
     .replace(/\./g, '') // Remover puntos (separadores de miles)
     .replace(/,/g, '.'); // Convertir coma decimal a punto
   
-  const num = parseFloat(value);
+  const num = parseFloat(cleanValue);
   return isNaN(num) ? null : num;
 }

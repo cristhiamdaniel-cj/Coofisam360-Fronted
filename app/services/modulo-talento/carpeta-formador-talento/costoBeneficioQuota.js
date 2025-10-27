@@ -38,6 +38,11 @@ export async function updateCostoBeneficioQuota(payload) {
   return await updateCostoBeneficioRaw(payload);
 }
 
+export async function deleteCostoBeneficioQuota(id) {
+  const api = await import("@/app/services/api");
+  return await api.default.delete(`/api/v1/talento/capacitacion-mensual/${id}/`);
+}
+
 function mapFromApi(r) {
   return {
     id: r.id ?? r.row_id ?? genId(),

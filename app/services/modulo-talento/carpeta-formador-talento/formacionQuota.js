@@ -23,41 +23,62 @@ export async function updateFormacionQuota(payload) {
 }
 
 function mapFromApi(r) {
+  // Extraer año y mes del periodo
+  const periodo = new Date(r.periodo);
+  const anio = periodo.getFullYear();
+  const mes = periodo.toLocaleString('es-ES', { month: 'long' }).toUpperCase();
+  
   return {
-    id: r.id ?? r.formacion_id,
-    Año: r.anio ?? r.year,
-    Mes: r.mes_nombre ?? r.mes,
-    CantidadTrabajadores: num(r.cantidad_trabajadores ?? r.n_trabajadores),
-    Oficina: r.oficina ?? r.dependencia ?? "",
-    Roles: r.roles ?? "",
-    TemaFormacion: r.tema ?? r.tema_formacion ?? "",
-    TipoFormacion: r.tipo ?? r.tipo_formacion ?? "",
-    TotalParticipantes: num(r.total_participantes ?? r.participantes),
-    TotalTrabajadores: num(r.total_trabajadores ?? r.dotacion),
-    PorcentajeParticipacion:
-      r.porcentaje_participacion ?? r.participacion_pct ?? "",
-    NumeroVecesFormado: num(r.veces_formado ?? r.cantidad_eventos ?? 0),
-    Calificacion: num(r.calificacion ?? r.rating ?? 0),
+    id: r.id, // Usar el ID autoincremental del backend
+    Año: anio,
+    Mes: mes,
+    CantidadTrabajadores: num(r.cant_trab_participaron),
+    Oficina: r.oficina_dependencia ?? "",
+    Puesto: r.rol ?? "ADMINISTRATIVO", // Valor por defecto si está vacío
+    TemaFormacion: r.tema_formacion ?? "",
+    TipoFormacion: r.tipo_formacion ?? "",
+    TotalParticipantes: num(r.total_participantes),
+    TotalTrabajadores: num(r.total_trabajadores), // Campo correcto de la tabla snapshot
+    PorcentajeParticipacion: num(r.pct_participacion) || 0,
+    NumeroVecesFormado: num(r.veces_formado),
+    Calificacion: num(r.calificacion),
+    Grupo: num(r.grupo),
+    // Campos adicionales para el backend
+    periodo: r.periodo,
+    oficina_dependencia: r.oficina_dependencia,
+    rol_norm: r.rol_norm,
+    tema_formacion: r.tema_formacion,
+    tipo_formacion: r.tipo_formacion,
   };
 }
 
 function mapToApi(r) {
+  // Crear el periodo como fecha (primer día del mes)
+  const anio = num(r.Año);
+  const mes = toMonthNumber(r.Mes);
+  
+  // Validar que anio y mes sean válidos
+  if (!anio || !mes || isNaN(anio) || isNaN(mes) || anio < 1900 || anio > 2100 || mes < 1 || mes > 12) {
+    console.error("Valores inválidos para crear fecha:", { anio, mes, Año: r.Año, Mes: r.Mes });
+    throw new Error(`Valores inválidos para crear fecha: Año=${r.Año}, Mes=${r.Mes}`);
+  }
+  
+  const periodo = new Date(anio, mes - 1, 1).toISOString().split('T')[0];
+  
   return {
-    id: r.id,
-    anio: num(r.Año),
-    mes: toMonthNumber(r.Mes),
-    // Nombre esperado por backend: 'cant_trab_participaron'
-    cant_trab_participaron: num(r.CantidadTrabajadores),
-    oficina: r.Oficina ?? "",
-    roles: r.Roles ?? "",
+    // Incluir id solo si es un ID numérico (no para registros nuevos)
+    ...(r.id && !r.id.toString().startsWith('new_') && { id: parseInt(r.id) }),
+    periodo: periodo,
+    oficina_dependencia: r.Oficina ?? "",
+    rol_norm: r.Puesto ?? "ADMINISTRATIVO", // Valor por defecto si está vacío
     tema_formacion: r.TemaFormacion ?? "",
     tipo_formacion: r.TipoFormacion ?? "",
+    cant_trab_participaron: num(r.CantidadTrabajadores),
     total_participantes: num(r.TotalParticipantes),
-    total_trabajadores: num(r.TotalTrabajadores),
-    porcentaje_participacion: String(r.PorcentajeParticipacion ?? ""),
+    total_trabajadores: num(r.TotalTrabajadores), // Agregar el total de trabajadores
+    pct_participacion: num(r.PorcentajeParticipacion), // Agregar el porcentaje calculado
     veces_formado: num(r.NumeroVecesFormado),
     calificacion: num(r.Calificacion),
-    // PK compuesta requiere grupo; por defecto 1 si no se edita
-    grupo: num(r.Grupo) || 1,
+    // grupo no se envía porque no existe en fyc_formacion_snapshot
   };
 }

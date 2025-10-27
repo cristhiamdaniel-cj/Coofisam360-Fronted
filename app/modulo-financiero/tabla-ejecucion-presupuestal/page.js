@@ -1,8 +1,15 @@
+/**
+ *********************************************
+ *   Pantalla: Ejecución Presupuestal (PUC6)   *
+ *********************************************
+ * Gestión de ejecución, carga y manejo de archivos.
+ */
 "use client";
 import { useEffect, useState } from "react";
-import { FaRegSave } from "react-icons/fa";
+import { FaRegSave, FaRegFolderOpen, FaPlay } from "react-icons/fa";
 import { IoSearch } from "react-icons/io5";
 import { FiDownload } from "react-icons/fi";
+import { TbUpload } from "react-icons/tb";
 import { FaArrowDownWideShort } from "react-icons/fa6";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
@@ -14,9 +21,14 @@ import {
   formatNumber,
   formatPercentage,
   parseNumber,
+  uploadEjecucionPresupuestal,
+  listEjecucionFiles,
 } from "../../services/modulo-financiero/ejecucionPresupuestal";
 
 export default function EjecucionPresupuestalTable() {
+  /***************************************
+   *       Bloque de lógica principal     *
+   ***************************************/
   const [rows, setRows] = useState([]);
   const [filteredRows, setFilteredRows] = useState([]);
   const [editedRows, setEditedRows] = useState({});
@@ -29,12 +41,46 @@ export default function EjecucionPresupuestalTable() {
   const [editingRows, setEditingRows] = useState({});
   const [statusMsg, setStatusMsg] = useState("");
   const [statusType, setStatusType] = useState("info"); // success | error | info
+  // ETL upload state
+  const [etlYear, setEtlYear] = useState(new Date().getFullYear());
+  const [etlMonth, setEtlMonth] = useState(new Date().getMonth() + 1);
+  const [etlFile, setEtlFile] = useState(null);
+  const [etlUploading, setEtlUploading] = useState(false);
+  const [explorerOpen, setExplorerOpen] = useState(false);
+  const [filesByYear, setFilesByYear] = useState([]);
+
+  const handleDownloadTemplate = () => {
+    try {
+      const headers = [
+        { header: 'Código', key: 'codigo' },
+        { header: 'Denominación', key: 'denominacion' },
+        { header: 'Proyectado', key: 'proyectado' },
+      ];
+      const rows = [
+        { codigo: '110505', denominacion: 'CAJA GENERAL', proyectado: 0 },
+      ];
+      // Build worksheet using AOA to ensure header names
+      const aoa = [headers.map(h => h.header), ...rows.map(r => headers.map(h => r[h.key]))];
+      const ws = XLSX.utils.aoa_to_sheet(aoa);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Plantilla');
+      const buf = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+      saveAs(new Blob([buf], { type: 'application/octet-stream' }), 'Plantilla_Ejecucion_Presupuestal.xlsx');
+    } catch (e) {
+      console.error(e);
+      setStatusType('error');
+      setStatusMsg('No se pudo generar la plantilla');
+    }
+  };
 
   // Load data on mount
   useEffect(() => {
     load();
   }, []);
 
+  /* -------------------------------------
+   *  Mapear filas desde API
+   * ------------------------------------- */
   function mapRow(r) {
     return {
       id: String(r.id ?? ""),
@@ -51,11 +97,18 @@ export default function EjecucionPresupuestalTable() {
     };
   }
 
+  /**
+   * +-----------------------------------+
+   * |        Función de inicio          |
+   * |-----------------------------------|
+   * | Carga inicial de ejecución        |
+   * +-----------------------------------+
+   */
   async function load() {
     try {
       console.log("Iniciando carga de datos...");
-      // Cargar datos de agosto 2025 por defecto
-      const data = await listEjecucionPresupuestal({ anio: 2025, mes: 8, limit: 1000 });
+      // Cargar todos los datos sin filtros
+      const data = await listEjecucionPresupuestal({ limit: 1000 });
       console.log("Datos recibidos:", data);
       const rows = Array.isArray(data) ? data : data?.items || [];
       console.log("Filas procesadas:", rows.length);
@@ -64,9 +117,11 @@ export default function EjecucionPresupuestalTable() {
       setFilteredRows(mapped);
       setError("");
       
-      // Establecer año y mes por defecto
-      setSelectedYear(2025);
-      setSelectedMonth(8);
+      // Establecer año y mes por defecto si hay datos
+      if (mapped.length > 0) {
+        setSelectedYear(2025);
+        setSelectedMonth(8);
+      }
       console.log("Carga completada exitosamente");
     } catch (e) {
       console.error("ERROR LOADING EJECUCION PRESUPUESTAL", e);
@@ -88,6 +143,116 @@ export default function EjecucionPresupuestalTable() {
       ...prev,
       [id]: { ...prev[id], [field]: value },
     }));
+  };
+
+  const handleUpload = async () => {
+    if (!etlFile) {
+      setStatusType('error');
+      setStatusMsg('Seleccione un archivo para cargar');
+      return;
+    }
+    const y = selectedYear || etlYear;
+    const m = selectedMonth || etlMonth;
+    if (!y || !m) {
+      setStatusType('error');
+      setStatusMsg('Seleccione año y mes para la carga');
+      return;
+    }
+    try {
+      setEtlUploading(true);
+      const res = await uploadEjecucionPresupuestal({ file: etlFile, anio: y, mes: m });
+      const imported = res?.imported ?? res?.saved ?? 0;
+      const errors = res?.errors || [];
+      setStatusType(errors.length ? 'info' : 'success');
+      setStatusMsg(`Importados: ${imported}${errors.length ? `, errores: ${errors.length}` : ''}`);
+      setEtlFile(null);
+      // recargar datos al período subido
+      setSelectedYear(String(y));
+      setSelectedMonth(String(m));
+      await load();
+      // Abrir explorador para verificar que quedó guardado
+      await openExplorer();
+    } catch (e) {
+      console.error(e);
+      setStatusType('error');
+      setStatusMsg(e?.response?.data?.error || e.message || 'Error al cargar archivo');
+    } finally {
+      setEtlUploading(false);
+    }
+  };
+
+  // Modal simple
+  function Modal({ open, onClose, title, children, width = 720, height = 520 }) {
+    if (!open) return null;
+    return (
+      <div className="modal-tablero-control fixed inset-0 bg-black/40 z-[1000] flex items-center justify-center">
+        <div className="bg-white rounded-[20px] flex flex-col shadow-[0_10px_30px_rgba(0,0,0,0.2)]" style={{ width, maxWidth: '96vw', height, maxHeight: '90vh' }}>
+          <div className="px-3.5 py-2.5 border-b rounded-t-[20px] border-[#e6e6e6] flex items-center justify-between bg-[#780000] text-[#fff1f2]">
+            <h3 style={{ margin: 0, fontWeight: 700 }}>{title}</h3>
+            <button onClick={onClose} className="cursor-pointer">✖</button>
+          </div>
+          <div style={{ padding: 12, overflow: 'auto', flex: 1 }}>{children}</div>
+        </div>
+      </div>
+    );
+  }
+
+  const openExplorer = async () => {
+    try {
+      const y = selectedYear || undefined;
+      const list = await listEjecucionFiles(y);
+      setFilesByYear(list);
+      setExplorerOpen(true);
+    } catch (e) {
+      setStatusType('error');
+      setStatusMsg(e?.response?.data?.error || e.message || 'Error cargando archivos');
+    }
+  };
+
+  const downloadRel = async rel => {
+    try {
+      const base = process.env.NEXT_PUBLIC_API_BASE || '';
+      const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : '';
+      const url = `${base}/api/v1/finanzas/download/?path=${encodeURIComponent(rel)}`;
+      const res = await fetch(url, { headers: token ? { Authorization: `Token ${token}` } : {} });
+      if (!res.ok) throw new Error(await res.text());
+      const blob = await res.blob();
+      const a = document.createElement('a');
+      const objectUrl = URL.createObjectURL(blob);
+      a.href = objectUrl;
+      a.download = rel.split('/').pop();
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(objectUrl);
+    } catch (e) {
+      setStatusType('error');
+      setStatusMsg(e.message || 'Error descargando archivo');
+    }
+  };
+
+  const deleteRel = async rel => {
+    try {
+      const base = process.env.NEXT_PUBLIC_API_BASE || '';
+      const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : '';
+      const url = `${base}/api/v1/finanzas/delete/`;
+      const res = await fetch(url, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Token ${token}` } : {}),
+        },
+        body: JSON.stringify({ path: rel })
+      });
+      if (!res.ok) throw new Error(await res.text());
+      setStatusType('success');
+      setStatusMsg('Archivo eliminado correctamente');
+      // Refrescar lista
+      await openExplorer();
+    } catch (e) {
+      setStatusType('error');
+      setStatusMsg(e.message || 'Error eliminando archivo');
+    }
   };
 
   const handleSave = async () => {
@@ -243,6 +408,68 @@ export default function EjecucionPresupuestalTable() {
       <h1 className="titulo-tabla-cupos text-3xl font-semibold pb-4">
         Ejecución Presupuestal (PUC 6 dígitos)
       </h1>
+
+      {/* Acciones ETL estilo chips (como ETL general) */}
+      <div className="actions-container flex gap-4 pb-2">
+        <label className="action-button flex gap-2 items-center justify-center cursor-pointer">
+          {etlFile ? (etlFile.name.length > 28 ? etlFile.name.slice(0, 25) + '…' : etlFile.name) : 'Cargar Proyectado'}
+          <TbUpload />
+          <input
+            type="file"
+            accept=".xlsx,.csv"
+            className="hidden"
+            onChange={e => setEtlFile(e.target.files?.[0]||null)}
+          />
+        </label>
+        <button
+          onClick={handleUpload}
+          disabled={etlUploading}
+          className="action-button flex gap-2 items-center justify-center cursor-pointer disabled:opacity-50"
+        >
+          {etlUploading ? 'Cargando…' : 'Ejecutar'} <FaPlay />
+        </button>
+        <button
+          onClick={handleDownloadTemplate}
+          className="action-button flex gap-2 items-center justify-center cursor-pointer"
+        >
+          Descargar plantilla <FiDownload />
+        </button>
+    <button
+      onClick={openExplorer}
+      className="action-button flex gap-2 items-center justify-center cursor-pointer"
+    >
+      Explorar <FaRegFolderOpen />
+    </button>
+  </div>
+
+  <Modal open={explorerOpen} onClose={() => setExplorerOpen(false)} title="Archivos (por año)" width={820} height={560}>
+    {filesByYear && filesByYear.length ? (
+      <div className="space-y-4">
+        {filesByYear.map(group => (
+          <div key={group.year} className="border rounded p-3">
+            <div className="font-semibold mb-2">Año {group.year}</div>
+            {(group.files || []).length ? (
+              <ul className="list-disc pl-5">
+                {group.files.map((f, idx) => (
+                  <li key={idx} className="flex items-center justify-between gap-3 py-1">
+                    <span>{f.name}</span>
+                    <div className="flex gap-2">
+                      <button className="action-button px-3 py-1" onClick={() => downloadRel(f.rel)}>Descargar</button>
+                      <button className="action-button px-3 py-1" onClick={() => deleteRel(f.rel)}>Eliminar</button>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <div className="text-gray-500">Sin archivos</div>
+            )}
+          </div>
+        ))}
+      </div>
+    ) : (
+      <div className="text-gray-500">No hay archivos disponibles</div>
+    )}
+  </Modal>
       <div className="actions-container flex justify-between mb-4">
         {statusMsg && (
           <div className={`px-4 py-2 rounded text-sm ${statusType === 'success' ? 'bg-green-100 text-green-800' : statusType === 'error' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'}`}>

@@ -1,4 +1,4 @@
-const BASE_URL = process.env.NEXT_PUBLIC_API_BASE || "";
+const BASE_URL = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:8060";
 const DEFAULT_TIMEOUT = 20000;
 
 function withQuery(url, params) {
@@ -22,9 +22,16 @@ async function request(method, path, { params, body, headers } = {}) {
   try {
     if (typeof window !== "undefined") {
       const token = window.localStorage.getItem("authToken");
-      if (token) h.Authorization = `Token ${token}`;
+      if (token) {
+        h.Authorization = `Token ${token}`;
+      }
     }
   } catch (_) {}
+  // Detectar FormData para multipart: no establecer Content-Type manualmente
+  const isFormData = (typeof FormData !== 'undefined') && body instanceof FormData;
+  if (isFormData) {
+    try { delete h["Content-Type"]; } catch(_) {}
+  }
 
   const res = await fetch(url, {
     method,
@@ -33,7 +40,9 @@ async function request(method, path, { params, body, headers } = {}) {
     body:
       method === "GET" || method === "HEAD"
         ? undefined
-        : body
+        : isFormData
+        ? body
+        : body != null
         ? JSON.stringify(body)
         : undefined,
   });
@@ -54,15 +63,18 @@ async function request(method, path, { params, body, headers } = {}) {
   if (!res.ok) {
     const message =
       (data && (data.error || data.message)) || res.statusText || "API error";
-    throw { status: res.status, message, data };
+    const err = new Error(message);
+    err.status = res.status;
+    err.data = data;
+    throw err;
   }
   return { status: res.status, data };
 }
 
 const api = {
   get: (path, { params } = {}) => request("GET", path, { params }),
-  post: (path, body) => request("POST", path, { body }),
-  put: (path, body) => request("PUT", path, { body }),
+  post: (path, body, options = {}) => request("POST", path, { body, ...(options || {}) }),
+  put: (path, body, options = {}) => request("PUT", path, { body, ...(options || {}) }),
   delete: (path, options) => {
     if (options && (options.params || options.body || options.headers)) {
       return request("DELETE", path, options);

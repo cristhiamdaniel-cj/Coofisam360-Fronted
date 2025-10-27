@@ -14,7 +14,10 @@ function Modal({ open, onClose, title, children, width = 700, height = 520 }) {
   if (!open) return null;
   return (
     <div className="modal-tablero-control fixed inset-0 bg-black/40 z-[1000] flex items-center justify-center">
-      <div className="bg-white rounded-[20px] w-[700px] max-w-[96vw] h-[520px] max-h-[90vh] flex flex-col shadow-[0_10px_30px_rgba(0,0,0,0.2)]">
+      <div
+        className="bg-white rounded-[20px] flex flex-col shadow-[0_10px_30px_rgba(0,0,0,0.2)]"
+        style={{ width, maxWidth: "96vw", height, maxHeight: "90vh" }}
+      >
         <div className="px-3.5 py-2.5 border-b rounded-t-[20px] border-[#e6e6e6] flex items-center justify-between bg-[#780000] text-[#fff1f2]">
           <h3 style={{ margin: 0, fontWeight: 700 }}>{title}</h3>
           <button onClick={onClose} title="Cerrar" className="cursor-pointer">
@@ -91,6 +94,17 @@ function Node({ node, onDownload, onDelete }) {
   );
 }
 
+// Validador de nombre de archivo de balance
+function isValidBalanceFilename(name) {
+  if (!name) return false;
+  try {
+    const re = /^(Listado[\s_-]*balances[\s_-]*Consolidado[\s_-]*[A-Za-zÁÉÍÓÚáéíóúñÑ]+[\s_-]*\d{4})\.(xlsx|xls)$/i;
+    return re.test(String(name).trim());
+  } catch (_) {
+    return false;
+  }
+}
+
 export default function FinancieroDashboard() {
   const base = process.env.NEXT_PUBLIC_API_BASE || "";
   const [uploading, setUploading] = useState(false);
@@ -102,12 +116,30 @@ export default function FinancieroDashboard() {
   const [logs, setLogs] = useState([]);
   const esRef = useRef(null);
   const boxRef = useRef(null);
+  // Parámetros del ETL
+  const now = new Date();
+  const [etlYear, setEtlYear] = useState(now.getFullYear());
+  // UI simplificada: el usuario solo elige Año y Archivo
+  // Selección de archivo a procesar
+  const [etlFileRel, setEtlFileRel] = useState("");
+  const [filesForYear, setFilesForYear] = useState([]);
+  const [loadingFiles, setLoadingFiles] = useState(false);
 
   useEffect(() => {
     if (!etlOpen) return;
     const el = boxRef.current;
     if (el) el.scrollTop = el.scrollHeight;
   }, [logs, etlOpen]);
+
+  // Cerrar el stream al desmontar el componente
+  useEffect(() => {
+    return () => {
+      if (esRef.current) {
+        esRef.current.close();
+        esRef.current = null;
+      }
+    };
+  }, []);
 
   async function fetchTree() {
     try {
@@ -116,14 +148,24 @@ export default function FinancieroDashboard() {
       });
       setRootName(data.root || "");
       setTree(data.tree || []);
+      return data;
     } catch (e) {
       setError(e.message || "Error");
+      return null;
     }
   }
 
   const handleUpload = async e => {
     const file = e.target.files[0];
     if (!file) return;
+    // Validar patrón de nombre de archivo requerido
+    if (!isValidBalanceFilename(file.name)) {
+      alert(
+        "Nombre inválido. Usa: Listado_balances_Consolidado_<Mes>_<Año>.xlsx"
+      );
+      e.target.value = "";
+      return;
+    }
     setUploading(true);
     const formData = new FormData();
     formData.append("file", file);
@@ -154,6 +196,39 @@ export default function FinancieroDashboard() {
     setError("");
     await fetchTree();
   };
+
+  // Cargar archivos disponibles para el año seleccionado
+  useEffect(() => {
+    if (!etlOpen) return;
+    async function computeFiles() {
+      try {
+        setLoadingFiles(true);
+        const data = await fetchTree();
+        const srcTree = (data && data.tree) || tree || [];
+        const flat = [];
+        function walk(nodes, prefix = "") {
+          (nodes || []).forEach(n => {
+            if (n.type === "dir") {
+              walk(n.children || [], (prefix ? prefix + "/" : "") + (n.name || ""));
+            } else if (n.type === "file" && n.rel) {
+              flat.push({ rel: n.rel, name: n.name });
+            }
+          });
+        }
+        walk(srcTree, "");
+        const targetPrefix = `Aanoo_${etlYear}/`;
+        const candidates = flat
+          .filter(f => f.rel && f.rel.startsWith(targetPrefix) && isValidBalanceFilename(f.name))
+          .sort((a, b) => a.name.localeCompare(b.name));
+        setFilesForYear(candidates);
+        if (candidates.length && !etlFileRel) setEtlFileRel(candidates[0].rel);
+      } finally {
+        setLoadingFiles(false);
+      }
+    }
+    computeFiles();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [etlOpen, etlYear]);
 
   async function downloadFile(rel, name) {
     try {
@@ -191,24 +266,61 @@ export default function FinancieroDashboard() {
   }
 
   const handleRunETL = () => {
-    setEtlOpen(true);
+    // Validar selección de archivo
+    if (!etlFileRel) {
+      alert("Selecciona un archivo a procesar");
+      return;
+    }
+    setError("");
     setLogs([]);
+    // Reiniciar el stream si ya existía
+    if (esRef.current) {
+      try {
+        esRef.current.close();
+      } catch (_) {}
+      esRef.current = null;
+    }
     const token =
       typeof window !== "undefined" ? localStorage.getItem("authToken") : "";
-    const es = new EventSource(
-      `${base}/users/finanzas/etl/stream/${
-        token ? `?token=${encodeURIComponent(token)}` : ""
-      }`,
-      { withCredentials: true }
-    );
+    const params = new URLSearchParams();
+    if (token) params.set("token", token);
+    if (etlYear) params.set("year", String(etlYear));
+    // Simplificado: backend poblara automáticamente sin exponer banderas
+    if (etlFileRel) params.set("file", etlFileRel);
+    const url = `${base}/users/finanzas/etl/stream/${params.toString() ? `?${params.toString()}` : ""}`;
+    const es = new EventSource(url, { withCredentials: true });
     es.onmessage = event => {
       setLogs(prev => [...prev, event.data]);
     };
     es.onerror = () => {
-      es.close();
+      try {
+        es.close();
+      } catch (_) {}
+      esRef.current = null;
     };
     esRef.current = es;
   };
+
+  async function handlePopulateNow() {
+    setPosting(true);
+    try {
+      const body = {
+        year: etlYear,
+        month: etlMonth,
+        populate_public_saldos: populatePublicSaldos,
+        populate_op_saldo: populateOpSaldo,
+      };
+      const { data } = await api.post("/api/v1/finanzas/etl/populate/", body);
+      setLogs(prev => [...prev, `Populate ✓: ${JSON.stringify(data)}`]);
+    } catch (e) {
+      setLogs(prev => [
+        ...prev,
+        `Populate ✗: ${(e && (e.message || e.status)) || "error"}. Si el endpoint no existe, el backend debe implementarlo.`,
+      ]);
+    } finally {
+      setPosting(false);
+    }
+  }
 
   function stopETL() {
     if (esRef.current) {
@@ -253,7 +365,7 @@ export default function FinancieroDashboard() {
         {/* Ejecutar */}
         <button
           className="action-button flex gap-2 items-center justify-center cursor-pointer"
-          onClick={handleRunETL}
+          onClick={() => { setEtlOpen(true); setLogs([]); }}
         >
           Ejecutar
           <FaPlay />
@@ -286,9 +398,53 @@ export default function FinancieroDashboard() {
         width={960}
         height={560}
       >
-        <div style={{ marginBottom: 8, display: "flex", gap: 8 }}>
-          <button onClick={handleRunETL}>Iniciar</button>
-          <button onClick={stopETL}>Detener</button>
+        <div style={{ marginBottom: 8, display: "flex", gap: 12, flexWrap: "wrap", alignItems: "center" }}>
+          <label style={{ display: "flex", gap: 6, alignItems: "center", fontWeight: 600, color: "#333" }}>
+            Año
+            <input
+              type="number"
+              value={etlYear}
+              onChange={e => setEtlYear(parseInt(e.target.value) || now.getFullYear())}
+              className="border px-2 py-1 w-[120px]"
+              min={2020}
+              max={2035}
+            />
+          </label>
+          <label style={{ display: "flex", gap: 6, alignItems: "center", minWidth: 360, flex: 1, fontWeight: 600, color: "#333" }}>
+            Archivo
+            <select
+              value={etlFileRel}
+              onChange={e => setEtlFileRel(e.target.value)}
+              className="border px-2 py-1 min-w-[320px]"
+            >
+              {loadingFiles && <option>Cargando...</option>}
+              {!loadingFiles && filesForYear.map(f => (
+                <option key={f.rel} value={f.rel}>{f.rel}</option>
+              ))}
+              {!loadingFiles && filesForYear.length === 0 && (
+                <option value="">Sin archivos para el año seleccionado</option>
+              )}
+            </select>
+          </label>
+          <div style={{ display: "flex", gap: 8, marginLeft: "auto" }}>
+            <button
+              onClick={handleRunETL}
+              disabled={!etlFileRel}
+              className="action-button"
+              style={{ background: "#780000", color: "#fff", padding: "6px 12px", borderRadius: 6, opacity: !etlFileRel ? 0.6 : 1 }}
+              title="Ejecutar ETL para el archivo seleccionado"
+            >
+              Ejecutar ETL
+            </button>
+            <button
+              onClick={stopETL}
+              className="action-button"
+              style={{ background: "#eee", color: "#333", padding: "6px 12px", borderRadius: 6 }}
+              title="Detener stream"
+            >
+              Detener
+            </button>
+          </div>
         </div>
         <pre
           ref={boxRef}

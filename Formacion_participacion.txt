@@ -1,0 +1,160 @@
+AÑO	MES	CANTIDAD_TRABAJADORES_QUE_PARTICIPARON	OFICINA_DEPENDENCIA	ROLES	TEMA_DE_FORMACION	TIPO_DE_FORMACION	TOTAL_DE_PARTICIPANTES	TOTAL_DE_TRABAJADORES	PORCENTAJE_DE_PARTICIPACION	NUM_VECES_FORMADO_CADA_TRABAJADOR	CALIFICACION
+2024	Abril	1	Gigante	Asesores externos y barra	Competencias básicas, técnicas y específicas	Inducción	13	189	7%	3	4.0
+2024	Abril	1	Pital	Aprendiz Sena	Competencias básicas, técnicas y específicas	Inducción	13	189	7%	3	3.9
+2024	Abril	1	Guadalupe	Aprendiz Sena	Competencias básicas, técnicas y específicas	Inducción	13	189	7%	3	3.9
+2024	Abril	1	Chaparral	Jefe de Operaciones	Competencias básicas, técnicas y específicas	Inducción	13	189	7%	3	3.9
+2024	Abril	1	Rivera	Cajeros	Competencias básicas, técnicas y específicas	Inducción	13	189	7%	3	3.9
+2024	Abril	1	Saladoblanco	Asesores externos y barra	Competencias básicas, técnicas y específicas	Inducción	13	189	7%	3	3.9
+2024	Abril	5	Direccion General	Gestores de Cartera	Competencias básicas, técnicas y específicas	Inducción	13	189	7%	3	3.9
+2024	Abril	1	Guadalupe	Asesores externos y barra	Habilidades Comerciales	Entrenamiento	13	189	7%	3	3.9
+2024	Abril	1	Planadas	Jefe de Operaciones	Habilidades operativas	Entrenamiento	13	189	7%	3	4.5
+2024	Mayo	180	Todo Coofisam	Todos los roles	Virtualcoop	Capacitación Interna	180	196	92%	2	3.0
+2024	Mayo	1	Garzón	Asesores externos y barra	Competencias básicas, técnicas y específicas	Inducción	9	196	5%	2	3.0
+2024	Mayo	2	Espinal	Cajeros	Competencias básicas, técnicas y específicas	Inducción	9	196	5%	2	3.1
+2024	Mayo	3	Acevedo	Aprendiz Sena	Competencias básicas, técnicas y específicas	Inducción	9	196	5%	2	3.0
+2024	Mayo	1	Dirección General	Aprendiz Sena	Competencias básicas, técnicas y específicas	Inducción	9	196	5%	2	3.0
+2024	Mayo	1	Fundacoofisam	Todos los roles	Portafolio de Servicios Coofisam y Fundacoofisam	Reinducción	9	196	5%	2	3.2
+2024	Mayo	1	La Plata	Asesores externos y barra	Habilidades comerciales y operativas	Entrenamiento	9	196	5%	2	3.1
+2024	Junio	187	Todo Coofisam	Todos los roles	Virtualcoop	Capacitación Interna	188	189	99%	1	4.5
+2024	Junio	1	Acevedo	Cajeros	Tips de concentración	Reinducción	188	189	99%	1	4.5
+2024	Julio	1	Tarqui	Asesores externos y barra	Competencias básicas, técnicas y específicas	Inducción	10	190	5%	1	4.04
+2024	Julio	1	Suaza	Asesores externos y barra	Competencias básicas, técnicas y específicas	Inducción	10	190	5%	1	4.04
+2024	Julio	1	Garzón	Aprendiz Sena	Competencias básicas, técnicas y específicas	Inducción	10	190	5%	1	4.04
+2024	ho	1	Pitalito	Aprendiz Sena	Competencias básicas, técnicas y específicas	Inducción	10	190	5%	1	4.03
+2024	Agosto	210	Todo Coofisam	Todos los roles	10 claves para alcanzar el exito en microcredito y cohesión de equipo	Capacitación Interna	210	210	100%	1	3.8
+2024	Agosto	1	Tarqui	Aprendiz Sena	Competencias básicas, técnicas y específicas	Inducción	9	210	4%	1	3.4
+2024	Agosto	1	Suaza	Asesores externos y barra	Competencias básicas, técnicas y específicas	Inducción	9	210	4%	1	3.9
+2024	Agosto	1	Garzón	Aprendiz Sena	Competencias básicas, técnicas y específicas	Inducción	9	210	4%	1	3.9
+2024	Agosto	1	Pitalito	Asesores externos y barra	Competencias básicas, técnicas y específicas	Inducción	9	210	4%	1	3.9
+2024	Agosto	2	Hobo	Asesores externos y barra	Linea de mando, atención cliente interno	Entrenamiento	9	210	4%	1	3.9
+2024	Agosto	3	Espinal	Asesores externos y barra	Linea de mando, atención cliente interno	Entrenamiento	9	210	4%	1	3.8
+2024	Septiembre	187		Red de Oficinas	Todos los roles Sarc, aclaraciones circulares de crédito	Capacitación Interna	191	210	91%	3	4.5
+2024	Octubre	1	Chaparral	Jefe de Operaciones	Competencias básicas, técnicas y específicas	Inducción	219	218	100%	1	4.02
+2024	Octubre	1	Chaparral	Asesores externos y barra	Competencias básicas, técnicas y específicas	Inducción	219	218	100%	1	3.96
+2024	Octubre	1	Planadas	Cajeros	Competencias básicas, técnicas y específicas	Inducción	219	218	100%	1	3.88
+2024	Octubre	1	Pital	Asesores externos y barra	Competencias básicas, técnicas y específicas	Inducción	219	218	100%	1	4.01
+2024	Octubre	1	Acevedo	Aprendiz Sena	Competencias básicas, técnicas y específicas	Inducción	219	218	100%	1	4.0
+2024	Octubre	1	Acevedo	Cajeros	Tips de concentración	Entrenamiento	219	218	100%	1	4.0
+2024	Noviembre	52	Todo Coofisam	Todos los roles	Manejo app Red Coopcentral, Siar, Marcación Pep	Capacitación Interna	201	206	98%	1	4.0
+2024	Noviembre	116	Todo Coofisam	Todos los roles	Siar	Curso en Plataforma Aprendizaje	201	206	98%	1	4.5
+2024	Noviembre	3	Suaza	Asesores externos y barra	Tps cobranza efectiva, etapas de cobranza, metodo de cobranza	Entrenamiento	201	206	98%	1	4.0
+2024	Noviembre	5	Pitalito	Asesores externos y barra	Tps cobranza efectiva, etapas de cobranza, metodo de cobranza	Entrenamiento	201	206	98%	1	4.0
+2024	Noviembre	2	Garzón	Asesores externos y barra	Tps cobranza efectiva, etapas de cobranza, metodo de cobranza	Entrenamiento	201	206	98%	1	4.0
+2024	Noviembre	3	La Plata	Asesores externos y barra	Tps cobranza efectiva, etapas de cobranza, metodo de cobranza	Entrenamiento	201	206	98%	1	4.0
+2024	Noviembre	3	Acevedo	Asesores externos y barra	Tps cobranza efectiva, etapas de cobranza, metodo de cobranza	Entrenamiento	201	206	98%	1	4.0
+2024	Noviembre	3	Hobo	Asesores externos y barra	Tps cobranza efectiva, etapas de cobranza, metodo de cobranza	Entrenamiento	201	206	98%	1	4.0
+2024	Noviembre	2	Florencia	Asesores externos y barra	Tps cobranza efectiva, etapas de cobranza, metodo de cobranza	Entrenamiento	201	206	98%	1	4.0
+2024	Noviembre	3	Espinal	Asesores externos y barra	Tps cobranza efectiva, etapas de cobranza, metodo de cobranza	Entrenamiento	201	206	98%	1	4.0
+2024	Noviembre	2	Chaparral	Asesores externos y barra	Tps cobranza efectiva, etapas de cobranza, metodo de cobranza	Entrenamiento	201	206	98%	1	4.0
+2024	Noviembre	2	Planadas	Asesores externos y barra	Tps cobranza efectiva, etapas de cobranza, metodo de cobranza	Entrenamiento	201	206	98%	1	4.0
+2024	Noviembre	5	Neiva	Asesores externos y barra	Tps cobranza efectiva, etapas de cobranza, metodo de cobranza	Entrenamiento	201	206	98%	1	4.0
+2024	Diciembre	102	Todo Coofisam	Todos los roles	Como hacer más en menos tiempo	Capacitación Interna	198	206	96%	1	4.0
+2024	Diciembre	93	Todo Coofisam	Todos los roles	Sarlaft	Curso en Plataforma Aprendizaje	198	206	96%	1	4.1
+2024	Diciembre	1	Saladoblanco	Asesores externos y barra	Competencias básicas, técnicas y específicas	Inducción	198	206	96%	1	4.1
+2024	Diciembre	1	Dirección General	Aprendiz Sena	Competencias básicas, técnicas y específicas	Inducción	198	206	96%	1	4.1
+2024	Diciembre	1	Dirección General	Aprendiz Sena	Competencias básicas, técnicas y específicas	Inducción	198	206	96%	1	4.1
+2025	Enero	67		Red de Oficinas	Todos los roles Actualización Sarc, Seguridad vial	Capacitación Interna	159	218	73%	4	4.5
+2025	Enero	88	Todo Coofisam	Todos los roles	Módulo 1 SST	Curso en Plataforma Aprendizaje	159	218	73%	4	4.4
+2025	Enero	1	Suaza	Auxiliares	Competencias básicas, técnicas y específicas	Inducción	159	218	73%	4	4.4
+2025	Enero	2	Dirección General	Gestores Competencias básicas, técnicas	y específicas	Inducción	159	218	73%	4	4.5
+2025	Enero	1	Garzón	Cajeros	Tips de concentración	Entrenamiento	159	218	73%	4	4.0
+2025	Febrero	5	Dirección General	Todos los roles	Seguridad de la información, finanzas personales y familiares	Capacitación Interna	206	206	100%	3	4.5
+2025	Febrero	169	Todo Coofisam	Todos los roles	Módulo 2 SST	Curso en Plataforma Aprendizaje	206	206	100%	3	4.5
+2025	Febrero	1	Espinal	Asesores externos y barra	Competencias básicas, técnicas y específicas	Inducción	206	206	100%	3	4.5
+2025	Febrero	1	Chaparral	Asesores externos y barra	Competencias básicas, técnicas y específicas	Inducción	206	206	100%	3	4.3
+2025	Febrero	1	Tarqui	Auxiliares	Competencias básicas, técnicas y específicas	Inducción	206	206	100%	3	4.1
+2025	Febrero	1	Acevedo	Auxiliares	Competencias básicas, técnicas y específicas	Inducción	206	206	100%	3	4.1
+2025	Febrero	1	La Plata	Auxiliares	Competencias básicas, técnicas y específicas	Inducción	206	206	100%	3	4.1
+2025	Febrero	2	Dirección General	Asesores externos y barra	Competencias básicas, técnicas y específicas	Inducción	206	206	100%	3	4.1
+2025	Febrero	1	La Argentina	Cajeros	Competencias básicas, técnicas y específicas	Inducción	206	206	100%	3	4.5
+2025	Febrero	2	Dirección General	Aprendiz Sena	Competencias básicas, técnicas y específicas	Inducción	206	206	100%	3	4.5
+2025	Febrero	1	La Argentina	Asesores externos y barra	Competencias básicas, técnicas y específicas	Reinducción	206	206	100%	3	4.5
+2025	Febrero	1	Garzón	Cajeros	Habilidades efectivas en el servicio de caja	Reinducción	206	206	100%	3	4.5
+2025	Febrero	2	Suaza	Asesores externos y barra	Negociaciones exitosas en crédito para tiempos dificiles, capacidad para producir acuerdos efectivos, fortalecimiento de habilidades para negociar	Entrenamiento	206	206	100%	3	4.5
+2025	Febrero	5	Pitalito	Asesores externos y barra	Negociaciones exitosas en crédito para tiempos dificiles, capacidad para producir acuerdos efectivos, fortalecimiento de habilidades para negociar	Entrenamiento	206	206	100%	3	4.5
+2025	Febrero	1	Garzón	Asesores externos y barra	Negociaciones exitosas en crédito para tiempos dificiles, capacidad para producir acuerdos efectivos, fortalecimiento de habilidades para negociar	Entrenamiento	206	206	100%	3	4.5
+2025	Febrero	2	La Plata	Asesores externos y barra	Negociaciones exitosas en crédito para tiempos dificiles, capacidad para producir acuerdos efectivos, fortalecimiento de habilidades para negociar	Entrenamiento	206	206	100%	3	4.5
+2025	Febrero	2	Hobo	Asesores externos y barra	Negociaciones exitosas en crédito para tiempos dificiles, capacidad para producir acuerdos efectivos, fortalecimiento de habilidades para negociar	Entrenamiento	206	206	100%	3	4.5
+2025	Febrero	1	Florencia	Asesores externos y barra	Negociaciones exitosas en crédito para tiempos dificiles, capacidad para producir acuerdos efectivos, fortalecimiento de habilidades para negociar	Entrenamiento	206	206	100%	3	4.5
+2025	Febrero	1	Espinal	Asesores externos y barra	Negociaciones exitosas en crédito para tiempos dificiles, capacidad para producir acuerdos efectivos, fortalecimiento de habilidades para negociar	Entrenamiento	206	206	100%	3	4.5
+2025	Febrero	1	Chaparral	Asesores externos y barra	Negociaciones exitosas en crédito para tiempos dificiles, capacidad para producir acuerdos efectivos, fortalecimiento de habilidades para negociar	Entrenamiento	206	206	100%	3	4.5
+2025	Febrero	1	Planadas	Asesores externos y barra	Negociaciones exitosas en crédito para tiempos dificiles, capacidad para producir acuerdos efectivos, fortalecimiento de habilidades para negociar	Entrenamiento	206	206	100%	3	4.5
+2025	Febrero	3	Neiva	Asesores externos y barra	Negociaciones exitosas en crédito para tiempos dificiles, capacidad para producir acuerdos efectivos, fortalecimiento de habilidades para negociar	Entrenamiento	206	206	100%	3	4.5
+2025	Febrero	1	Gigante	Asesores externos y barra	Negociaciones exitosas en crédito para tiempos dificiles, capacidad para producir acuerdos efectivos, fortalecimiento de habilidades para negociar	Entrenamiento	206	206	100%	3	4.5
+2025	Marzo	27	Todo Coofisam	Todos los roles	Bre-be	Capacitación Interna	153	206	74%	3	4.0
+2025	Marzo	100	Todo Coofisam	Todos los roles	Protección de datos	Curso en Plataforma Aprendizaje	153	206	74%	3	4.0
+2025	Marzo	1	Chaparral	Cajeros	Competencias básicas, técnicas y específicas	Inducción	153	206	74%	3	4.0
+2025	Marzo	1	Pitalito	Asesores externos y barra	Competencias básicas, técnicas y específicas	Inducción	153	206	74%	3	3.9
+2025	Marzo	3	Dirección General	Auxiliares	Competencias básicas, técnicas y específicas	Inducción	153	206	74%	3	4.0
+2025	Marzo	1	Fundacoofisam	Todos los roles	Portafolio de servicios Coofisam y Fundacoofisam	Reinducción	153	206	74%	3	4.0
+2025	Marzo	2	Suaza	Asesores externos y barra	Atención servicio al cliente interno, habilidades para planeación efectiva, habilidades comunicacionales	Entrenamiento	153	206	74%	3	4.5
+2025	Marzo	5	Pitalito	Asesores externos y barra	Atención servicio al cliente interno, habilidades para planeación efectiva, habilidades comunicacionales	Entrenamiento	153	206	74%	3	4.5
+2025	Marzo	1	Garzón	Asesores externos y barra	Atención servicio al cliente interno, habilidades para planeación efectiva, habilidades comunicacionales	Entrenamiento	153	206	74%	3	4.5
+2025	Marzo	2	La Plata	Asesores externos y barra	Atención servicio al cliente interno, habilidades para planeación efectiva, habilidades comunicacionales	Entrenamiento	153	206	74%	3	4.5
+2025	Marzo	2	Hobo	Asesores externos y barra	Atención servicio al cliente interno, habilidades para planeación efectiva, habilidades comunicacionales	Entrenamiento	153	206	74%	3	4.5
+2025	Marzo	1	Florencia	Asesores externos y barra	Atención servicio al cliente interno, habilidades para planeación efectiva, habilidades comunicacionales	Entrenamiento	153	206	74%	3	4.5
+2025	Marzo	1	Espinal	Asesores externos y barra	Atención servicio al cliente interno, habilidades para planeación efectiva, habilidades comunicacionales	Entrenamiento	153	206	74%	3	4.5
+2025	Marzo	1	Chaparral	Asesores externos y barra	Atención servicio al cliente interno, habilidades para planeación efectiva, habilidades comunicacionales	Entrenamiento	153	206	74%	3	4.5
+2025	Marzo	1	Planadas	Asesores externos y barra	Atención servicio al cliente interno, habilidades para planeación efectiva, habilidades comunicacionales	Entrenamiento	153	206	74%	3	4.5
+2025	Marzo	3	Neiva	Asesores externos y barra	Atención servicio al cliente interno, habilidades para planeación efectiva, habilidades comunicacionales	Entrenamiento	153	206	74%	3	4.5
+2025	Marzo	1	Gigante	Asesores externos y barra	Atención servicio al cliente interno, habilidades para planeación efectiva, habilidades comunicacionales	Entrenamiento	153	206	74%	3	4.5
+2025	Abril	206	Todo Coofisam	Todos los roles	Equidad de Genero, portal empresarial, estrategia de seguridad en entornos públicos, boton PSE, Capacitación sobre consecuencias para los trabajadores en caso de evidenciarse un fraude	Capacitación Interna	206	206	100%	2	4.5
+2025	Abril	162	Todo Coofisam	Todos los roles	Portafolio de servicios Fundacoofisam	Curso en Plataforma Aprendizaje	163	206	79%	2	5.0
+2025	Abril	1	Espinal	Asesores externos y barra	Competencias básicas, técnicas y específicas	Inducción	163	206	79%	2	3.9
+2025	Mayo	210	Todo Coofisam	Todos los roles	Acoso laboral, Protocolos llamadas efectivas de cartera, reprocesos	Capacitación Interna	210	210	100%	1	4.5
+2025	Mayo	3	Dirección General	Auxiliares	Atención cliente interno, habilidades comunicacionales y empatia	Entrenamiento	3	210	1%	1	4.5
+2025	Junio	3	Dirección General	Aprendiz Sena	Competencias básicas, técnicas y específicas	Inducción	3	199	2%	1	4.5
+2025	Junio	2	Dirección General	Auxiliares	Empoderamiento de roles	Entrenamiento	2	199	1%	1	4.0
+2025	Junio	32	Todo Coofisam	Todos los roles	Acoso laboral	Curso en Plataforma Aprendizaje	32	199	16%	1	5.0
+2025	Junio	162	Todo Coofisam	Todos los roles	Nueva App Red Coopcentral, capacitación Red Coopagos Botón PSE, soluciones efectivas, presentación proyecto planeación estratégica, higiene postural, sensibilización ahorro de energía y movilidad sostenible, taller en el manejo de emociones y del stres, experiencia Elite, protocolos de cobranza, experiencia Elite.	Capacitación Interna	162	199	81%	1	4.5
+2025	Julio	1	Dirección General	Auxiliares	Competencias básicas, técnicas y específicas	Inducción	1	201	0%	1	5.0
+2025	Julio	152	Todo Coofisam	Todos los roles	Curso Comité Convivencia Laboral y Sostenibilidad	Curso en Plataforma Aprendizaje	152	201	76%	1	5.0
+2025	Julio	201	Todo Coofisam	Todos los roles	Sensibilización estructura base de datos para tableros de control, Capacitación de motivación y Empoderamiento de Roles, Sensibilizacion proceso arqueos de caja, Analisis informacion Financiera por oficina, Sencibilización uso del papel, envio correspondencia CAD (Vinculaciones, pagares), periocidad y revisión, custodia de titulos Cad y depositos Oficina, Capacitacitación circulares crédito, Capacitación SARLAFT: Marcación Jurisdicción en Consultas Infolaft, Observaciones a Vinculaciones, Declaración Origen y Destino de Recursos, Capacitación de proceso de insolvencia, Capacitación sobre funciones y responsabilidades del comité COPASST y CCL, Capacitación prevención de lesiones osteomusculares.	Capacitación Interna	201	201	100%	1	5.0
+2025	Julio	1	Iquira	Director Oficina	Liderazgo Comercial	Entrenamiento	1	201	0%	5	5.0
+2025	Julio	1	Tarqui	Asesores externos y barra	Liderazgo Comercial	Entrenamiento	1	201	0%	5	5.0
+2025	Julio	1	Tarqui	Director Oficina	Liderazgo Comercial	Entrenamiento	1	201	0%	5	5.0
+2025	Julio	1	La Plata	Asesores externos y barra	Liderazgo Comercial	Entrenamiento	1	201	0%	5	5.0
+2025	Julio	1	La Plata	Director Oficina	Liderazgo Comercial	Entrenamiento	1	201	0%	5	5.0
+2025	Julio	1	Florencia	Cajeros	Liderazgo Comercial	Entrenamiento	1	201	0%	5	5.0
+2025	Julio	1	Florencia	Asesores externos y barra	Liderazgo Comercial	Entrenamiento	1	201	0%	5	5.0
+2025	Julio	1	Florencia	Director Oficina	Liderazgo Comercial	Entrenamiento	1	201	0%	5	5.0
+2025	Julio	8	Dirección General	Gestores Nuevas tendencias de	cobranza	Entrenamiento	8	201	4%	1	5.0
+2025	Julio	1	Dirección General	Coordinadores	Nuevas tendencias de cobranza	Entrenamiento	1	201	0%	1	5.0
+2025	Julio	1	Dirección General	Subgerentes	Nuevas tendencias de cobranza	Entrenamiento	1	201	0%	1	5.0
+2025	Agosto	1	Pitalito	Asesores externos y barra	Competencias básicas, técnicas y específicas	Inducción	1	208	0%	1	4.1
+2025	Agosto	1	Florencia	Asesores externos y barra	Competencias básicas, técnicas y específicas	Inducción	1	208	0%	1	3.9
+2025	Agosto	1	Dirección General	Auxiliares	Competencias básicas, técnicas y específicas	Inducción	1	208	0%	1	4.5
+2025	Agosto	1	Garzón	Auxiliares	Competencias básicas, técnicas y específicas	Inducción	1	208	0%	1	3.7
+2025	Agosto	1	Garzón	Aprendiz Sena	Competencias básicas, técnicas y específicas	Inducción	1	208	0%	1	4.5
+2025	Agosto	1	Dirección General	Aprendiz Sena	Competencias básicas, técnicas y específicas	Inducción	1	208	0%	1	3.5
+2025	Agosto	1	Iquira	Director Oficina	Liderazgo Comercial	Entrenamiento	1	208	0%	1	3.5
+2025	Agosto	1	Tarqui	Asesores externos y barra	Liderazgo Comercial	Entrenamiento	1	208	0%	1	3.5
+2025	Agosto	1	Tarqui	Director Oficina	Liderazgo Comercial	Entrenamiento	1	208	0%	1	4.0
+2025	Agosto	1	La Plata	Asesores externos y barra	Liderazgo Comercial	Entrenamiento	1	208	0%	1	3.5
+2025	Agosto	1	La Plata	Director Oficina	Liderazgo Comercial	Entrenamiento	1	208	0%	1	4.0
+2025	Agosto	1	Florencia	Cajeros	Liderazgo Comercial	Entrenamiento	1	208	0%	1	4.0
+2025	Agosto	1	Florencia	Asesores externos y barra	Liderazgo Comercial	Entrenamiento	1	208	0%	1	5.0
+2025	Agosto	1	Florencia	Director Oficina	Liderazgo Comercial	Entrenamiento	1	208	0%	1	3.8
+2025	Agosto	3	Neiva	Asesores externos y barra	SARC y sus anexos	Reinducción	3	208	1%	3	3.8
+2025	Agosto	1	Hobo	Cajeros	SARC y sus anexos	Reinducción	1	208	0%	3	3.8
+2025	Agosto	1	Garzón	Asesores externos y barra	SARC y sus anexos	Reinducción	1	208	0%	3	3.8
+2025	Agosto	1	La Plata	Director Oficina	SARC y sus anexos	Reinducción	1	208	0%	3	3.8
+2025	Agosto	1	La Argentina	Jefe de Operaciones	SARC y sus anexos	Reinducción	1	208	0%	3	3.8
+2025	Agosto	1	Tarqui	Jefe de Operaciones	SARC y sus anexos	Reinducción	1	208	0%	3	3.8
+2025	Agosto	144	Todo Coofisam	Todos los roles	Plan de preparación, prevención y respuesta ante de emergencias	Curso en Plataforma Aprendizaje	144	208	69%	1	5.0
+2025	Agosto	141	Todo Coofisam	Todos los roles	Política ambiental, uso eficiente del agua, gestión integral de residuos sólidos.	Curso en Plataforma Aprendizaje	141	208	68%	1	5.0
+2025	Agosto	208	Todo Coofisam	Todos los roles	Higiene postural, Comité de archivo, detención de billetes falsos, Campaña fidelización, Sarc y sus anexos, Campaña de ahorros mi ahorro, ramo seguros Equidad, ramo seguros Solidaria, Formación innovación, formación en pausas activas, Capacitación Comité de convivencia laboral, Marcación de la jurisdicción en consulta web y PDA WhatsApp de Infolaft, Planeacion Estrategica Titanes	Capacitación Interna	208	208	100%	19	4.5
+2025	Agosto	1	Dirección General	Subgerentes	Transformación digital	Capacitación Externa	1	208	0%	1	0.0
+2025	Agosto	1	Dirección General	Subgerentes	Transformación digital	Capacitación Externa	1	208	0%	1	0.0
+2025	Agosto	1	Dirección General	Subgerentes	Transformación digital	Capacitación Externa	1	208	0%	1	0.0
+2025	Agosto	1	Dirección General	Gerente	Transformación digital, Pasantia mexico caja popular, Consejo Visionamos, Congreso Confecoop	Capacitación Externa	1	208	0%	3	0.0
+2025	Agosto	1	Dirección General	Subgerentes	Transformación digital	Capacitación Externa	1	208	0%	1	0.0
+2025	Agosto	1	Dirección General	Directores de área	Transformación digital	Capacitación Externa	1	208	0%	1	0.0
+2025	Agosto	1	Dirección General	Coordinadores	Transformación digital	Capacitación Externa	1	208	0%	1	0.0
+2025	Agosto	1	Acevedo	Director Oficina	Congreso Confecoop	Capacitación Externa	1	208	0%	1	0.0
+2025	Agosto	1	Dirección General	Directores de área	Transformación digital	Capacitación Externa	1	208	0%	1	0.0
+2025	Agosto	1	Dirección General	Directores de área	Transformación digital	Capacitación Externa	1	208	0%	1	0.0
+2025	Agosto	1	Dirección General	Directores de área	Transformación digital	Capacitación Externa	1	208	0%	1	0.0
+2025	Agosto	2		Consejo Admón y/o Juanta Vigilancia	Consejo Admón, Junta de vigilancia Transformación digital	Capacitación Externa	2	208	1%	1	0.0
+2025	Agosto	11		Consejo Admón y/o Juanta Vigilancia	Consejo Admón, Junta de vigilancia Transformación digital	Capacitación Externa	11	208	5%	1	0.0
+2025	Agosto	1		Consejo Admón y/o Juanta Vigilancia	Consejo Admón, Junta de vigilancia Congreso Confecoop	Capacitación Externa	1	208	0%	1	0.0

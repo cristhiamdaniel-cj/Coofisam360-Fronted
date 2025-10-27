@@ -1,0 +1,60 @@
+name: coofisam360
+
+services:
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: coofisam_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: Alejito10.
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+    networks: [coofinet]
+
+  backend:
+    build:
+      context: ../coofisam360/backend
+      dockerfile: Dockerfile
+    environment:
+      DJANGO_DEBUG: "False"
+      DJANGO_ALLOWED_HOSTS: backend,localhost,127.0.0.1
+      DB_NAME: coofisam_db
+      DB_USER: postgres
+      DB_PASSWORD: Alejito10.
+      DB_HOST: db
+      DB_PORT: "5432"
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8060:8060"
+    volumes:
+      - lbalance:/home/desarrollo/Coofisam/data/Libro_de_Balance_x_Aanoo
+    networks: [coofinet]
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_BASE: http://localhost:8060
+    environment:
+      NEXT_PUBLIC_API_BASE: http://localhost:8060
+    depends_on:
+      - backend
+    ports:
+      - "8061:8061"
+    networks: [coofinet]
+
+volumes:
+  pgdata:
+  lbalance:
+
+networks:
+  coofinet:
+    driver: bridge

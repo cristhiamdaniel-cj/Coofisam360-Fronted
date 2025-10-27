@@ -3,10 +3,11 @@ import { useEffect, useState } from "react";
 import {
   listControlRows,
   saveControlRow,
+  deleteControlRow,
   listEmpleadosByOficina,
 } from "../../../services/modulo-talento/carpeta-disciplinario/controlDiscipline";
 import { IoSearch } from "react-icons/io5";
-import { FaRegSave, FaFileDownload } from "react-icons/fa";
+import { FaRegSave, FaFileDownload, FaEdit, FaTrash, FaCheck, FaTimes } from "react-icons/fa";
 import { FaArrowDownWideShort } from "react-icons/fa6";
 import { TbUpload } from "react-icons/tb";
 import * as XLSX from "xlsx";
@@ -65,7 +66,7 @@ const initialRows = [
     GRAVEDAD_PRIMERA_INSTANCIA: "",
     SANCION_PRIMERA_INSTANCIA: "",
     Duracion_Proceso_Inicial: "7",
-    RECURSO: "PROCESO NO CONCLUIDO",
+    RECURSO: "NO INTERPUESTO",
     FECHA_INTERPOSICION_RECURSO: "",
     FECHA_DECISIÓN_RECURSO_PRIMERA_INSTANCIA: "",
     DECISIÓN_RECURSO_PRIMERA_INSTANCIA: "",
@@ -517,6 +518,15 @@ export default function GestionesTable() {
   const [selectedMonth, setSelectedMonth] = useState();
   const [editingRows, setEditingRows] = useState({});
 
+  // Opciones para los dropdowns
+  const opcionesPosibleSancion = [
+    "", "LLAMADO DE ATENCIÓN", "SUSPENSION", "TERMINACIÓN", "NO APLICA"
+  ];
+  
+  const opcionesGravedad = [
+    "", "LEVE", "GRAVE", "GRAVISIMA"
+  ];
+
   const toIso = v => {
     if (!v) return "";
     if (/^\d{2}\/\d{2}\/\d{4}$/.test(v)) {
@@ -659,8 +669,50 @@ export default function GestionesTable() {
     }
   };
 
+  const handleSaveSingle = async (idx) => {
+    try {
+      const finalRow = rows[idx];
+      const result = await saveControlRow(finalRow);
+      
+      // Marcar como guardado y cerrar edición
+      setEditedRows(prev => {
+        const newEdited = { ...prev };
+        delete newEdited[idx];
+        return newEdited;
+      });
+      setEditingRows(prev => ({ ...prev, [idx]: false }));
+      
+      alert("Registro guardado correctamente");
+    } catch (err) {
+      console.error("Error guardando registro:", err);
+      alert(`Error al guardar el registro: ${err.message}`);
+    }
+  };
+
+  const handleDelete = async (id, trabajador, motivo) => {
+    if (!id || !/^\d+$/.test(String(id))) {
+      alert("No se puede eliminar un registro nuevo o sin ID válido");
+      return;
+    }
+    
+    const confirmMessage = `¿Está seguro de eliminar el proceso disciplinario de ${trabajador} por ${motivo}?`;
+    if (!confirm(confirmMessage)) return;
+
+    try {
+      await deleteControlRow(id);
+      setRows(prev => prev.filter(r => r.id !== id));
+      setFilteredRows(prev => prev.filter(r => r.id !== id));
+      alert("Registro eliminado correctamente");
+    } catch (err) {
+      console.error("Error eliminando registro:", err);
+      alert("Error al eliminar el registro");
+    }
+  };
+
   const handleDownload = () => {
-    const worksheet = XLSX.utils.json_to_sheet(rows);
+    // Usar filteredRows para respetar los filtros aplicados
+    const dataToExport = filteredRows.length > 0 ? filteredRows : rows;
+    const worksheet = XLSX.utils.json_to_sheet(dataToExport);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Control Disciplinario");
     const excelBuffer = XLSX.write(workbook, {
@@ -668,7 +720,13 @@ export default function GestionesTable() {
       type: "array",
     });
     const data = new Blob([excelBuffer], { type: "application/octet-stream" });
-    saveAs(data, "control-disciplinario.xlsx");
+    
+    // Nombre del archivo basado en si hay filtros aplicados
+    const fileName = filteredRows.length > 0 && filteredRows.length < rows.length 
+      ? `control-disciplinario-filtrado-${filteredRows.length}-registros.xlsx`
+      : "control-disciplinario-completo.xlsx";
+    
+    saveAs(data, fileName);
   };
 
   const handleAddRow = () => {
@@ -942,7 +1000,45 @@ export default function GestionesTable() {
             {filteredRows.map((r, idx) => { const isEditing = r.isNew || !!editingRows[idx]; return (
               <tr key={idx}>
                 <td className="p-2 border text-center whitespace-nowrap">
-                  <button onClick={() => setEditingRows(prev => ({...prev, [idx]: !prev[idx]}))} className="px-3 py-1 border rounded cursor-pointer">{isEditing ? "Terminar" : "Editar"}</button>
+                  <div className="flex gap-2 justify-center">
+                    {!isEditing ? (
+                      <>
+                        <button
+                          onClick={() => setEditingRows(prev => ({...prev, [idx]: true}))}
+                          className="px-3 py-1 bg-blue-500 text-white rounded cursor-pointer hover:bg-blue-600"
+                          title="Editar"
+                        >
+                          <FaEdit />
+                        </button>
+                        {!r.isNew && r.id && /^\d+$/.test(String(r.id)) && (
+                          <button
+                            onClick={() => handleDelete(r.id, r.trabajador, r.MOTIVO)}
+                            className="px-3 py-1 bg-red-500 text-white rounded cursor-pointer hover:bg-red-600"
+                            title="Eliminar proceso disciplinario"
+                          >
+                            <FaTrash />
+                          </button>
+                        )}
+                      </>
+                    ) : (
+                      <>
+                        <button
+                          onClick={() => handleSaveSingle(idx)}
+                          className="px-3 py-1 bg-green-500 text-white rounded cursor-pointer hover:bg-green-600"
+                          title="Guardar cambios"
+                        >
+                          <FaCheck />
+                        </button>
+                        <button
+                          onClick={() => setEditingRows(prev => ({...prev, [idx]: false}))}
+                          className="px-3 py-1 bg-gray-500 text-white rounded cursor-pointer hover:bg-gray-600"
+                          title="Cancelar edición"
+                        >
+                          <FaTimes />
+                        </button>
+                      </>
+                    )}
+                  </div>
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap min-w-[240px]">
                   {(() => {
@@ -1130,10 +1226,42 @@ export default function GestionesTable() {
                   {r.Inicio_de_proceso_x_Día}
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
-                  {r.POSIBLE_SANCION}
+                  {isEditing ? (
+                    <select
+                      value={r.POSIBLE_SANCION || ""}
+                      onChange={e =>
+                        handleChange(idx, "POSIBLE_SANCION", e.target.value)
+                      }
+                      className="border rounded p-1 w-full"
+                    >
+                      {opcionesPosibleSancion.map(opcion => (
+                        <option key={opcion} value={opcion}>
+                          {opcion || "Seleccionar..."}
+                        </option>
+                      ))}
+                    </select>
+                  ) : (
+                    r.POSIBLE_SANCION
+                  )}
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
-                  {r.GRAVEDAD_NOTIFICADA}
+                  {isEditing ? (
+                    <select
+                      value={r.GRAVEDAD_NOTIFICADA || ""}
+                      onChange={e =>
+                        handleChange(idx, "GRAVEDAD_NOTIFICADA", e.target.value)
+                      }
+                      className="border rounded p-1 w-full"
+                    >
+                      {opcionesGravedad.map(opcion => (
+                        <option key={opcion} value={opcion}>
+                          {opcion || "Seleccionar..."}
+                        </option>
+                      ))}
+                    </select>
+                  ) : (
+                    r.GRAVEDAD_NOTIFICADA
+                  )}
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
                   {isEditing ? (
@@ -1225,7 +1353,6 @@ export default function GestionesTable() {
                     {[
                       "NO INTERPUESTO",
                       "APELACIÓN",
-                      "PROCESO NO CONCLUIDO",
                       "REPOSICIÓN",
                     ].map(opt => (
                       <option key={opt} value={opt}>
@@ -1371,7 +1498,19 @@ export default function GestionesTable() {
                   {r.Duración_Proceso_x_2_Instancia}
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
-                  {r.TIEMPO_DE_SUSPENSION}
+                  {isEditing ? (
+                    <input
+                      type="text"
+                      value={r.TIEMPO_DE_SUSPENSION || ""}
+                      onChange={e =>
+                        handleChange(idx, "TIEMPO_DE_SUSPENSION", e.target.value)
+                      }
+                      placeholder="Ej: 4 DÍAS"
+                      className="border rounded p-1 w-full"
+                    />
+                  ) : (
+                    r.TIEMPO_DE_SUSPENSION
+                  )}
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
                   <select disabled={!isEditing}

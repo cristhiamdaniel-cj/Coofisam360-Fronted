@@ -55,10 +55,16 @@ export function mapApiToUi(a = {}) {
   const dur1 = num(a.duracion_instancia_1);
   const dur2 = num(a.duracion_instancia_2);
   const totalProc = dur1 + dur2;
-  const notifDate = a.fecha_notificacion || a.fecha_hechos || a.fecha_conocimiento;
-  const notif = notifDate ? new Date(notifDate) : undefined;
-  const anio = notif && !isNaN(notif) ? notif.getFullYear() : a.anio ?? undefined;
-  const mes = notif && !isNaN(notif) ? notif.getMonth() + 1 : undefined;
+  // Extraer año y mes de las fechas disponibles
+  const fechaHechos = a.fecha_hechos;
+  const fechaNotif = a.fecha_notificacion;
+  const fechaConoc = a.fecha_conocimiento;
+  
+  // Priorizar fecha de hechos para el año
+  const fechaParaAnio = fechaHechos || fechaNotif || fechaConoc;
+  const fechaObj = fechaParaAnio ? new Date(fechaParaAnio) : undefined;
+  const anio = fechaObj && !isNaN(fechaObj) ? fechaObj.getFullYear() : (a.anio || new Date().getFullYear());
+  const mes = fechaObj && !isNaN(fechaObj) ? fechaObj.getMonth() + 1 : undefined;
 
   return {
     id: a.id,
@@ -172,9 +178,10 @@ export function mapUiToApi(u = {}) {
     payload.id = Number(u.id);
   }
   // Limpiar null/undefined
-  return Object.fromEntries(
+  const finalPayload = Object.fromEntries(
     Object.entries(payload).filter(([, v]) => v !== undefined)
   );
+  return finalPayload;
 }
 
 function str(v) {

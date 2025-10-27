@@ -13,7 +13,10 @@ import {
   getFormacionQuota,
   saveFormacionQuota,
   updateFormacionQuota,
+  deleteFormacionQuota,
 } from "../../../services/modulo-talento/carpeta-formador-talento/formacionQuota";
+import { FaEdit, FaTrash, FaCheck, FaTimes } from "react-icons/fa";
+import { toMonthNumber } from "@/app/services/modulo-talento/carpeta-formador-talento/talentHelpers";
 
 const puestos = [
   "ANALISTA DE CREDITO 1",
@@ -136,57 +139,92 @@ export default function GestionesTable() {
 
         const matchesYear = !selectedYear || r.Año === Number(selectedYear);
 
-        // Ahora comparamos el mes como string en mayúscula
+        // Si el registro está siendo editado, no aplicar filtro de mes para evitar que desaparezca
+        const isBeingEdited = editingRows[r.id];
         const matchesMonth =
-          !selectedMonth || r.Mes.toUpperCase() === selectedMonth.toUpperCase();
+          !selectedMonth || r.Mes.toUpperCase() === selectedMonth.toUpperCase() || isBeingEdited;
 
         return matchesSearch && matchesYear && matchesMonth;
       })
-      .sort((a, b) => Number(a.codigo) - Number(b.codigo));
+      .sort((a, b) => Number(a.id) - Number(b.id));
 
+    console.log("🔍 Filtrado - Total rows:", rows.length, "Filtered:", filtered.length, "Selected month:", selectedMonth, "Selected year:", selectedYear);
+    const februaryFiltered = filtered.filter(r => r.Mes === 'FEBRERO' && r.Año === 2025);
+    console.log("📅 Registros de febrero filtrados:", februaryFiltered.length, februaryFiltered);
+    
     setFilteredRows(filtered);
-  }, [search, rows, selectedYear, selectedMonth]);
+  }, [search, rows, selectedYear, selectedMonth, editingRows]);
 
   // Obtener años únicos
   const uniqueYears = [...new Set(rows.map(r => r.Año).filter(Boolean))];
 
-  // Obtener meses únicos en mayúscula
-  const uniqueMonths = [
+  // Obtener meses únicos en mayúscula - incluir todos los meses del año
+  const existingMonths = [
     ...new Set(rows.map(r => r.Mes && r.Mes.toUpperCase()).filter(Boolean)),
   ];
-
+  
   // Mantener el orden original de los meses
   const monthNames = [
-    "ENERO",
-    "FEBRERO",
-    "MARZO",
-    "ABRIL",
-    "MAYO",
-    "JUNIO",
-    "JULIO",
-    "AGOSTO",
-    "SEPTIEMBRE",
-    "OCTUBRE",
-    "NOVIEMBRE",
-    "DICIEMBRE",
+    "ENERO", "FEBRERO", "MARZO", "ABRIL", "MAYO", "JUNIO",
+    "JULIO", "AGOSTO", "SEPTIEMBRE", "OCTUBRE", "NOVIEMBRE", "DICIEMBRE"
   ];
+  
+  // Incluir todos los meses del año, no solo los que tienen datos
+  const uniqueMonths = monthNames;
 
-  const availableMonths = monthNames.filter(m => uniqueMonths.includes(m));
+  // Usar todos los meses del año como opciones disponibles
+  const availableMonths = uniqueMonths;
 
-  const handleChange = (index, field, value) => {
+  const calculatePercentage = (totalParticipantes, totalTrabajadores) => {
+    if (!totalParticipantes || !totalTrabajadores || totalTrabajadores === 0) {
+      return 0;
+    }
+    return Math.round((Number(totalParticipantes) / Number(totalTrabajadores)) * 100);
+  };
+
+  const getTotalTrabajadoresForMonth = (anio, mes) => {
+    // Buscar en los datos existentes el total de trabajadores para el mes específico
+    const existingRow = rows.find(r => r.Año === anio && r.Mes === mes && r.TotalTrabajadores > 0);
+    return existingRow ? existingRow.TotalTrabajadores : 0;
+  };
+
+  const handleChange = (rowId, field, value) => {
     // Convertir a número si es campo numérico
 
-    // Actualizar rows usando el índice
+    // Actualizar rows usando el ID de la fila
     setRows(prev => {
       const newRows = [...prev];
-      newRows[index] = { ...newRows[index], [field]: value };
+      const rowIndex = newRows.findIndex(r => String(r.id) === String(rowId));
+      if (rowIndex === -1) return prev;
+      
+      const currentRow = newRows[rowIndex];
+      newRows[rowIndex] = { ...currentRow, [field]: value };
+      
+      // Si cambia el mes, actualizar el Total de Trabajadores automáticamente
+      if (field === 'Mes') {
+        const anio = currentRow.Año;
+        const totalTrabajadores = getTotalTrabajadoresForMonth(anio, value);
+        newRows[rowIndex].TotalTrabajadores = totalTrabajadores;
+        
+        // Recalcular el porcentaje con el nuevo total de trabajadores
+        const totalParticipantes = currentRow.TotalParticipantes;
+        newRows[rowIndex].PorcentajeParticipacion = calculatePercentage(totalParticipantes, totalTrabajadores);
+      }
+      
+      // Si cambia TotalParticipantes, recalcular el porcentaje
+      if (field === 'TotalParticipantes') {
+        const totalParticipantes = value;
+        const totalTrabajadores = currentRow.TotalTrabajadores;
+        newRows[rowIndex].PorcentajeParticipacion = calculatePercentage(totalParticipantes, totalTrabajadores);
+      }
+      
       return newRows;
     });
 
     // Actualizar editedRows
     setEditedRows(prev => ({
       ...prev,
-      [index]: { ...prev[index], [field]: value },
+      [rowId]: { ...prev[rowId], [field]: value },
     }));
   };
 
@@ -213,41 +251,148 @@ export default function GestionesTable() {
   };
 
   const handleDownload = () => {
-    // Convert JSON to worksheet
-    const worksheet = XLSX.utils.json_to_sheet(rows);
-
-    // Create a new workbook
+    // Usar filteredRows para respetar los filtros aplicados
+    const dataToExport = filteredRows.length > 0 ? filteredRows : rows;
+    const worksheet = XLSX.utils.json_to_sheet(dataToExport);
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(
-      workbook,
-      worksheet,
-      "Indicadores Financieros"
-    );
-
-    // Write workbook and save
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Formación y Participación");
     const excelBuffer = XLSX.write(workbook, {
       bookType: "xlsx",
       type: "array",
     });
     const data = new Blob([excelBuffer], { type: "application/octet-stream" });
-    saveAs(data, "cupos.xlsx");
+    
+    // Nombre del archivo basado en si hay filtros aplicados
+    const fileName = filteredRows.length > 0 && filteredRows.length < rows.length 
+      ? `formacion-participacion-filtrado-${filteredRows.length}-registros.xlsx`
+      : "formacion-participacion-completo.xlsx";
+    
+    saveAs(data, fileName);
+  };
+
+  const handleSaveSingle = async (rowId) => {
+    try {
+      const finalRow = rows.find(r => String(r.id) === String(rowId));
+      if (!finalRow) {
+        console.warn("⚠️ No se encontró la fila con id:", rowId);
+        return;
+      }
+      
+      // Validar campos obligatorios
+      if (!finalRow.Oficina || finalRow.Oficina.trim() === "") {
+        alert("El campo 'Oficina' es obligatorio");
+        return;
+      }
+      if (!finalRow.Puesto || finalRow.Puesto.trim() === "") {
+        alert("El campo 'Puesto' es obligatorio");
+        return;
+      }
+      if (!finalRow.TipoFormacion || finalRow.TipoFormacion.trim() === "") {
+        alert("El campo 'Tipo de Formación' es obligatorio");
+        return;
+      }
+      
+      // Validar rango de calificación (numeric(3,2) = -9.99 a 9.99)
+      if (finalRow.Calificacion < 0 || finalRow.Calificacion > 9.99) {
+        alert("La calificación debe estar entre 0 y 9.99");
+        return;
+      }
+      
+      // Construir payload con campos del frontend (como en otros formularios)
+      const payload = {
+        id: finalRow.id,
+        Año: finalRow.Año,
+        Mes: finalRow.Mes,
+        Oficina: finalRow.Oficina,
+        Puesto: finalRow.Puesto,
+        TemaFormacion: finalRow.TemaFormacion,
+        TipoFormacion: finalRow.TipoFormacion,
+        CantidadTrabajadores: finalRow.CantidadTrabajadores,
+        TotalParticipantes: finalRow.TotalParticipantes,
+        TotalTrabajadores: finalRow.TotalTrabajadores,
+        PorcentajeParticipacion: Math.round(finalRow.PorcentajeParticipacion), // Convertir a entero
+        NumeroVecesFormado: finalRow.NumeroVecesFormado,
+        Calificacion: finalRow.Calificacion,
+        // Grupo no se envía porque no existe en fyc_formacion_snapshot
+      };
+
+      // Debug: Log del payload antes de enviar
+      console.log("🔍 DEBUG - Payload antes de enviar:", payload);
+      console.log("🔍 DEBUG - Calificacion value:", finalRow.Calificacion, "Type:", typeof finalRow.Calificacion);
+
+      // Crear o actualizar el registro usando el nuevo sistema de ID
+      if (finalRow.isNew) {
+        // Si es un registro nuevo, crear directamente
+        await saveFormacionQuota(payload);
+      } else {
+        // Si es un registro existente, actualizar usando el ID
+        await updateFormacionQuota(payload);
+      }
+
+      // Cerrar modo edición
+      setEditingRows(prev => ({ ...prev, [finalRow.id]: false }));
+      setEditedRows(prev => {
+        const newEdited = { ...prev };
+        delete newEdited[finalRow.id];
+        return newEdited;
+      });
+
+      // Recargar datos
+      console.log("🔄 Recargando datos después de guardar...");
+      const data = await listFormacionQuota({ limit: 500 });
+      console.log("📊 Datos recargados:", data);
+      const februaryRecords = Array.isArray(data) ? data.filter(r => r.Mes === 'FEBRERO' && r.Año === 2025) : (data?.items || []).filter(r => r.Mes === 'FEBRERO' && r.Año === 2025);
+      console.log("📅 Registros de febrero después de recargar:", februaryRecords.length, februaryRecords);
+      setRows(Array.isArray(data) ? data : data?.items || []);
+      
+      // Mostrar mensaje de éxito
+      alert("✅ Registro guardado exitosamente");
+    } catch (err) {
+      console.error("Error guardando registro:", err);
+      alert(`Error al guardar el registro: ${err.message}`);
+    }
+  };
+
+  const handleDelete = async (rowId) => {
+    const row = rows.find(r => String(r.id) === String(rowId));
+    if (!row) {
+      console.warn("⚠️ No se encontró la fila con id:", rowId);
+      return;
+    }
+    if (!row.id || row.isNew) {
+      // Si es una fila nueva, solo la removemos del estado
+      setRows(prev => prev.filter(r => String(r.id) !== String(rowId)));
+      setFilteredRows(prev => prev.filter(r => String(r.id) !== String(rowId)));
+      return;
+    }
+
+    if (confirm(`¿Estás seguro de que quieres eliminar este registro?`)) {
+      try {
+        // TODO: Implementar deleteFormacionQuota cuando esté disponible en el backend
+        alert("Función de eliminar pendiente de implementar en el backend");
+      } catch (err) {
+        console.error("Error eliminando registro:", err);
+        alert("Error al eliminar el registro");
+      }
+    }
   };
 
   const handleAddRow = () => {
     const newRow = {
-      id: crypto.randomUUID(), // o uuidv4() si ya lo tienes importado
+      id: `new_${Date.now()}`, // ID temporal para el frontend (no se envía al backend)
       Año: new Date().getFullYear(),
-      Mes: "", // se puede dejar vacío para seleccionar luego
+      Mes: "ENERO", // valor por defecto válido
       CantidadTrabajadores: 0,
-      Oficina: "",
-      Puesto: "",
-      TemaFormacion: "",
-      TipoCapacitacion: "",
+      Oficina: "Direccion General", // valor por defecto válido (campo obligatorio) - sin tilde como en BD
+      Puesto: "ADMINISTRATIVO", // valor por defecto válido
+      TemaFormacion: "Competencias básicas, técnicas y específicas", // valor por defecto válido
+      TipoFormacion: "Capacitación Interna", // valor por defecto válido (campo obligatorio)
       TotalParticipantes: 0,
       TotalTrabajadores: 0, // si quieres mostrarlo como no editable
-      PorcentajeParticipacion: 0, // idem
+      PorcentajeParticipacion: 0, // se calculará automáticamente
       NumeroVecesFormado: 0,
-      Calificacion: 0, // idem
+      Calificacion: 0, // valor entre 0 y 9.99 (numeric(3,2))
+      // Grupo no se incluye porque no existe en fyc_formacion_snapshot
       isNew: true, // marcar que esta fila es editable completamente
     };
 
@@ -326,6 +471,7 @@ export default function GestionesTable() {
         <table className="table-auto border-collapse w-full">
           <thead>
             <tr className="tabla-header">
+              <th className="p-4 border text-center whitespace-nowrap">Acciones</th>
               <th className="p-4 border text-center whitespace-nowrap min-w-[120px]">
                 Año
               </th>
@@ -364,10 +510,51 @@ export default function GestionesTable() {
           </thead>
 
           <tbody className="tabla-cupos-content p-4">
-            {filteredRows.map((r, idx) => (
-              <tr key={idx}>
+            {filteredRows.map((r, idx) => {
+              const isEditing = r.isNew || !!editingRows[r.id];
+              return (
+                <tr key={idx}>
+                <td className="p-2 border text-center whitespace-nowrap">
+                  {isEditing ? (
+                    <div className="flex gap-2 justify-center">
+                      <button
+                        onClick={() => handleSaveSingle(r.id)}
+                        className="p-2 text-green-600 hover:bg-green-100 rounded"
+                        title="Guardar cambios"
+                      >
+                        <FaCheck />
+                      </button>
+                      <button
+                        onClick={() => setEditingRows(prev => ({ ...prev, [r.id]: false }))}
+                        className="p-2 text-red-600 hover:bg-red-100 rounded"
+                        title="Cancelar edición"
+                      >
+                        <FaTimes />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex gap-2 justify-center">
+                      <button
+                        onClick={() => setEditingRows(prev => ({ ...prev, [r.id]: true }))}
+                        className="p-2 text-blue-600 hover:bg-blue-100 rounded"
+                        title="Editar registro"
+                      >
+                        <FaEdit />
+                      </button>
+                      {!r.isNew && (
+                        <button
+                          onClick={() => handleDelete(r.id)}
+                          className="p-2 text-red-600 hover:bg-red-100 rounded"
+                          title="Eliminar registro"
+                        >
+                          <FaTrash />
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </td>
                 <td className="p-2 border text-left whitespace-nowrap">
-                  {r.isNew ? (
+                  {isEditing ? (
                     <input
                       type="number"
                       value={r.Año}
@@ -380,7 +567,7 @@ export default function GestionesTable() {
                 </td>
 
                 <td className="p-2 border text-left whitespace-nowrap">
-                  {r.isNew ? (
+                  {isEditing ? (
                     <select
                       value={r.Mes}
                       onChange={e => handleChange(r.id, "Mes", e.target.value)}
@@ -410,23 +597,28 @@ export default function GestionesTable() {
                   )}
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
-                  <input
-                    type="number"
-                    value={r.CantidadTrabajadores}
-                    onChange={e => {
-                      handleChange(idx, "CantidadTrabajadores", e.target.value);
-                    }}
-                    className="px-2 py-1 w-full text-left border ml-1"
-                  />
+                  {isEditing ? (
+                    <input
+                      type="number"
+                      value={r.CantidadTrabajadores}
+                      onChange={e => {
+                        handleChange(r.id, "CantidadTrabajadores", e.target.value);
+                      }}
+                      className="px-2 py-1 w-full text-left border ml-1"
+                    />
+                  ) : (
+                    r.CantidadTrabajadores
+                  )}
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
-                  <select
-                    value={r.Oficina} // Cambia r.Oficina por el campo que estés usando
-                    onChange={e => {
-                      handleChange(idx, "Oficina", e.target.value);
-                    }}
-                    className="border rounded p-1 w-full"
-                  >
+                  {isEditing ? (
+                    <select
+                      value={r.Oficina}
+                      onChange={e => {
+                        handleChange(r.id, "Oficina", e.target.value);
+                      }}
+                      className="border rounded p-1 w-full"
+                    >
                     {[
                       "Garzón",
                       "Guadalupe",
@@ -448,7 +640,7 @@ export default function GestionesTable() {
                       "Chaparral",
                       "Florencia",
                       "Red de Oficinas",
-                      "Dirección General",
+                      "Direccion General",
                       "Todo Coofisam",
                       "Fundacoofisam",
                     ].map(opt => (
@@ -456,13 +648,17 @@ export default function GestionesTable() {
                         {opt}
                       </option>
                     ))}
-                  </select>
+                    </select>
+                  ) : (
+                    r.Oficina
+                  )}
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
-                  <select
-                    value={r.Puesto}
+                  {isEditing ? (
+                    <select
+                      value={r.Puesto}
                     onChange={e => {
-                      handleChange(idx, "Puesto", e.target.value);
+                      handleChange(r.id, "Puesto", e.target.value);
                     }}
                     className="border rounded p-1 w-full"
                   >
@@ -471,23 +667,31 @@ export default function GestionesTable() {
                         {opt}
                       </option>
                     ))}
-                  </select>
+                    </select>
+                  ) : (
+                    r.Puesto
+                  )}
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
-                  <input
-                    type="text"
-                    value={r.TemaFormacion}
+                  {isEditing ? (
+                    <input
+                      type="text"
+                      value={r.TemaFormacion}
                     onChange={e => {
-                      handleChange(idx, "TemaFormacion", e.target.value);
+                      handleChange(r.id, "TemaFormacion", e.target.value);
                     }}
-                    className="px-2 py-1 w-full text-left border ml-1"
-                  />
+                      className="px-2 py-1 w-full text-left border ml-1"
+                    />
+                  ) : (
+                    r.TemaFormacion
+                  )}
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
-                  <select
-                    value={r.TipoFormacion} // Cambia r.TipoCapacitacion por el campo que estés usando
+                  {isEditing ? (
+                    <select
+                      value={r.TipoFormacion} // Cambia r.TipoCapacitacion por el campo que estés usando
                     onChange={e => {
-                      handleChange(idx, "TipoFormacion", e.target.value);
+                      handleChange(r.id, "TipoFormacion", e.target.value);
                     }}
                     className="border rounded p-1 w-full"
                   >
@@ -503,68 +707,60 @@ export default function GestionesTable() {
                         {opt}
                       </option>
                     ))}
-                  </select>
-                </td>
-                <td className="p-2 border text-left whitespace-nowrap">
-                  <input
-                    type="number"
-                    value={r.TotalParticipantes}
-                    onChange={e => {
-                      handleChange(idx, "TotalParticipantes", e.target.value);
-                    }}
-                    className="px-2 py-1 w-full text-left border ml-1"
-                  />
-                </td>
-                <td className="p-2 border text-left whitespace-nowrap">
-                  {r.isNew ? (
-                    <input
-                      type="number"
-                      value={r.TotalTrabajadores}
-                      onChange={e =>
-                        handleChange(r.id, "TotalTrabajadores", e.target.value)
-                      }
-                      className="px-2 py-1 w-full border"
-                    />
+                    </select>
                   ) : (
-                    r.TotalTrabajadores
+                    r.TipoFormacion
                   )}
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
-                  {r.isNew ? (
+                  {isEditing ? (
                     <input
                       type="number"
-                      value={r.PorcentajeParticipacion}
-                      onChange={e =>
-                        handleChange(
-                          r.id,
-                          "PorcentajeParticipacion",
-                          e.target.value
-                        )
-                      }
-                      className="px-2 py-1 w-full border"
+                      value={r.TotalParticipantes}
+                    onChange={e => {
+                      handleChange(r.id, "TotalParticipantes", e.target.value);
+                    }}
+                      className="px-2 py-1 w-full text-left border ml-1"
                     />
                   ) : (
-                    r.PorcentajeParticipacion
+                    r.TotalParticipantes
                   )}
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
-                  <input
-                    type="number"
-                    value={r.NumeroVecesFormado}
-                    onChange={e => {
-                      handleChange(idx, "NumeroVecesFormado", e.target.value);
-                    }}
-                    className="px-2 py-1 w-full text-left border ml-1"
-                  />
+                  <div className="px-2 py-1 w-full text-center font-semibold">
+                    {r.TotalTrabajadores}
+                  </div>
                 </td>
                 <td className="p-2 border text-left whitespace-nowrap">
-                  {r.isNew ? (
+                  <div className="px-2 py-1 w-full text-center font-semibold">
+                    {r.PorcentajeParticipacion}%
+                  </div>
+                </td>
+                <td className="p-2 border text-left whitespace-nowrap">
+                  {isEditing ? (
+                    <input
+                      type="number"
+                      value={r.NumeroVecesFormado}
+                      onChange={e => {
+                        handleChange(r.id, "NumeroVecesFormado", e.target.value);
+                      }}
+                      className="px-2 py-1 w-full text-left border ml-1"
+                    />
+                  ) : (
+                    r.NumeroVecesFormado
+                  )}
+                </td>
+                <td className="p-2 border text-left whitespace-nowrap">
+                  {isEditing ? (
                     <input
                       type="number"
                       value={r.Calificacion}
                       onChange={e =>
                         handleChange(r.id, "Calificacion", e.target.value)
                       }
+                      min="0"
+                      max="9.99"
+                      step="0.01"
                       className="px-2 py-1 w-full border"
                     />
                   ) : (
@@ -572,7 +768,8 @@ export default function GestionesTable() {
                   )}
                 </td>
               </tr>
-            ))}
+            );
+          })}
           </tbody>
         </table>
       </div>
