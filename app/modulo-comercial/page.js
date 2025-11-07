@@ -118,7 +118,7 @@ export default function TalentoDashboard() {
           </Link>
 
           <Link
-            href="/modulo-comercial/tabla-comunicacion-boletin"
+            href="/modulo-comercial/tabla-inventario-corporativo"
             className="modulo-button"
           >
             <div className="logo">
