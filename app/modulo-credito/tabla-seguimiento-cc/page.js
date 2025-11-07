@@ -1,5 +1,3 @@
-
-
 "use client";
 import { useEffect, useState } from "react";
 //import { getFinancialRecords } from "@/services/financial";
@@ -191,8 +189,8 @@ export default function GestionesTable() {
   };
 
   return (
-    <main className="pt-12 pb-0 px-12 overflow-auto">
-      <h1 className="titulo-tabla-cupos text-3xl font-semibold pb-12">
+    <main className="pt-4 pb-0 px-12 overflow-auto">
+      <h1 className="titulo-tabla-cupos text-3xl font-semibold pb-4">
         Seguimiento de campañas de crédito x oficinas
       </h1>
       <div className="actions-container flex justify-between mb-4">

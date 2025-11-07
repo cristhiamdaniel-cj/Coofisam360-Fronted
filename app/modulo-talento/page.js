@@ -11,13 +11,13 @@ export default function TalentoDashboard() {
   // función para validar acceso a carpetas
   const hasFolderAccess = folderName => {
     if (!user || !user.acceso) return false;
-    
+
     // Si user.acceso es un array (nuevo formato)
     if (Array.isArray(user.acceso)) {
       // Si el usuario tiene acceso al módulo de talento, mostrar todas las carpetas
-      return user.acceso.includes('modulo-talento');
+      return user.acceso.includes("modulo-talento");
     }
-    
+
     // Si user.acceso es un objeto (formato anterior)
     const talento = user.acceso["Talento y Cultura"];
     if (!talento) return false;
@@ -55,7 +55,7 @@ export default function TalentoDashboard() {
           >
             <div className="logo">
               <Image
-                src="/indicadores.svg"
+                src="/disciplinario.svg"
                 className="module-image"
                 alt="Disciplinario"
                 width={200}
@@ -75,7 +75,7 @@ export default function TalentoDashboard() {
           >
             <div className="logo">
               <Image
-                src="/aprobacion-de-prestamo.png"
+                src="/formador.svg"
                 className="module-image"
                 alt="Formador Talento y Cultura"
                 width={200}
@@ -97,7 +97,7 @@ export default function TalentoDashboard() {
           >
             <div className="logo">
               <Image
-                src="/oficina.png"
+                src="/seguridad.svg"
                 className="module-image"
                 alt="SG-SST"
                 width={200}
@@ -117,7 +117,7 @@ export default function TalentoDashboard() {
           >
             <div className="logo">
               <Image
-                src="/oficina.png"
+                src="/talento.svg"
                 className="module-image"
                 alt="Talento y Cultura"
                 width={200}
