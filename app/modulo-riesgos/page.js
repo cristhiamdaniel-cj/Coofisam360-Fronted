@@ -1,82 +1,78 @@
 import "../styles/global.css";
 import Image from "next/image";
 import Link from "next/link";
-import { FaFileUpload, FaRegFolderOpen } from "react-icons/fa";
-import { FaPlay } from "react-icons/fa";
-import { TbUpload } from "react-icons/tb";
 
-export default function FinancieroDashboard() {
+export default function RiesgosDashboard() {
   return (
     <main className="container-financiero flex-col p-12 pt-4">
       <h1 className="text-3xl font-semibold uppercase titulo-modulo pl-8">
-        Formularios
+        Módulo de Riesgos
       </h1>
-      <div className="actions-container flex gap-4 pt-4">
-        <label className="action-button flex gap-2 items-center justify-center cursor-pointer">
-          Cargar Balance
-          <TbUpload />
-          <input type="file" accept=".xlsx,.csv" className="hidden" />
-        </label>
-        <label className="action-button flex gap-2 items-center justify-center cursor-pointer">
-          Explorar
-          <FaRegFolderOpen />
-          <input type="file" accept=".xlsx,.csv" className="hidden" />
-        </label>
-        <label className="action-button flex gap-2 items-center justify-center cursor-pointer">
-          Ejecutar
-          <FaPlay />
-          <input type="file" accept=".xlsx,.csv" className="hidden" />
-        </label>
-      </div>
       <div className="separator-modulo"></div>
       <div className="dashboard-financiero">
         <Link
-          href="/modulo-credito/tabla-radicaciones-credito"
+          href="/modulo-riesgos/tabla-efectividad-siar"
           className="modulo-button"
         >
           <div className="logo">
             <Image
-              src="/indicadores.svg" // Path relative to /public
+              src="/indicadores.svg"
               className="module-image"
-              alt="Company Logo"
-              width={200} // required
-              height={50} // required
-              priority // loads immediately
+              alt="Efectividad SIAR"
+              width={200}
+              height={50}
+              priority
             />
           </div>
-          Radicaciones de Crédito
+          Efectividad SIAR
         </Link>
         <Link
-          href="/modulo-credito/tabla-seguimiento-cc"
+          href="/modulo-riesgos/tabla-historico-ahorros"
           className="modulo-button"
         >
           <div className="logo">
             <Image
-              src="/aprobacion-de-prestamo.png" // Path relative to /public
+              src="/aprobacion-de-prestamo.png"
               className="module-image"
-              alt="Company Logo"
-              width={200} // required
-              height={50} // required
-              priority // loads immediately
+              alt="Histórico Ahorros"
+              width={200}
+              height={50}
+              priority
             />
           </div>
-          Seguimiento de Campañas de Crédito
+          Histórico de Ahorros
         </Link>
         <Link
-          href="/modulo-credito/tabla-seguimiento-cco"
+          href="/modulo-riesgos/tabla-limites-individuales"
           className="modulo-button"
         >
           <div className="logo">
             <Image
-              src="/oficina.png" // Path relative to /public
+              src="/oficina.png"
               className="module-image"
-              alt="Company Logo"
-              width={200} // required
-              height={50} // required
-              priority // loads immediately
+              alt="Límites Individuales"
+              width={200}
+              height={50}
+              priority
             />
           </div>
-          Seguimiento de Campañas de Crédito x Oficinas
+          Límites Individuales
+        </Link>
+        <Link
+          href="/modulo-riesgos/tabla-seguimiento-liquidez"
+          className="modulo-button"
+        >
+          <div className="logo">
+            <Image
+              src="/presupuesto.svg"
+              className="module-image"
+              alt="Seguimiento Liquidez"
+              width={200}
+              height={50}
+              priority
+            />
+          </div>
+          Seguimiento de Liquidez
         </Link>
       </div>
     </main>

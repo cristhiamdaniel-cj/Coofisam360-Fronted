@@ -6,112 +6,109 @@ import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import { FiDownload } from "react-icons/fi";
 
+// Helper function to convert date string to date input format
+// Format: 02/01/2025 -> 2025-01-02
+const toDateInput = (dateStr) => {
+  if (!dateStr) return "";
+  const [day, month, year] = dateStr.split("/");
+  if (!day || !month || !year) return "";
+  return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+};
+
+// Helper function to convert date input to date string
+// Format: 2025-01-02 -> 02/01/2025
+const fromDateInput = (dateStr) => {
+  if (!dateStr) return "";
+  const [year, month, day] = dateStr.split("-");
+  return `${day}/${month}/${year}`;
+};
+
 // Initial data
 const initialRows = [
   {
     id: 1,
-    ano: "",
-    mes: "",
-    nombreCompleto: "",
-    noDocumento: "",
-    areaOficina: "",
-    cargo: "",
-    temaCapacitado: "",
-    nota: "",
-    desempeno: "",
+    numeroContrato: "1",
+    ano: "2025",
+    tipoGarantia: "Cumplimiento general",
+    valorPorcentaje: "20",
+    fechaExpedicion: "02/01/2025",
+    fechaVigencia: "30/04/2026",
+    aseguradora: "Seguros Mundial S.A.",
+    estado: "VIGENTE",
+  },
+  {
+    id: 2,
+    numeroContrato: "1",
+    ano: "2025",
+    tipoGarantia: "Pago de salarios, prestaciones sociales y aportes parafiscales",
+    valorPorcentaje: "20",
+    fechaExpedicion: "02/01/2025",
+    fechaVigencia: "31/12/2028",
+    aseguradora: "Seguros Mundial S.A.",
+    estado: "VIGENTE",
   },
 ];
 
 // Options for dropdowns
-const nombreCompletoOptions = [
-  "LYDA FERNANDA JIMENEZ FIERRO",
-  "JORGE EDUARDO TELLO PERDOMO",
-  "GERARDO BUENDIA CHICUE",
-  "DIEGO MAURICIO SANTOS ZUÑIGA",
-  "RAMIRO PINEDA MARIN",
-  "JESÚS ALBERTO OCHOA BELTRÁN",
-  "HAINNER ESTIVINSON COSSIO RENGIFO",
-  "ALEXANDER RIVERA DIAZ",
-  "JAVIER LIZCANO QUEVEDO",
-  "ALVARO VARON PINEDA",
-  "HECTOR RAMIREZ VARGAS",
-  "HAROL CERQUERA",
-  "HOLLMAN YAMID PEREZ YUNDA",
-  "WILBER ALEIXER POLANIA RUIZ",
-  "JUAN MANUEL JURADO VODNIZA",
-  "CARLOS AUGUSTO MEJIA HOYOS",
-  "MAURICIO LUNA ARANGO",
-  "LUCY DEL SOCORRO DIAZ ARIZA",
-  "YOLANDA CASTELLANOS CAMARGO",
-  "YENY LINDSAY TIRADO GOMEZ",
-  "SANDRA PATRICIA CAVIEDES ROJAS",
-  "BLANCA ELCY TIERRANDENTRO CARDENAS",
-  "BELÉN RINCÓN",
-  "MARBELIS CUELLAR TOVAR",
-  "LUCY ABANED PENAGOS MUNAR",
-  "ASTRID TALERO CUELLAR",
-  "Luz Herlandy Suaza De Chavez",
-  "LUZ BEIDA USMA AREVALO",
-  "ESPERANZA OSSO ANDRADE",
-  "CIELO NURY MENDEZ ROJAS",
-  "YOLIMA PEREZ DURAN",
-  "Martha Cecilia Ramos Gonzalez",
-  "CLAUDIA LORENA PUENTES ALVAREZ",
-  "EMERITA CLAROS",
-  "LILIANA OTALORA CLAVIJO",
-  "YINETH RIVERA CABRERA",
-  "MARIA MILDRED TOVAR SERRANO",
-  "PIEDAD CRISTINA HERNANDEZ MURCIA",
-  "ELIANA ISABEL CAMPOS QUIMBAYO",
-  "Diana Lorena Valdes Carvajal",
-  "MARIA OMAIRA TORRES ROJAS",
-  "KATTY ROCIO CORTES LOZANO",
-  "Zoraida Isabel Urbano Lopez",
-  "SOFIA CARVAJAL RAMOS",
-  "DORIS MOLINA PEÑA",
-  "DORA MARLEDY CORDOBA GONZALEZ",
-  "MAGNOLIA LUCIA BOLAÑOS BURBANO",
-  "NINI YOHANA ALMARIO SANTOS",
-  "IVON MARITZA SÁNCHEZ GÓMEZ",
-  "IVONNE JIMENA MARTINEZ OSORIO",
-  "KELLY JOHANNA RUIZ TOVAR",
-  "NATALY TATIANA LOZANO REY",
-  "EMNA CONSTANZA JARAMILLO MUÑOZ",
-  "Silvia Montenegro Fandiño",
-  "LUZ MILENA DIAZ TOQUICA",
-  "YEIMY GARZÓN TRUJILLO",
-  "ELSA MILENA GONZALEZ PEÑA",
-  "AIDA MARY PERAFAN NARVAEZ",
-  "MARIA PATRICIA BALLEN PEÑA",
-  "NADIA MORENO DONOSO",
+const tipoGarantiaOptions = [
+  "Cumplimiento general",
+  "Buen manejo y correcta inversión del anticipo",
+  "Calidad del servicio o del bien",
+  "Estabilidad y calidad de la obra",
+  "Pago de salarios, prestaciones sociales y aportes parafiscales",
+  "Responsabilidad civil extracontractual",
+  "Responsabilidad profesional o técnica",
+  "Cumplimiento de disposiciones ambientales y de seguridad industrial",
+  "Cumplimiento de obligaciones tributarias",
+  "",
 ];
 
-const cargoOptions = [
-  "DIRECTIVO",
-  "TRABAJADOR",
-  "TERCERO",
-  "APRENDIZ SENA",
-  "PRACTICANTE UNIVERSITARIO",
+const aseguradoraOptions = [
+  "Seguros Bolívar S.A.",
+  "Seguros del Estado S.A.",
+  "Seguros Generales Suramericana S.A. (SURA)",
+  "Seguros de Occidente S.A.",
+  "AXA Colpatria Seguros S.A.",
+  "La Previsora S.A. Compañía de Seguros",
+  "Liberty Seguros S.A.",
+  "Mapfre Seguros Generales de Colombia S.A.",
+  "Allianz Seguros S.A.",
+  "HDI Seguros S.A.",
+  "Chubb Seguros Colombia S.A.",
+  "Seguros Mundial S.A.",
+  "Equidad Seguros Generales Organismo Cooperativo",
+  "Seguros Confianza S.A.",
+  "Positiva Compañía de Seguros S.A.",
+  "Aseguradora Solidaria de Colombia Ltda.",
+  "Zurich Colombia Seguros S.A.",
+  "Colmena Seguros S.A.",
+  "Seguros Beta S.A.",
+  "Seguros Comerciales Bolívar S.A.",
+  "Seguros de Vida Suramericana S.A. (SURA Vida)",
+  "Allianz Seguros de Vida S.A.",
+  "AXA Colpatria Seguros de Vida S.A.",
+  "Seguros de Vida Alfa S.A.",
+  "Seguros de Vida del Estado S.A.",
+  "Mapfre Colombia Vida Seguros S.A.",
+  "MetLife Colombia Seguros de Vida S.A.",
+  "Positiva Compañía de Seguros de Vida S.A.",
+  "Liberty Seguros de Vida S.A.",
+  "Seguros Bolívar Vida S.A.",
+  "QBE Seguros S.A.",
+  "La Equidad Seguros (Cooperativa)",
+  "Colpatria Seguros Patrimoniales",
+  "Colseguros (actualmente Allianz)",
+  "Coface Colombia Seguros de Crédito S.A.",
+  "Solunion Colombia Seguros de Crédito S.A.",
+  "AIG Seguros Colombia S.A.",
+  "SBS Seguros Colombia S.A.",
+  "RSA Seguros S.A.",
+  "Cardinal Compañía de Seguros S.A.",
 ];
 
-const desempenoOptions = ["SUPERIOR", "ALTO", "BASICO", "BAJO"];
+const estadoOptions = ["VIGENTE", "VENCIDA", "CANCELADA", "RENOVADA"];
 
-const mesOptions = [
-  "1",
-  "2",
-  "3",
-  "4",
-  "5",
-  "6",
-  "7",
-  "8",
-  "9",
-  "10",
-  "11",
-  "12",
-];
-
-export default function EvaluacionCapacitacionTable() {
+export default function ControlPolizasTable() {
   const [rows, setRows] = useState(initialRows);
   const [editedRows, setEditedRows] = useState({});
   const [searchTerm, setSearchTerm] = useState("");
@@ -135,28 +132,16 @@ export default function EvaluacionCapacitacionTable() {
       ...prev,
       {
         id: newId,
+        numeroContrato: "",
         ano: "",
-        mes: "",
-        nombreCompleto: "",
-        noDocumento: "",
-        areaOficina: "",
-        cargo: "",
-        temaCapacitado: "",
-        nota: "",
-        desempeno: "",
+        tipoGarantia: "",
+        valorPorcentaje: "",
+        fechaExpedicion: "",
+        fechaVigencia: "",
+        aseguradora: "",
+        estado: "",
       },
     ]);
-  };
-
-  const handleDeleteRow = id => {
-    if (confirm("¿Está seguro de eliminar este registro?")) {
-      setRows(prev => prev.filter(row => row.id !== id));
-      setEditedRows(prev => {
-        const newEdited = { ...prev };
-        delete newEdited[id];
-        return newEdited;
-      });
-    }
   };
 
   const handleSave = async () => {
@@ -184,7 +169,7 @@ export default function EvaluacionCapacitacionTable() {
     XLSX.utils.book_append_sheet(
       workbook,
       worksheet,
-      "Evaluacion Capacitacion"
+      "Control Polizas"
     );
 
     // Write workbook and save
@@ -195,28 +180,28 @@ export default function EvaluacionCapacitacionTable() {
     const data = new Blob([excelBuffer], {
       type: "application/octet-stream",
     });
-    saveAs(data, "evaluacion-capacitacion.xlsx");
+    saveAs(data, "control-polizas.xlsx");
   };
 
   // Filter rows based on search term
   const filteredRows = rows.filter(
     row =>
-      row.nombreCompleto?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      row.noDocumento?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      row.areaOficina?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      row.temaCapacitado?.toLowerCase().includes(searchTerm.toLowerCase())
+      row.numeroContrato?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      row.tipoGarantia?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      row.aseguradora?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      row.estado?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
     <main className="pt-4 pb-0 px-12 overflow-auto">
       <h1 className="titulo-tabla-cupos text-3xl font-semibold pb-4">
-        Evaluación Capacitación
+        Control de Pólizas
       </h1>
       <div className="actions-container flex justify-between mb-4">
         <div className="search-bar flex gap-2">
           <input
             type="text"
-            placeholder="Buscar por nombre, documento, área o tema"
+            placeholder="Buscar por número de contrato, tipo de garantía, aseguradora o estado"
             className="unified-input w-[300px]"
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
@@ -257,28 +242,26 @@ export default function EvaluacionCapacitacionTable() {
           <thead className="tabla-header">
             <tr>
               <th className="p-4 border text-center whitespace-nowrap">ID</th>
+              <th className="p-4 border text-center whitespace-nowrap">
+                NÚMERO DE CONTRATO
+              </th>
               <th className="p-4 border text-center whitespace-nowrap">AÑO</th>
-              <th className="p-4 border text-center whitespace-nowrap">MES</th>
               <th className="p-4 border text-center whitespace-nowrap">
-                NOMBRE COMPLETO
+                TIPO DE GARANTÍA
               </th>
               <th className="p-4 border text-center whitespace-nowrap">
-                No DOCUMENTO
+                VALOR (%)
               </th>
               <th className="p-4 border text-center whitespace-nowrap">
-                AREA/OFICINA
-              </th>
-              <th className="p-4 border text-center whitespace-nowrap">CARGO</th>
-              <th className="p-4 border text-center whitespace-nowrap">
-                TEMA CAPACITADO
-              </th>
-              <th className="p-4 border text-center whitespace-nowrap">NOTA</th>
-              <th className="p-4 border text-center whitespace-nowrap">
-                DESEMPEÑO
+                FECHA DE EXPEDICIÓN
               </th>
               <th className="p-4 border text-center whitespace-nowrap">
-                ACCIONES
+                FECHA VIGENCIA
               </th>
+              <th className="p-4 border text-center whitespace-nowrap">
+                ASEGURADORA
+              </th>
+              <th className="p-4 border text-center whitespace-nowrap">ESTADO</th>
             </tr>
           </thead>
 
@@ -289,128 +272,112 @@ export default function EvaluacionCapacitacionTable() {
                 <td className="p-2 border text-center">
                   <input
                     type="number"
-                    value={r.ano}
+                    value={r.numeroContrato}
                     onChange={e =>
-                      handleChange(r.id, "ano", e.target.value)
+                      handleChange(r.id, "numeroContrato", e.target.value)
                     }
+                    className="w-full border-none outline-none bg-transparent text-sm text-center"
+                    placeholder="Número"
+                  />
+                </td>
+                <td className="p-2 border text-center">
+                  <input
+                    type="number"
+                    value={r.ano}
+                    onChange={e => handleChange(r.id, "ano", e.target.value)}
                     className="w-full border-none outline-none bg-transparent text-sm text-center"
                     placeholder="Año"
                     min="2000"
                     max="2100"
                   />
                 </td>
-                <td className="p-2 border text-center">
-                  <select
-                    value={r.mes}
-                    onChange={e => handleChange(r.id, "mes", e.target.value)}
-                    className="w-full border-none outline-none bg-transparent text-sm"
-                  >
-                    <option value="">Seleccionar</option>
-                    {mesOptions.map(opcion => (
-                      <option key={opcion} value={opcion}>
-                        {opcion}
-                      </option>
-                    ))}
-                  </select>
-                </td>
                 <td className="p-2 border text-left">
                   <select
-                    value={r.nombreCompleto}
+                    value={r.tipoGarantia}
                     onChange={e =>
-                      handleChange(r.id, "nombreCompleto", e.target.value)
+                      handleChange(r.id, "tipoGarantia", e.target.value)
                     }
                     className="w-full border-none outline-none bg-transparent text-sm"
                   >
                     <option value="">Seleccionar</option>
-                    {nombreCompletoOptions.map(opcion => (
+                    {tipoGarantiaOptions.map(opcion => (
                       <option key={opcion} value={opcion}>
-                        {opcion}
+                        {opcion || "(Vacío)"}
                       </option>
                     ))}
                   </select>
-                </td>
-                <td className="p-2 border text-left">
-                  <input
-                    type="text"
-                    value={r.noDocumento}
-                    onChange={e =>
-                      handleChange(r.id, "noDocumento", e.target.value)
-                    }
-                    className="w-full border-none outline-none bg-transparent text-sm"
-                    placeholder="Número de documento"
-                  />
-                </td>
-                <td className="p-2 border text-left">
-                  <input
-                    type="text"
-                    value={r.areaOficina}
-                    onChange={e =>
-                      handleChange(r.id, "areaOficina", e.target.value)
-                    }
-                    className="w-full border-none outline-none bg-transparent text-sm"
-                    placeholder="Área/Oficina"
-                  />
-                </td>
-                <td className="p-2 border text-left">
-                  <select
-                    value={r.cargo}
-                    onChange={e => handleChange(r.id, "cargo", e.target.value)}
-                    className="w-full border-none outline-none bg-transparent text-sm"
-                  >
-                    <option value="">Seleccionar</option>
-                    {cargoOptions.map(opcion => (
-                      <option key={opcion} value={opcion}>
-                        {opcion}
-                      </option>
-                    ))}
-                  </select>
-                </td>
-                <td className="p-2 border text-left">
-                  <input
-                    type="text"
-                    value={r.temaCapacitado}
-                    onChange={e =>
-                      handleChange(r.id, "temaCapacitado", e.target.value)
-                    }
-                    className="w-full border-none outline-none bg-transparent text-sm"
-                    placeholder="Tema capacitado"
-                  />
                 </td>
                 <td className="p-2 border text-center">
                   <input
                     type="number"
-                    value={r.nota}
-                    onChange={e => handleChange(r.id, "nota", e.target.value)}
+                    value={r.valorPorcentaje}
+                    onChange={e =>
+                      handleChange(r.id, "valorPorcentaje", e.target.value)
+                    }
                     className="w-full border-none outline-none bg-transparent text-sm text-center"
-                    placeholder="Nota"
+                    placeholder="%"
                     min="0"
                     max="100"
-                    step="0.1"
+                    step="0.01"
+                  />
+                </td>
+                <td className="p-2 border text-left">
+                  <input
+                    type="date"
+                    value={toDateInput(r.fechaExpedicion)}
+                    onChange={e =>
+                      handleChange(
+                        r.id,
+                        "fechaExpedicion",
+                        fromDateInput(e.target.value)
+                      )
+                    }
+                    className="w-full border-none outline-none bg-transparent text-sm"
+                  />
+                </td>
+                <td className="p-2 border text-left">
+                  <input
+                    type="date"
+                    value={toDateInput(r.fechaVigencia)}
+                    onChange={e =>
+                      handleChange(
+                        r.id,
+                        "fechaVigencia",
+                        fromDateInput(e.target.value)
+                      )
+                    }
+                    className="w-full border-none outline-none bg-transparent text-sm"
                   />
                 </td>
                 <td className="p-2 border text-left">
                   <select
-                    value={r.desempeno}
+                    value={r.aseguradora}
                     onChange={e =>
-                      handleChange(r.id, "desempeno", e.target.value)
+                      handleChange(r.id, "aseguradora", e.target.value)
                     }
                     className="w-full border-none outline-none bg-transparent text-sm"
                   >
                     <option value="">Seleccionar</option>
-                    {desempenoOptions.map(opcion => (
+                    {aseguradoraOptions.map(opcion => (
                       <option key={opcion} value={opcion}>
                         {opcion}
                       </option>
                     ))}
                   </select>
                 </td>
-                <td className="p-2 border text-center">
-                  <button
-                    onClick={() => handleDeleteRow(r.id)}
-                    className="text-red-600 hover:text-red-800 text-sm"
+                <td className="p-2 border text-left">
+                  <select
+                    value={r.estado}
+                    onChange={e => handleChange(r.id, "estado", e.target.value)}
+                    className="w-full border-none outline-none bg-transparent text-sm"
                   >
-                    Eliminar
-                  </button>
+                    <option value="">Seleccionar</option>
+                    {estadoOptions.map(opcion => (
+                      <option key={opcion} value={opcion}>
+                        {opcion}
+                      </option>
+                    ))}
+                  </select>
                 </td>
               </tr>
             ))}
@@ -420,5 +387,4 @@ export default function EvaluacionCapacitacionTable() {
     </main>
   );
 }
-
 
