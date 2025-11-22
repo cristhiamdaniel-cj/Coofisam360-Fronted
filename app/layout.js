@@ -30,13 +30,25 @@ export default function RootLayout({ children }) {
   const pathname = usePathname();
 
   const isLoginRoute = pathname === "/login";
+  
+  // Rutas públicas que no requieren autenticación
+  const publicRoutes = [
+    "/modulo-ing-organizacional",
+    "/modulo-ofic-cumplimiento",
+    "/modulo-riesgos",
+    "/modulo-auditoria",
+  ];
+  
+  const isPublicRoute = publicRoutes.some(route => 
+    pathname === route || pathname.startsWith(route + "/")
+  );
 
   useEffect(() => {
     const token = localStorage.getItem("authToken");
-    if (!token && !isLoginRoute) {
+    if (!token && !isLoginRoute && !isPublicRoute) {
       router.replace("/login");
     }
-  }, [pathname, isLoginRoute, router]);
+  }, [pathname, isLoginRoute, isPublicRoute, router]);
 
   return (
     // Evita warnings de hidratación causados por extensiones (p.ej. data-lt-installed)
