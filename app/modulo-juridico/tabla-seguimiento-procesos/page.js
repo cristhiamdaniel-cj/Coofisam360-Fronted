@@ -1389,3 +1389,5 @@ export default function SeguimientoProcesosTable() {
   );
 }
 
+
+
