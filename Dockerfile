@@ -3,14 +3,17 @@
 # Base image for all stages
 FROM node:20-alpine AS base
 WORKDIR /app
-ENV NODE_ENV=production \
-    NEXT_TELEMETRY_DISABLED=1
+# No fijar NODE_ENV aquí para que npm instale devDependencies en la etapa deps
+ENV NEXT_TELEMETRY_DISABLED=1
 RUN apk add --no-cache libc6-compat
 
 # Install dependencies (with dev deps for build)
 FROM base AS deps
 WORKDIR /app
 COPY package*.json ./
+# Forzar instalación de devDependencies para el build
+ENV NODE_ENV=development \
+    NPM_CONFIG_PRODUCTION=false
 RUN npm ci
 
 # Build stage
@@ -47,4 +50,3 @@ EXPOSE 8061
 ENV PORT=8061
 
 CMD ["npm", "run", "start"]
-

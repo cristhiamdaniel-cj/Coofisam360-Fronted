@@ -419,7 +419,8 @@ export default function PresupuestoTable() {
         ? yearOverride
         : (selectedYear === 'todos' ? undefined : Number(selectedYear));
       const files = await listPresupuestoFiles(y);
-      setFilesByYear(files);
+      const normalized = normalizeFileGroups(files);
+      setFilesByYear(groupFilesByDetectedYear(normalized));
       setExplorerOpen(true);
     } catch (e) {
       setStatusType('error');
@@ -432,9 +433,11 @@ export default function PresupuestoTable() {
       const year = selectedYear === 'todos' ? etlYear : Number(selectedYear);
       setEtlYear(year);
       const files = await listPresupuestoFiles(year);
-      setFilesByYear(files);
+      const normalized = normalizeFileGroups(files);
+      const grouped = groupFilesByDetectedYear(normalized);
+      setFilesByYear(grouped);
       // preseleccionar primero si existe
-      const first = files?.[0]?.files?.[0]?.rel || "";
+      const first = grouped?.[0]?.files?.[0]?.rel || "";
       setEtlSelectedRel(first);
       setEtlModalOpen(true);
     } catch (e) {
@@ -518,6 +521,29 @@ export default function PresupuestoTable() {
     }
   };
 
+  const buildFilePresentation = ({ name, original_name, rel, year, created_at }) => {
+    const rawName = (original_name || name || (rel ? rel.split('/').pop() : '') || 'Archivo.xlsx').trim();
+    const normalized = rawName.replace(/\s+/g, '_');
+
+    const dateMatch = normalized.match(/(20\d{2})[_-]?(0[1-9]|1[0-2])?/);
+    const detectedYear = year || (dateMatch ? Number(dateMatch[1]) : undefined);
+    const detectedMonth = dateMatch && dateMatch[2] ? Number(dateMatch[2]) : undefined;
+
+    let fallbackYear;
+    if (!detectedYear && created_at) {
+      const createdDate = new Date(created_at);
+      if (!Number.isNaN(createdDate.getTime())) {
+        fallbackYear = createdDate.getFullYear();
+      }
+    }
+
+    return {
+      displayName: rawName,
+      detectedYear: detectedYear || fallbackYear,
+      detectedMonth,
+    };
+  };
+
   // Función para obtener el nombre del mes
   const getMonthName = (monthNumber) => {
     const monthNames = [
@@ -559,6 +585,54 @@ export default function PresupuestoTable() {
   const availableDenoms = Array.from(
     new Set(rows.map(r => r.nombre).filter(Boolean))
   ).sort((a, b) => a.localeCompare(b, 'es'));
+
+  const normalizeFileGroups = (groups) => {
+    if (!Array.isArray(groups)) return [];
+    return groups.map(group => {
+      const year = group?.year;
+      const files = Array.isArray(group?.files)
+        ? group.files.map(file => {
+            const presentation = buildFilePresentation({ ...file, year });
+            return {
+              ...file,
+              friendlyName: presentation.displayName,
+              detectedYear: presentation.detectedYear,
+              detectedMonth: presentation.detectedMonth,
+            };
+          })
+        : [];
+      return { ...group, year, files };
+    });
+  };
+
+  const groupFilesByDetectedYear = (groups) => {
+    const byYear = new Map();
+    groups.forEach(group => {
+      const fallbackYear = group.year;
+      group.files.forEach(file => {
+        const detectedYear = file.detectedYear || fallbackYear;
+        const targetYear = detectedYear || fallbackYear || 'Otros';
+        if (!byYear.has(targetYear)) {
+          byYear.set(targetYear, []);
+        }
+        byYear.get(targetYear).push(file);
+      });
+    });
+
+    // Convertir a array ordenado descendentemente por año numérico (Otros al final)
+    const sorted = Array.from(byYear.entries())
+      .sort((a, b) => {
+        const aYear = typeof a[0] === 'number' ? a[0] : -Infinity;
+        const bYear = typeof b[0] === 'number' ? b[0] : -Infinity;
+        return bYear - aYear;
+      })
+      .map(([year, files]) => ({
+        year,
+        files: files.sort((a, b) => a.friendlyName.localeCompare(b.friendlyName, 'es')),
+      }));
+
+    return sorted;
+  };
 
               return (
     <main className="pt-4 pb-0 px-12 overflow-auto">
@@ -628,12 +702,18 @@ export default function PresupuestoTable() {
       <div className="space-y-4">
         {filesByYear.map(group => (
           <div key={group.year} className="border rounded p-3">
-            <div className="font-semibold mb-2">Año {group.year}</div>
+            <div className="font-semibold mb-2 flex items-center justify-between">
+              <span>{group.year === 'Otros' ? 'Sin año detectado' : `Año ${group.year}`}</span>
+              <span className="text-xs text-gray-500">{group.files.length} archivo(s)</span>
+            </div>
             {(group.files || []).length ? (
-              <ul className="list-disc pl-5">
+              <ul className="space-y-2">
                 {group.files.map((f, idx) => (
                   <li key={idx} className="flex items-center justify-between gap-3 py-1">
-                    <span>{f.name}</span>
+                    <div className="flex flex-col">
+                      <span className="font-medium">{f.friendlyName}</span>
+                      <span className="text-xs text-gray-500">Original: {f.name}</span>
+                    </div>
                     <div className="flex gap-2">
                       <button className="action-button px-3 py-1" onClick={() => downloadRel(f.rel)}>Descargar</button>
                       <button className="action-button px-3 py-1" onClick={() => deleteRel(f.rel)}>Eliminar</button>
@@ -676,7 +756,7 @@ export default function PresupuestoTable() {
                 <div className="font-semibold">Año {group.year}</div>
                 <select className="unified-input w-full" value={etlSelectedRel} onChange={e => setEtlSelectedRel(e.target.value)}>
                   {(group.files||[]).map((f, idx) => (
-                    <option key={idx} value={f.rel}>{f.name}</option>
+                    <option key={idx} value={f.rel}>{f.friendlyName}</option>
                   ))}
                 </select>
               </div>

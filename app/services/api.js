@@ -1,3 +1,4 @@
+// Base fija apuntando a localhost o a la variable pública, para conservar el comportamiento anterior.
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:8060";
 const DEFAULT_TIMEOUT = 20000;
 

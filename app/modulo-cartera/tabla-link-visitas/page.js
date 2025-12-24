@@ -1,212 +1,115 @@
 "use client";
 import { useEffect, useState } from "react";
-//import { getFinancialRecords } from "@/services/financial";
-import { FaRegSave } from "react-icons/fa";
-import { FaFileDownload } from "react-icons/fa";
 import { IoSearch } from "react-icons/io5";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import { FiDownload } from "react-icons/fi";
+import { listLinkVisitas, createLinkVisita } from "@/app/services/modulo-cartera/linkVisitasService";
 
-// Array of objects
-const initialRows = [
-  {
-    id: 1,
-    agencia: "1",
-    numeroCredito: "1954639",
-    lineaCredito: "CON LIBRE INVERSION",
-    numeroIdentificacion: "1007359328",
-    nombreAsociado: "Hary Julieth Vanegas Perez",
-    saldoCapital: "$ 1.547.692",
-    diasMora: "73",
-    periodicidadCapital: "Mensual",
-  },
-  {
-    id: 2,
-    agencia: "1",
-    numeroCredito: "1955016",
-    lineaCredito: "MIC EMPRESARIAL",
-    numeroIdentificacion: "1010165792",
-    nombreAsociado: "Monica Andrea Almario Santos",
-    saldoCapital: "$ 4.311.927",
-    diasMora: "28",
-    periodicidadCapital: "Mensual",
-  },
-  {
-    id: 3,
-    agencia: "1",
-    numeroCredito: "1956398",
-    lineaCredito: "MIC EMPRESARIAL",
-    numeroIdentificacion: "1077842480",
-    nombreAsociado: "Wiliam Andres Vargas Meneses",
-    saldoCapital: "$ 1.496.064",
-    diasMora: "32",
-    periodicidadCapital: "Mensual",
-  },
-  {
-    id: 4,
-    agencia: "1",
-    numeroCredito: "1956782",
-    lineaCredito: "CON LIBRE INVERSION",
-    numeroIdentificacion: "1077860520",
-    nombreAsociado: "Yenifer  Silva Romero",
-    saldoCapital: "$ 8.260.805",
-    diasMora: "28",
-    periodicidadCapital: "Mensual",
-  },
-  {
-    id: 5,
-    agencia: "1",
-    numeroCredito: "1957192",
-    lineaCredito: "MIC AGROPECUARIO",
-    numeroIdentificacion: "1077873916",
-    nombreAsociado: "Yesid  Quinayas Quinayas",
-    saldoCapital: "$ 1.062.585",
-    diasMora: "32",
-    periodicidadCapital: "Semestral",
-  },
-  {
-    id: 6,
-    agencia: "1",
-    numeroCredito: "1964696",
-    lineaCredito: "PRO POP.PROD.RURAL OTRAS INVERSIONES",
-    numeroIdentificacion: "12196308",
-    nombreAsociado: "Sandro  Ramirez Cardozo",
-    saldoCapital: "$ 1.455.733",
-    diasMora: "92",
-    periodicidadCapital: "Semestral",
-  },
-  {
-    id: 7,
-    agencia: "1",
-    numeroCredito: "1974398",
-    lineaCredito: "PRO PROD.RURAL FINAGRO IBR + 4.8 PEQ.PROD ING.BAJ",
-    numeroIdentificacion: "55061046",
-    nombreAsociado: "Betsabe  Angarita Dussan",
-    saldoCapital: "$ 2.500.000",
-    diasMora: "0",
-    periodicidadCapital: "Semestral",
-  },
-  {
-    id: 8,
-    agencia: "1",
-    numeroCredito: "1975664",
-    lineaCredito: "CON LIBRE INVERSION",
-    numeroIdentificacion: "55163168",
-    nombreAsociado: "Yicela  Dussan Tovar",
-    saldoCapital: "$ 18.365.912",
-    diasMora: "32",
-    periodicidadCapital: "Semestral",
-  },
-  {
-    id: 9,
-    agencia: "1",
-    numeroCredito: "1987455",
-    lineaCredito: "CON LIBRE INVERSION",
-    numeroIdentificacion: "1077862498",
-    nombreAsociado: "Juan Camilo Cuenca Pastrana",
-    saldoCapital: "$ 3.323.009",
-    diasMora: "103",
-    periodicidadCapital: "Mensual",
-  },
-  {
-    id: 10,
-    agencia: "1",
-    numeroCredito: "1992221",
-    lineaCredito: "PRO POP. PROD  RURAL SOBRE APORTES",
-    numeroIdentificacion: "12190934",
-    nombreAsociado: "Evelio  Ciceri Silva",
-    saldoCapital: "$ 357.969",
-    diasMora: "32",
-    periodicidadCapital: "Mensual",
-  },
-  {
-    id: 11,
-    agencia: "1",
-    numeroCredito: "1993889",
-    lineaCredito: "CON SOBRE APORTES",
-    numeroIdentificacion: "12203020",
-    nombreAsociado: "Albeiro  Eraso Cuellar",
-    saldoCapital: "$ 382.163",
-    diasMora: "18",
-    periodicidadCapital: "Mensual",
-  },
-  {
-    id: 12,
-    agencia: "1",
-    numeroCredito: "1994674",
-    lineaCredito: "CUPO ROTATIVO CORTE 5",
-    numeroIdentificacion: "26482563",
-    nombreAsociado: "Analiber  Noriega Chavarro",
-    saldoCapital: "$ 1.894.134",
-    diasMora: "28",
-    periodicidadCapital: "Mensual",
-  },
-  {
-    id: 13,
-    agencia: "1",
-    numeroCredito: "1997717",
-    lineaCredito: "CUPO ROTATIVO CORTE 5",
-    numeroIdentificacion: "1077841130",
-    nombreAsociado: "Santiago Stiven Parra Cadena",
-    saldoCapital: "$ 4.524.645",
-    diasMora: "58",
-    periodicidadCapital: "Mensual",
-  },
-];
+const formatNumber = value => {
+  const num = Number(value);
+  if (!Number.isFinite(num)) return value || "-";
+  return new Intl.NumberFormat("es-CO").format(num);
+};
 
-export default function GestionesTable() {
-  const [rows, setRows] = useState(initialRows);
-  const [editedRows, setEditedRows] = useState([]);
+export default function LinkVisitasTable() {
+  const [rows, setRows] = useState([]);
+  const [filteredRows, setFilteredRows] = useState([]);
+  const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [page, setPage] = useState(1);
+  const pageSize = 50;
+  const [creating, setCreating] = useState(false);
+  const [form, setForm] = useState({
+    agencia: "",
+    numero_credito_raw: "",
+    numero_identificacion: "",
+    nombre_asociado: "",
+    linea_credito: "",
+  });
 
-  const handleChange = (id, field, value) => {
-    // update rows state immediately
-    setRows(prev =>
-      prev.map(row => (row.id === id ? { ...row, [field]: value } : row))
-    );
+  useEffect(() => {
+    async function load() {
+      try {
+        const data = await listLinkVisitas({ limit: 2000 });
+        const arr = Array.isArray(data) ? data : data?.items || [];
+        setRows(arr);
+        setFilteredRows(arr);
+        setPage(1);
+      } catch (err) {
+        console.error(err);
+        setError(err?.message || "Error cargando link de visitas");
+      } finally {
+        setLoading(false);
+      }
+    }
+    load();
+  }, []);
 
-    // mark this row as edited
-    setEditedRows(prev => ({
-      ...prev,
-      [id]: { ...prev[id], [field]: value },
-    }));
-  };
-
-  const handleSave = async () => {
-    console.log("Saving edits:", editedRows);
-
-    // Example: send to backend
-    /*
-    await fetch("https://coofisam360.ngrok.io/api/update-records/", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(editedRows),
+  useEffect(() => {
+    const query = search.trim().toLowerCase();
+    if (!query) {
+      setFilteredRows(rows);
+      return;
+    }
+    const filtered = rows.filter(r => {
+      return (
+        (r.numeroIdentificacion || "").toLowerCase().includes(query) ||
+        (r.nombreAsociado || "").toLowerCase().includes(query) ||
+        (r.agencia || "").toLowerCase().includes(query) ||
+        (r.numeroCredito || "").toLowerCase().includes(query) ||
+        (r.lineaCredito || "").toLowerCase().includes(query)
+      );
     });
-    */
+    setFilteredRows(filtered);
+    setPage(1);
+  }, [search, rows]);
 
-    // clear edited state after saving
-    setEditedRows({});
+  const totalPages = Math.max(1, Math.ceil(filteredRows.length / pageSize));
+  const paginatedRows = filteredRows.slice((page - 1) * pageSize, page * pageSize);
+  const gotoPrev = () => setPage(p => Math.max(1, p - 1));
+  const gotoNext = () => setPage(p => Math.min(totalPages, p + 1));
+
+  const handleCreate = async () => {
+    if (!form.agencia || !form.numero_credito_raw || !form.numero_identificacion || !form.nombre_asociado) {
+      setError("Agencia, número crédito, número identificación y nombre son obligatorios");
+      return;
+    }
+    setError("");
+    setCreating(true);
+    try {
+      await createLinkVisita(form);
+      setForm({
+        agencia: "",
+        numero_credito_raw: "",
+        numero_identificacion: "",
+        nombre_asociado: "",
+        linea_credito: "",
+      });
+      const data = await listLinkVisitas({ limit: 2000 });
+      const arr = Array.isArray(data) ? data : data?.items || [];
+      setRows(arr);
+      setFilteredRows(arr);
+      setPage(1);
+    } catch (err) {
+      console.error(err);
+      setError(err?.message || "Error creando link de visita");
+    } finally {
+      setCreating(false);
+    }
   };
 
   const handleDownload = () => {
-    // Convert JSON to worksheet
-    const worksheet = XLSX.utils.json_to_sheet(rows);
-
-    // Create a new workbook
+    const worksheet = XLSX.utils.json_to_sheet(filteredRows);
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(
-      workbook,
-      worksheet,
-      "Indicadores Financieros"
-    );
-
-    // Write workbook and save
+    XLSX.utils.book_append_sheet(workbook, worksheet, "LinkVisitas");
     const excelBuffer = XLSX.write(workbook, {
       bookType: "xlsx",
       type: "array",
     });
     const data = new Blob([excelBuffer], { type: "application/octet-stream" });
-    saveAs(data, "cupos.xlsx");
+    saveAs(data, "link-visitas.xlsx");
   };
 
   return (
@@ -216,99 +119,177 @@ export default function GestionesTable() {
       </h1>
       <div className="actions-container flex justify-between mb-4">
         <div className="search-bar flex gap-2">
-          <input type="text" className="border w-[300px]" />
-          <button className="action-button flex gap-2 items-center justify-center cursor-pointer">
+          <input
+            type="text"
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            placeholder="Buscar por cédula, nombre, agencia..."
+            className="unified-input w-[320px]"
+          />
+          <button className="unified-button flex gap-2 items-center justify-center cursor-pointer">
             Buscar
             <IoSearch />
           </button>
         </div>
         <div className="flex gap-4">
-          {Object.keys(editedRows).length > 0 && (
-            <button
-              onClick={handleSave}
-              className="action-button flex gap-2 items-center justify-center cursor-pointer"
-            >
-              Guardar cambios
-              <FaRegSave />
-            </button>
-          )}
           <button
-            className="action-button flex gap-2 items-center justify-center cursor-pointer"
+            className="unified-button flex gap-2 items-center justify-center cursor-pointer"
             onClick={handleDownload}
+            disabled={!filteredRows.length}
           >
             Descargar
             <FiDownload />
           </button>
+          <div className="flex items-center gap-2 text-sm">
+            <button className="unified-button px-3" onClick={gotoPrev} disabled={page === 1}>
+              ◀
+            </button>
+            <span>
+              Página {page} / {totalPages}
+            </span>
+            <button
+              className="unified-button px-3"
+              onClick={gotoNext}
+              disabled={page === totalPages}
+            >
+              ▶
+            </button>
+          </div>
         </div>
       </div>
 
-      <div className="overflow-auto max-w-full table-container h-[65vh]">
-        <table className="table-auto border-collapse w-full">
-          <thead>
-            <tr className="tabla-header">
-              <th className="p-4 border text-center whitespace-nowrap">ID</th>
-              <th className="p-4 border text-center whitespace-nowrap">
-                Agencia
-              </th>
-              <th className="p-4 border text-center whitespace-nowrap">
-                Número de Crédito
-              </th>
-              <th className="p-4 border text-center whitespace-nowrap min-w-[300px]">
-                Línea de Crédito
-              </th>
-              <th className="p-4 border text-center whitespace-nowrap">
-                Número de Identificación
-              </th>
-              <th className="p-4 border text-center whitespace-nowrap min-w-[300px]">
-                Nombre Asociado
-              </th>
-              <th className="p-4 border text-center whitespace-nowrap min-w-[250px]">
-                Saldo Capital
-              </th>
-              <th className="p-4 border text-center whitespace-nowrap">
-                Días Mora
-              </th>
-              <th className="p-4 border text-center whitespace-nowrap">
-                Periodicidad Capital
-              </th>
-            </tr>
-          </thead>
-
-          <tbody className="tabla-cupos-content p-4">
-            {initialRows.map(row => (
-              <tr key={row.id}>
-                <td className="p-2 border text-center whitespace-nowrap">
-                  {row.id}
-                </td>
-                <td className="p-2 border text-center whitespace-nowrap">
-                  {row.agencia}
-                </td>
-                <td className="p-2 border text-center whitespace-nowrap">
-                  {row.numeroCredito}
-                </td>
-                <td className="p-2 border text-center whitespace-nowrap">
-                  {row.lineaCredito}
-                </td>
-                <td className="p-2 border text-center whitespace-nowrap">
-                  {row.numeroIdentificacion}
-                </td>
-                <td className="p-2 border text-left whitespace-nowrap">
-                  {row.nombreAsociado}
-                </td>
-                <td className="p-2 border text-right whitespace-nowrap">
-                  {row.saldoCapital}
-                </td>
-                <td className="p-2 border text-center whitespace-nowrap">
-                  {row.diasMora}
-                </td>
-                <td className="p-2 border text-center whitespace-nowrap">
-                  {row.periodicidadCapital}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div className="mb-4 grid grid-cols-5 gap-3 bg-gray-50 p-3 rounded">
+        <div>
+          <label className="text-sm">Agencia*</label>
+          <input
+            type="text"
+            value={form.agencia}
+            onChange={e => setForm(f => ({ ...f, agencia: e.target.value }))}
+            className="unified-input w-full"
+          />
+        </div>
+        <div>
+          <label className="text-sm">Número de Crédito*</label>
+          <input
+            type="text"
+            value={form.numero_credito_raw}
+            onChange={e => setForm(f => ({ ...f, numero_credito_raw: e.target.value }))}
+            className="unified-input w-full"
+          />
+        </div>
+        <div>
+          <label className="text-sm">Número de Identificación*</label>
+          <input
+            type="text"
+            value={form.numero_identificacion}
+            onChange={e => setForm(f => ({ ...f, numero_identificacion: e.target.value }))}
+            className="unified-input w-full"
+          />
+        </div>
+        <div>
+          <label className="text-sm">Nombre Asociado*</label>
+          <input
+            type="text"
+            value={form.nombre_asociado}
+            onChange={e => setForm(f => ({ ...f, nombre_asociado: e.target.value }))}
+            className="unified-input w-full"
+          />
+        </div>
+        <div>
+          <label className="text-sm">Línea de Crédito</label>
+          <input
+            type="text"
+            value={form.linea_credito}
+            onChange={e => setForm(f => ({ ...f, linea_credito: e.target.value }))}
+            className="unified-input w-full"
+          />
+        </div>
+        <div className="col-span-5 flex items-center justify-end">
+          <button className="unified-button px-4" onClick={handleCreate} disabled={creating}>
+            {creating ? "Guardando..." : "Agregar fila"}
+          </button>
+        </div>
       </div>
+
+      {error && <div className="text-red-600 mb-3">{error}</div>}
+      {loading ? (
+        <div className="text-gray-600">Cargando registros...</div>
+      ) : (
+        <div className="overflow-auto max-w-full table-container h-[65vh]">
+          <table className="table-auto border-collapse w-full">
+            <thead>
+              <tr className="tabla-header">
+                <th className="p-4 border text-center whitespace-nowrap">ID</th>
+                <th className="p-4 border text-center whitespace-nowrap">
+                  Agencia
+                </th>
+                <th className="p-4 border text-center whitespace-nowrap">
+                  Número de Crédito
+                </th>
+                <th className="p-4 border text-center whitespace-nowrap min-w-[260px]">
+                  Línea de Crédito
+                </th>
+                <th className="p-4 border text-center whitespace-nowrap">
+                  Número de Identificación
+                </th>
+                <th className="p-4 border text-center whitespace-nowrap min-w-[260px]">
+                  Nombre Asociado
+                </th>
+                <th className="p-4 border text-center whitespace-nowrap min-w-[200px]">
+                  Saldo Capital
+                </th>
+                <th className="p-4 border text-center whitespace-nowrap">
+                  Días Mora
+                </th>
+                <th className="p-4 border text-center whitespace-nowrap">
+                  Periodicidad Capital
+                </th>
+              </tr>
+            </thead>
+
+            <tbody className="tabla-cupos-content p-4">
+              {paginatedRows.map(row => (
+                <tr key={row.id}>
+                  <td className="p-2 border text-center whitespace-nowrap">
+                    {row.id}
+                  </td>
+                  <td className="p-2 border text-center whitespace-nowrap">
+                    {row.agencia}
+                  </td>
+                  <td className="p-2 border text-center whitespace-nowrap">
+                    {row.numeroCredito}
+                  </td>
+                  <td className="p-2 border text-center whitespace-nowrap">
+                    {row.lineaCredito}
+                  </td>
+                  <td className="p-2 border text-center whitespace-nowrap">
+                    {row.numeroIdentificacion}
+                  </td>
+                  <td className="p-2 border text-center whitespace-nowrap">
+                    {row.nombreAsociado}
+                  </td>
+                  <td className="p-2 border text-center whitespace-nowrap">
+                    {formatNumber(row.saldoCapital)}
+                  </td>
+                  <td className="p-2 border text-center whitespace-nowrap">
+                    {formatNumber(row.diasMora)}
+                  </td>
+                  <td className="p-2 border text-center whitespace-nowrap">
+                    {row.periodicidadCapital}
+                  </td>
+                </tr>
+              ))}
+              {!filteredRows.length && (
+                <tr>
+                  <td className="p-3 border text-center" colSpan={9}>
+                    No hay registros para mostrar.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      )}
     </main>
   );
 }

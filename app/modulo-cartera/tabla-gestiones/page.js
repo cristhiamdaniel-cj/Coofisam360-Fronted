@@ -1,271 +1,125 @@
 "use client";
 import { useEffect, useState } from "react";
-//import { getFinancialRecords } from "@/services/financial";
-import { FaRegSave } from "react-icons/fa";
-import { FaFileDownload } from "react-icons/fa";
 import { IoSearch } from "react-icons/io5";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import { FiDownload } from "react-icons/fi";
-
-const initialRows = [
-  {
-    id: 1,
-    tipo: "Llamada",
-    fechaGestion: "04/06/2024",
-    comentario: "Asociado remite soporte de pago para cancelar cuota de junio",
-    nroProducto: "1955971",
-    cedula: "1075280799",
-    nombre: "Daniel Sebastian Rojas Mazorra",
-    usuarioGestion: "DASU",
-    oficina: "",
-    gestionValidada: "",
-  },
-  {
-    id: 2,
-    tipo: "Acuerdo de Pago",
-    fechaGestion: "04/06/2024",
-    comentario:
-      "Asociado se presenta a la oficina, reconoce el estado de la obligación, solicita plazo hasta el fin de semana, se recomienda dar cumplimiento",
-    nroProducto: "1961553",
-    cedula: "1083879986",
-    nombre: "Daniel Jimenez Burbano",
-    usuarioGestion: "IMVA",
-    oficina: "",
-    gestionValidada: "",
-  },
-  {
-    id: 3,
-    tipo: "Prejuridico",
-    fechaGestion: "04/06/2024",
-    comentario: "Gestión migración",
-    nroProducto: "1963965",
-    cedula: "12122354",
-    nombre: "Aristobulo Cardozo Quimbayo",
-    usuarioGestion: "operativo",
-    oficina: "",
-    gestionValidada: "",
-  },
-  {
-    id: 4,
-    tipo: "Acuerdo de Pago",
-    fechaGestion: "04/06/2024",
-    comentario:
-      "ASOCIADO SE ACERCA A REALIZAR ABONO DE 1.000.000, Y MANIFIESTA QUE EL SALDO LO CANCELA PARA EL DIA 20/06/2024, PENDIENTE RECIBIR EFECTIVO. CLAG",
-    nroProducto: "1973426",
-    cedula: "4937585",
-    nombre: "Hector Hernando Anacona Peña",
-    usuarioGestion: "CLAG",
-    oficina: "",
-    gestionValidada: "",
-  },
-  {
-    id: 5,
-    tipo: "Prejuridico",
-    fechaGestion: "04/06/2024",
-    comentario: "Asignación por migración",
-    nroProducto: "1967613",
-    cedula: "26431629",
-    nombre: "Yamile Gallego Trujillo",
-    usuarioGestion: "operativo",
-    oficina: "",
-    gestionValidada: "",
-  },
-  {
-    id: 6,
-    tipo: "Prejuridico",
-    fechaGestion: "04/06/2024",
-    comentario: "Asignación por migración",
-    nroProducto: "1959233",
-    cedula: "1081156288",
-    nombre: "Monica Andrade Mendoza",
-    usuarioGestion: "operativo",
-    oficina: "",
-    gestionValidada: "",
-  },
-  {
-    id: 7,
-    tipo: "Prejuridico",
-    fechaGestion: "04/06/2024",
-    comentario: "Asignación por migración",
-    nroProducto: "1966853",
-    cedula: "15327597",
-    nombre: "Querubin Ospina Mejia",
-    usuarioGestion: "operativo",
-    oficina: "",
-    gestionValidada: "",
-  },
-  {
-    id: 8,
-    tipo: "Prejuridico",
-    fechaGestion: "04/06/2024",
-    comentario: "Asignación por migración.",
-    nroProducto: "1967119",
-    cedula: "17657316",
-    nombre: "Pablo Andres Alvarez Vega",
-    usuarioGestion: "operativo",
-    oficina: "",
-    gestionValidada: "",
-  },
-  {
-    id: 9,
-    tipo: "Prejuridico",
-    fechaGestion: "04/06/2024",
-    comentario: "Gestión por migración",
-    nroProducto: "1955639",
-    cedula: "1075222252",
-    nombre: "Blanca Lorena Quintero Herrera",
-    usuarioGestion: "operativo",
-    oficina: "",
-    gestionValidada: "",
-  },
-  {
-    id: 10,
-    tipo: "Prejuridico",
-    fechaGestion: "04/06/2024",
-    comentario: "Asignación por migración.",
-    nroProducto: "1955381",
-    cedula: "1060207896",
-    nombre: "Alexander Penagos Torres",
-    usuarioGestion: "operativo",
-    oficina: "",
-    gestionValidada: "",
-  },
-  {
-    id: 11,
-    tipo: "Prejuridico",
-    fechaGestion: "04/06/2024",
-    comentario: "Asignación por migración.",
-    nroProducto: "1963462",
-    cedula: "1117542235",
-    nombre: "Yeraldin Yineth Poveda Collazos",
-    usuarioGestion: "operativo",
-    oficina: "",
-    gestionValidada: "",
-  },
-];
+import { listGestiones, createGestion } from "@/app/services/modulo-cartera/gestionesService";
 
 export default function GestionesTable() {
-  const [rows, setRows] = useState(initialRows);
-  const [filteredRows, setFilteredRows] = useState(initialRows);
-  const [editedRows, setEditedRows] = useState([]);
+  const [rows, setRows] = useState([]);
+  const [filteredRows, setFilteredRows] = useState([]);
   const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [page, setPage] = useState(1);
+  const pageSize = 50;
+  const [creating, setCreating] = useState(false);
+  const [form, setForm] = useState({
+    tipo: "",
+    comentario: "",
+    nro_producto: "",
+    cedula: "",
+    nombre: "",
+    usuario_gestion: "",
+  });
 
-  // Live search (reactive as you type)
   useEffect(() => {
-    const query = search.trim().toLowerCase();
+    async function load() {
+      try {
+        const data = await listGestiones({ limit: 2000 });
+        const arr = Array.isArray(data) ? data : data?.items || [];
+        setRows(arr);
+        setFilteredRows(arr);
+        setPage(1);
+      } catch (err) {
+        console.error(err);
+        setError(err?.message || "Error cargando gestiones");
+      } finally {
+        setLoading(false);
+      }
+    }
+    load();
+  }, []);
+
+  useEffect(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) {
+      setFilteredRows(rows);
+      return;
+    }
     const filtered = rows.filter(r => {
-      const matchesSearch =
-        !query ||
-        r.tipo?.toLowerCase().includes(query) ||
-        r.fechaGestion?.toLowerCase().includes(query) ||
-        r.comentario?.toLowerCase().includes(query) ||
-        r.nroProducto?.toLowerCase().includes(query) ||
-        r.cedula?.toLowerCase().includes(query) ||
-        r.nombre?.toLowerCase().includes(query) ||
-        r.usuarioGestion?.toLowerCase().includes(query) ||
-        r.oficina?.toLowerCase().includes(query) ||
-        r.gestionValidada?.toLowerCase().includes(query);
-      
-      return matchesSearch;
+      return (
+        (r.tipo || "").toLowerCase().includes(q) ||
+        (r.fechaGestion || "").toLowerCase().includes(q) ||
+        (r.comentario || "").toLowerCase().includes(q) ||
+        (r.nroProducto || "").toLowerCase().includes(q) ||
+        (r.cedula || "").toLowerCase().includes(q) ||
+        (r.nombre || "").toLowerCase().includes(q) ||
+        (r.usuarioGestion || "").toLowerCase().includes(q) ||
+        (r.oficina || "").toLowerCase().includes(q) ||
+        (r.gestionValidada || "").toLowerCase().includes(q)
+      );
     });
     setFilteredRows(filtered);
+    setPage(1);
   }, [search, rows]);
 
-  // Opciones para los dropdowns de oficinas
-  const oficinaOptions = [
-    { codigo: 1, nombre: "GARZON" },
-    { codigo: 2, nombre: "GUADALUPE" },
-    { codigo: 3, nombre: "PITAL" },
-    { codigo: 4, nombre: "GIGANTE" },
-    { codigo: 5, nombre: "ACEVEDO" },
-    { codigo: 6, nombre: "TARQUI" },
-    { codigo: 7, nombre: "LA PLATA" },
-    { codigo: 8, nombre: "PITALITO" },
-    { codigo: 9, nombre: "SUAZA" },
-    { codigo: 10, nombre: "LA ARGENTINA" },
-    { codigo: 11, nombre: "NEIVA" },
-    { codigo: 12, nombre: "RIVERA" },
-    { codigo: 13, nombre: "HOBO" },
-    { codigo: 14, nombre: "IQUIRA" },
-    { codigo: 15, nombre: "SALADOBLANCO" },
-    { codigo: 16, nombre: "ESPINAL" },
-    { codigo: 17, nombre: "PLANADAS" },
-    { codigo: 18, nombre: "CHAPARRAL" },
-    { codigo: 19, nombre: "FLORENCIA" },
-  ];
+  const totalPages = Math.max(1, Math.ceil(filteredRows.length / pageSize));
+  const paginatedRows = filteredRows.slice((page - 1) * pageSize, page * pageSize);
+  const gotoPrev = () => setPage(p => Math.max(1, p - 1));
+  const gotoNext = () => setPage(p => Math.min(totalPages, p + 1));
 
-  // Opciones para gestión validada
-  const gestionValidadaOptions = ["SI", "NO"];
-
-  const handleChange = (id, field, value) => {
-    // update rows state immediately
-    setRows(prev =>
-      prev.map(row => (row.id === id ? { ...row, [field]: value } : row))
-    );
-
-    // update filteredRows state immediately
-    setFilteredRows(prev =>
-      prev.map(row => (row.id === id ? { ...row, [field]: value } : row))
-    );
-
-    // mark this row as edited
-    setEditedRows(prev => ({
-      ...prev,
-      [id]: { ...prev[id], [field]: value },
-    }));
-  };
-
-  const handleSave = async () => {
-    console.log("Saving edits:", editedRows);
-
-    // Example: send to backend
-    /*
-    await fetch("https://coofisam360.ngrok.io/api/update-records/", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(editedRows),
-    });
-    */
-
-    // clear edited state after saving
-    setEditedRows({});
+  const handleCreate = async () => {
+    if (!form.tipo || !form.comentario || !form.nro_producto || !form.cedula || !form.nombre || !form.usuario_gestion) {
+      setError("Tipo, comentario, nro producto, cédula, nombre y usuario gestión son obligatorios");
+      return;
+    }
+    setError("");
+    setCreating(true);
+    try {
+      await createGestion(form);
+      setForm({
+        tipo: "",
+        comentario: "",
+        nro_producto: "",
+        cedula: "",
+        nombre: "",
+        usuario_gestion: "",
+      });
+      const data = await listGestiones({ limit: 2000 });
+      const items = Array.isArray(data) ? data : data?.items || [];
+      setRows(items);
+      setFilteredRows(items);
+      setPage(1);
+    } catch (err) {
+      console.error(err);
+      setError(err?.message || "Error creando gestión");
+    } finally {
+      setCreating(false);
+    }
   };
 
   const handleDownload = () => {
-    // Convert JSON to worksheet
-    const worksheet = XLSX.utils.json_to_sheet(rows);
-
-    // Create a new workbook
+    const worksheet = XLSX.utils.json_to_sheet(filteredRows);
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(
-      workbook,
-      worksheet,
-      "Indicadores Financieros"
-    );
-
-    // Write workbook and save
-    const excelBuffer = XLSX.write(workbook, {
-      bookType: "xlsx",
-      type: "array",
-    });
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Gestiones");
+    const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
     const data = new Blob([excelBuffer], { type: "application/octet-stream" });
-    saveAs(data, "cupos.xlsx");
+    saveAs(data, "gestiones.xlsx");
   };
 
   return (
     <main className="pt-4 pb-0 px-12 overflow-auto">
-      <h1 className="titulo-tabla-cupos text-3xl font-semibold pb-4">
-        Gestiones
-      </h1>
+      <h1 className="titulo-tabla-cupos text-3xl font-semibold pb-4">Gestiones</h1>
       <div className="actions-container flex justify-between mb-4">
         <div className="search-bar flex gap-2">
           <input
             type="text"
             value={search}
             onChange={e => setSearch(e.target.value)}
-            placeholder="Buscar por tipo, cédula, nombre, oficina..."
-            className="unified-input w-[300px]"
+            placeholder="Buscar por cédula, nombre, comentario, oficina..."
+            className="unified-input w-[320px]"
           />
           <button className="unified-button flex gap-2 items-center justify-center">
             Buscar
@@ -273,106 +127,144 @@ export default function GestionesTable() {
           </button>
         </div>
         <div className="flex gap-4">
-          {Object.keys(editedRows).length > 0 && (
-            <button
-              onClick={handleSave}
-              className="unified-button flex gap-2 items-center justify-center"
-            >
-              Guardar cambios
-              <FaRegSave />
-            </button>
-          )}
           <button
             className="unified-button flex gap-2 items-center justify-center"
             onClick={handleDownload}
+            disabled={!filteredRows.length}
           >
             Descargar
             <FiDownload />
           </button>
+          <div className="flex items-center gap-2 text-sm">
+            <button className="unified-button px-3" onClick={gotoPrev} disabled={page === 1}>
+              ◀
+            </button>
+            <span>
+              Página {page} / {totalPages}
+            </span>
+            <button
+              className="unified-button px-3"
+              onClick={gotoNext}
+              disabled={page === totalPages}
+            >
+              ▶
+            </button>
+          </div>
         </div>
       </div>
 
-      <div className="overflow-auto max-w-full table-container h-[65vh]">
-        <table className="table-auto border-collapse w-full">
-          <thead>
-            <tr className="tabla-header">
-              <th className="p-4 border text-center whitespace-nowrap min-w-[200px]">
-                Tipo
-              </th>
-              <th className="p-4 border text-center whitespace-nowrap">
-                Fecha de la gestión
-              </th>
-              <th className="p-4 border text-center whitespace-nowrap min-w-[400px]">
-                Comentario
-              </th>
-              <th className="p-4 border text-center whitespace-nowrap">
-                Nro producto
-              </th>
-              <th className="p-4 border text-center whitespace-nowrap">
-                Cédula
-              </th>
-              <th className="p-4 border text-center whitespace-nowrap min-w-[250px]">
-                Nombre
-              </th>
-              <th className="p-4 border text-center whitespace-nowrap">
-                Usuario Gestión
-              </th>
-              <th className="p-4 border text-center whitespace-nowrap min-w-[200px]">
-                Oficina
-              </th>
-              <th className="p-4 border text-center whitespace-nowrap">
-                Gestión Validada
-              </th>
-            </tr>
-          </thead>
-
-          <tbody className="tabla-cupos-content p-4">
-            {filteredRows.map(r => (
-              <tr key={r.id}>
-                <td className="p-2 border text-center">{r.tipo}</td>
-                <td className="p-2 border text-center">{r.fechaGestion}</td>
-                <td className="p-2 border text-center">{r.comentario}</td>
-                <td className="p-2 border text-center">{r.nroProducto}</td>
-                <td className="p-2 border text-center">{r.cedula}</td>
-                <td className="p-2 border text-center">{r.nombre}</td>
-                <td className="p-2 border text-center">{r.usuarioGestion}</td>
-                <td className="p-2 border text-center">
-                  <select
-                    value={r.oficina || ""}
-                    onChange={e =>
-                      handleChange(r.id, "oficina", e.target.value)
-                    }
-                    className="w-full px-2 py-1 border rounded"
-                  >
-                    <option value="">Seleccionar oficina</option>
-                    {oficinaOptions.map(oficina => (
-                      <option key={oficina.codigo} value={oficina.nombre}>
-                        {oficina.nombre}
-                      </option>
-                    ))}
-                  </select>
-                </td>
-                <td className="p-2 border text-center">
-                  <select
-                    value={r.gestionValidada || ""}
-                    onChange={e =>
-                      handleChange(r.id, "gestionValidada", e.target.value)
-                    }
-                    className="w-full px-2 py-1 border rounded"
-                  >
-                    <option value="">Seleccionar</option>
-                    {gestionValidadaOptions.map(option => (
-                      <option key={option} value={option}>
-                        {option}
-                      </option>
-                    ))}
-                  </select>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div className="mb-4 grid grid-cols-3 gap-3 bg-gray-50 p-3 rounded">
+        <div>
+          <label className="text-sm">Tipo*</label>
+          <input
+            type="text"
+            value={form.tipo}
+            onChange={e => setForm(f => ({ ...f, tipo: e.target.value }))}
+            className="unified-input w-full"
+          />
+        </div>
+        <div>
+          <label className="text-sm">Comentario*</label>
+          <input
+            type="text"
+            value={form.comentario}
+            onChange={e => setForm(f => ({ ...f, comentario: e.target.value }))}
+            className="unified-input w-full"
+          />
+        </div>
+        <div>
+          <label className="text-sm">Nro. Producto*</label>
+          <input
+            type="text"
+            value={form.nro_producto}
+            onChange={e => setForm(f => ({ ...f, nro_producto: e.target.value }))}
+            className="unified-input w-full"
+          />
+        </div>
+        <div>
+          <label className="text-sm">Cédula*</label>
+          <input
+            type="text"
+            value={form.cedula}
+            onChange={e => setForm(f => ({ ...f, cedula: e.target.value }))}
+            className="unified-input w-full"
+          />
+        </div>
+        <div>
+          <label className="text-sm">Nombre*</label>
+          <input
+            type="text"
+            value={form.nombre}
+            onChange={e => setForm(f => ({ ...f, nombre: e.target.value }))}
+            className="unified-input w-full"
+          />
+        </div>
+        <div>
+          <label className="text-sm">Usuario gestión*</label>
+          <input
+            type="text"
+            value={form.usuario_gestion}
+            onChange={e => setForm(f => ({ ...f, usuario_gestion: e.target.value }))}
+            className="unified-input w-full"
+          />
+        </div>
+        <div className="col-span-3 flex items-center justify-end">
+          <button className="unified-button px-4" onClick={handleCreate} disabled={creating}>
+            {creating ? "Guardando..." : "Agregar fila"}
+          </button>
+        </div>
       </div>
+
+      {error && <div className="text-red-600 mb-3">{error}</div>}
+      {loading ? (
+        <div className="text-gray-600">Cargando registros...</div>
+      ) : (
+        <div className="overflow-auto max-w-full table-container h-[65vh]">
+          <table className="table-auto border-collapse w-full">
+            <thead className="tabla-header">
+              <tr>
+                <th className="p-4 border text-center whitespace-nowrap">Tipo</th>
+                <th className="p-4 border text-center whitespace-nowrap min-w-[140px]">
+                  Fecha gestión
+                </th>
+                <th className="p-4 border text-center whitespace-nowrap min-w-[260px]">
+                  Comentario
+                </th>
+                <th className="p-4 border text-center whitespace-nowrap">Nro. Producto</th>
+                <th className="p-4 border text-center whitespace-nowrap">Cédula</th>
+                <th className="p-4 border text-center whitespace-nowrap min-w-[220px]">Nombre</th>
+                <th className="p-4 border text-center whitespace-nowrap min-w-[140px]">
+                  Usuario gestión
+                </th>
+                <th className="p-4 border text-center whitespace-nowrap">Oficina</th>
+                <th className="p-4 border text-center whitespace-nowrap">Gestión validada</th>
+              </tr>
+            </thead>
+            <tbody className="tabla-cupos-content p-4">
+              {paginatedRows.map(row => (
+                <tr key={row.id}>
+                  <td className="p-2 border text-center">{row.tipo}</td>
+                  <td className="p-2 border text-center">{row.fechaGestion}</td>
+                  <td className="p-2 border text-center">{row.comentario}</td>
+                  <td className="p-2 border text-center">{row.nroProducto}</td>
+                  <td className="p-2 border text-center">{row.cedula}</td>
+                  <td className="p-2 border text-center">{row.nombre}</td>
+                  <td className="p-2 border text-center">{row.usuarioGestion}</td>
+                  <td className="p-2 border text-center">{row.oficina}</td>
+                  <td className="p-2 border text-center">{row.gestionValidada}</td>
+                </tr>
+              ))}
+              {!filteredRows.length && (
+                <tr>
+                  <td className="p-3 border text-center" colSpan={9}>
+                    No hay registros para mostrar.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      )}
     </main>
   );
 }

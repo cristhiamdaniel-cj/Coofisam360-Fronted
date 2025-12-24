@@ -48,6 +48,7 @@ export default function EjecucionPresupuestalTable() {
   const [etlUploading, setEtlUploading] = useState(false);
   const [explorerOpen, setExplorerOpen] = useState(false);
   const [filesByYear, setFilesByYear] = useState([]);
+  const [lastUploadedName, setLastUploadedName] = useState("");
 
   const handleDownloadTemplate = () => {
     try {
@@ -160,12 +161,14 @@ export default function EjecucionPresupuestalTable() {
     }
     try {
       setEtlUploading(true);
+      const uploadedName = etlFile?.name || '';
       const res = await uploadEjecucionPresupuestal({ file: etlFile, anio: y, mes: m });
       const imported = res?.imported ?? res?.saved ?? 0;
       const errors = res?.errors || [];
       setStatusType(errors.length ? 'info' : 'success');
       setStatusMsg(`Importados: ${imported}${errors.length ? `, errores: ${errors.length}` : ''}`);
       setEtlFile(null);
+      setLastUploadedName(uploadedName);
       // recargar datos al período subido
       setSelectedYear(String(y));
       setSelectedMonth(String(m));
@@ -438,7 +441,11 @@ export default function EjecucionPresupuestalTable() {
       onClick={openExplorer}
       className="action-button flex gap-2 items-center justify-center cursor-pointer"
     >
-      Explorar <FaRegFolderOpen />
+      {lastUploadedName
+        ? (lastUploadedName.length > 28
+            ? `Explorar (${lastUploadedName.slice(0, 25)}…)`
+            : `Explorar (${lastUploadedName})`)
+        : 'Explorar'} <FaRegFolderOpen />
     </button>
   </div>
 

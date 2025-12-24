@@ -8,7 +8,7 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: Alejito10.
     ports:
-      - "5432:5432"
+      - "55432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
@@ -26,15 +26,16 @@ services:
       DB_NAME: coofisam_db
       DB_USER: postgres
       DB_PASSWORD: Alejito10.
-      DB_HOST: db
+      DB_HOST: host.docker.internal
       DB_PORT: "5432"
-    depends_on:
-      db:
-        condition: service_healthy
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on: []
     ports:
       - "8060:8060"
     volumes:
       - lbalance:/home/desarrollo/Coofisam/data/Libro_de_Balance_x_Aanoo
+    restart: unless-stopped
     networks: [coofinet]
 
   frontend:
@@ -42,13 +43,12 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        NEXT_PUBLIC_API_BASE: http://localhost:8060
+        NEXT_PUBLIC_API_BASE: https://coofisam360.ngrok.io
     environment:
-      NEXT_PUBLIC_API_BASE: http://localhost:8060
-    depends_on:
-      - backend
+      NEXT_PUBLIC_API_BASE: https://coofisam360.ngrok.io
     ports:
       - "8061:8061"
+    restart: unless-stopped
     networks: [coofinet]
 
 volumes:

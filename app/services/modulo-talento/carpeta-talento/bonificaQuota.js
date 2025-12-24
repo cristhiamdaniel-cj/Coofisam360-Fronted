@@ -16,7 +16,9 @@ export async function saveBonificacionRow(ui = {}) {
 
 
 export function mapBonificacionApiToUi(a = {}) {
+  const id = `${a.anio ?? a.AÑO}-${(a.mes ?? a.MES ?? "").toString().toUpperCase()}`;
   return {
+    id,
     AÑO: a.anio ?? a.AÑO,
     MES: a.mes ?? a.MES,
     "CANTIDAD EMPLEADOS": a.cantidadEmpleados ?? a.cantidad_empleados ?? a["CANTIDAD EMPLEADOS"],

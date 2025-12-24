@@ -1,237 +1,116 @@
 "use client";
 import { useEffect, useState } from "react";
-//import { getFinancialRecords } from "@/services/financial";
-import { FaRegSave } from "react-icons/fa";
-import { FaFileDownload } from "react-icons/fa";
 import { IoSearch } from "react-icons/io5";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import { FiDownload } from "react-icons/fi";
+import { listLinkLlamadas, createLinkLlamada } from "@/app/services/modulo-cartera/linkLlamadasService";
 
-const initialRows = [
-  {
-    id: 1,
-    agencia: "1",
-    usuarioGestor: "JOSE DAVID GOMEZ VARGAS",
-    numeroIdentificacion: "1003965540",
-    nombreAsociado: "Mario Adolfo Lopez Bustos",
-    lineaCredito: "CON LIBRE INVERSION",
-    numeroCredito: "1953492",
-    saldoCapital: "$ 720.100",
-    periodicidadCapital: "Mensual",
-    diasMora: 3,
-    calificacionArrastre: "A",
-  },
-  {
-    id: 2,
-    agencia: "1",
-    usuarioGestor: "CRISTIAN GEOVANNY LEON MONTAÑO",
-    numeroIdentificacion: "1004253645",
-    nombreAsociado: "Maria Del Carmen Erazo",
-    lineaCredito: "CON LIBRE INVERSION",
-    numeroCredito: "1953909",
-    saldoCapital: "$ 2.521.418",
-    periodicidadCapital: "Mensual",
-    diasMora: 3,
-    calificacionArrastre: "A",
-  },
-  {
-    id: 3,
-    agencia: "1",
-    usuarioGestor: "JOSE EDGAR VARGAS LOSADA",
-    numeroIdentificacion: "1006459223",
-    nombreAsociado: "Nodier Fernando Martinez Bonilla",
-    lineaCredito: "CON LIBRE INVERSION",
-    numeroCredito: "1954348",
-    saldoCapital: "$ 8.324.286",
-    periodicidadCapital: "Mensual",
-    diasMora: 33,
-    calificacionArrastre: "C",
-  },
-  {
-    id: 4,
-    agencia: "1",
-    usuarioGestor: "JOSE DAVID GOMEZ VARGAS",
-    numeroIdentificacion: "1007334256",
-    nombreAsociado: "Anderson  Bermeo Serrato",
-    lineaCredito: "CON LIBRE INVERSION",
-    numeroCredito: "1954603",
-    saldoCapital: "$ 729.570",
-    periodicidadCapital: "Mensual",
-    diasMora: 3,
-    calificacionArrastre: "A",
-  },
-  {
-    id: 5,
-    agencia: "1",
-    usuarioGestor: "JOSE EDGAR VARGAS LOSADA",
-    numeroIdentificacion: "1007342198",
-    nombreAsociado: "Veronica Andrea Lobaton Martinez",
-    lineaCredito: "CON LIBRE INVERSION",
-    numeroCredito: "1954614",
-    saldoCapital: "$ 1.037.577",
-    periodicidadCapital: "Mensual",
-    diasMora: 3,
-    calificacionArrastre: "A",
-  },
-  {
-    id: 6,
-    agencia: "1",
-    usuarioGestor: "KAREN DAYANNA CERQUERA CABRERA",
-    numeroIdentificacion: "1007359328",
-    nombreAsociado: "Hary Julieth Vanegas Perez",
-    lineaCredito: "CON LIBRE INVERSION",
-    numeroCredito: "1954639",
-    saldoCapital: "$ 1.547.692",
-    periodicidadCapital: "Mensual",
-    diasMora: 74,
-    calificacionArrastre: "C",
-  },
-  {
-    id: 7,
-    agencia: "1",
-    usuarioGestor: "KAREN DAYANNA CERQUERA CABRERA",
-    numeroIdentificacion: "1007371122",
-    nombreAsociado: "Diana Carolina Cadena Arrigui",
-    lineaCredito: "CON LIBRE INVERSION",
-    numeroCredito: "1954666",
-    saldoCapital: "$ 2.880.147",
-    periodicidadCapital: "Mensual",
-    diasMora: 33,
-    calificacionArrastre: "B",
-  },
-  {
-    id: 8,
-    agencia: "1",
-    usuarioGestor: "JOSE DAVID GOMEZ VARGAS",
-    numeroIdentificacion: "1007416369",
-    nombreAsociado: "Matilde  Ramirez Murillo",
-    lineaCredito: "PRO POP.PROD.URBANO FINAGRO EMPRESARIAL 28%",
-    numeroCredito: "1954696",
-    saldoCapital: "$ 1.418.483",
-    periodicidadCapital: "Mensual",
-    diasMora: 3,
-    calificacionArrastre: "A",
-  },
-  {
-    id: 9,
-    agencia: "1",
-    usuarioGestor: "CRISTIAN GEOVANNY LEON MONTAÑO",
-    numeroIdentificacion: "1007416380",
-    nombreAsociado: "Conny Fernanda Prada Bustos",
-    lineaCredito: "PRO POP.PROD.RURAL OTRAS INVERSIONES",
-    numeroCredito: "1954698",
-    saldoCapital: "$ 769.880",
-    periodicidadCapital: "Mensual",
-    diasMora: 63,
-    calificacionArrastre: "C",
-  },
-  {
-    id: 10,
-    agencia: "1",
-    usuarioGestor: "CRISTIAN GEOVANNY LEON MONTAÑO",
-    numeroIdentificacion: "1007419848",
-    nombreAsociado: "Maria Teresa Benavides Quiza",
-    lineaCredito: "CON LIBRE INVERSION",
-    numeroCredito: "1954705",
-    saldoCapital: "$ 3.214.703",
-    periodicidadCapital: "Mensual",
-    diasMora: 3,
-    calificacionArrastre: "B",
-  },
-  {
-    id: 11,
-    agencia: "1",
-    usuarioGestor: "JOSE DAVID GOMEZ VARGAS",
-    numeroIdentificacion: "1007419951",
-    nombreAsociado: "Ricardo  Trujillo Trujillo",
-    lineaCredito: "CON LIBRE INVERSION",
-    numeroCredito: "1954707",
-    saldoCapital: "$ 5.270.494",
-    periodicidadCapital: "Mensual",
-    diasMora: 14,
-    calificacionArrastre: "A",
-  },
-  {
-    id: 12,
-    agencia: "1",
-    usuarioGestor: "JOSE EDGAR VARGAS LOSADA",
-    numeroIdentificacion: "1007524886",
-    nombreAsociado: "Gabriela  Diaz Almario",
-    lineaCredito: "MIC EMPRESARIAL",
-    numeroCredito: "1954770",
-    saldoCapital: "$ 1.992.842",
-    periodicidadCapital: "Mensual",
-    diasMora: 19,
-    calificacionArrastre: "A",
-  },
-  {
-    id: 13,
-    agencia: "1",
-    usuarioGestor: "CRISTIAN DANIEL MONJE FIERRO",
-    numeroIdentificacion: "1007677692",
-    nombreAsociado: "Davis Andres Cediel Bejarano",
-    lineaCredito: "CON LIBRE INVERSION",
-    numeroCredito: "1954846",
-    saldoCapital: "$ 720.980",
-    periodicidadCapital: "Mensual",
-    diasMora: 3,
-    calificacionArrastre: "A",
-  },
-];
+const formatNumber = value => {
+  const num = Number(value);
+  if (!Number.isFinite(num)) return value || "-";
+  return new Intl.NumberFormat("es-CO").format(num);
+};
 
-export default function GestionesTable() {
-  const [rows, setRows] = useState(initialRows);
-  const [editedRows, setEditedRows] = useState([]);
+export default function LinkLlamadasTable() {
+  const [rows, setRows] = useState([]);
+  const [filteredRows, setFilteredRows] = useState([]);
+  const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [page, setPage] = useState(1);
+  const pageSize = 50;
+  const [creating, setCreating] = useState(false);
+  const [form, setForm] = useState({
+    agencia: "",
+    numero_credito_raw: "",
+    numero_identificacion: "",
+    nombre_asociado: "",
+    linea_credito: "",
+  });
 
-  const handleChange = (id, field, value) => {
-    // update rows state immediately
-    setRows(prev =>
-      prev.map(row => (row.id === id ? { ...row, [field]: value } : row))
-    );
+  useEffect(() => {
+    async function load() {
+      try {
+        const data = await listLinkLlamadas({ limit: 2000 });
+        const arr = Array.isArray(data) ? data : data?.items || [];
+        setRows(arr);
+        setFilteredRows(arr);
+        setPage(1);
+      } catch (err) {
+        console.error(err);
+        setError(err?.message || "Error cargando link de llamadas");
+      } finally {
+        setLoading(false);
+      }
+    }
+    load();
+  }, []);
 
-    // mark this row as edited
-    setEditedRows(prev => ({
-      ...prev,
-      [id]: { ...prev[id], [field]: value },
-    }));
-  };
-
-  const handleSave = async () => {
-    console.log("Saving edits:", editedRows);
-
-    // Example: send to backend
-    /*
-    await fetch("https://coofisam360.ngrok.io/api/update-records/", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(editedRows),
+  useEffect(() => {
+    const query = search.trim().toLowerCase();
+    if (!query) {
+      setFilteredRows(rows);
+      return;
+    }
+    const filtered = rows.filter(r => {
+      return (
+        (r.numeroIdentificacion || "").toLowerCase().includes(query) ||
+        (r.nombreAsociado || "").toLowerCase().includes(query) ||
+        (r.usuarioGestor || "").toLowerCase().includes(query) ||
+        (r.agencia || "").toLowerCase().includes(query) ||
+        (r.numeroCredito || "").toLowerCase().includes(query) ||
+        (r.lineaCredito || "").toLowerCase().includes(query)
+      );
     });
-    */
+    setFilteredRows(filtered);
+    setPage(1);
+  }, [search, rows]);
 
-    // clear edited state after saving
-    setEditedRows({});
+  const totalPages = Math.max(1, Math.ceil(filteredRows.length / pageSize));
+  const paginatedRows = filteredRows.slice((page - 1) * pageSize, page * pageSize);
+  const gotoPrev = () => setPage(p => Math.max(1, p - 1));
+  const gotoNext = () => setPage(p => Math.min(totalPages, p + 1));
+
+  const handleCreate = async () => {
+    if (!form.agencia || !form.numero_credito_raw || !form.numero_identificacion || !form.nombre_asociado) {
+      setError("Agencia, número crédito, número identificación y nombre son obligatorios");
+      return;
+    }
+    setError("");
+    setCreating(true);
+    try {
+      await createLinkLlamada(form);
+      setForm({
+        agencia: "",
+        numero_credito_raw: "",
+        numero_identificacion: "",
+        nombre_asociado: "",
+        linea_credito: "",
+      });
+      const data = await listLinkLlamadas({ limit: 2000 });
+      const arr = Array.isArray(data) ? data : data?.items || [];
+      setRows(arr);
+      setFilteredRows(arr);
+      setPage(1);
+    } catch (err) {
+      console.error(err);
+      setError(err?.message || "Error creando link de llamada");
+    } finally {
+      setCreating(false);
+    }
   };
 
   const handleDownload = () => {
-    // Convert JSON to worksheet
-    const worksheet = XLSX.utils.json_to_sheet(rows);
-
-    // Create a new workbook
+    const worksheet = XLSX.utils.json_to_sheet(filteredRows);
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(
-      workbook,
-      worksheet,
-      "Indicadores Financieros"
-    );
-
-    // Write workbook and save
+    XLSX.utils.book_append_sheet(workbook, worksheet, "LinkLlamadas");
     const excelBuffer = XLSX.write(workbook, {
       bookType: "xlsx",
       type: "array",
     });
     const data = new Blob([excelBuffer], { type: "application/octet-stream" });
-    saveAs(data, "cupos.xlsx");
+    saveAs(data, "link-llamadas.xlsx");
   };
 
   return (
@@ -241,93 +120,189 @@ export default function GestionesTable() {
       </h1>
       <div className="actions-container flex justify-between mb-4">
         <div className="search-bar flex gap-2">
-          <input type="text" className="border w-[300px]" />
-          <button className="action-button flex gap-2 items-center justify-center cursor-pointer">
+          <input
+            type="text"
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            placeholder="Buscar por cédula, nombre, gestor, crédito..."
+            className="unified-input w-[320px]"
+          />
+          <button className="unified-button flex gap-2 items-center justify-center cursor-pointer">
             Buscar
             <IoSearch />
           </button>
         </div>
         <div className="flex gap-4">
-          {Object.keys(editedRows).length > 0 && (
-            <button
-              onClick={handleSave}
-              className="action-button flex gap-2 items-center justify-center cursor-pointer"
-            >
-              Guardar cambios
-              <FaRegSave />
-            </button>
-          )}
           <button
-            className="action-button flex gap-2 items-center justify-center cursor-pointer"
+            className="unified-button flex gap-2 items-center justify-center cursor-pointer"
             onClick={handleDownload}
+            disabled={!filteredRows.length}
           >
             Descargar
             <FiDownload />
           </button>
+          <div className="flex items-center gap-2 text-sm">
+            <button
+              className="unified-button px-3"
+              onClick={gotoPrev}
+              disabled={page === 1}
+            >
+              ◀
+            </button>
+            <span>
+              Página {page} / {totalPages}
+            </span>
+            <button
+              className="unified-button px-3"
+              onClick={gotoNext}
+              disabled={page === totalPages}
+            >
+              ▶
+            </button>
+          </div>
         </div>
       </div>
 
-      <div className="overflow-auto max-w-full table-container h-[65vh]">
-        <table className="table-auto border-collapse w-full">
-          <thead>
-            <tr className="tabla-header">
-              <th className="p-4 border text-center whitespace-nowrap">
-                Agencia
-              </th>
-              <th className="p-4 border text-center whitespace-nowrap min-w-[300px]">
-                Usuario Gestor
-              </th>
-              <th className="p-4 border text-center whitespace-nowrap">
-                Número de Identificación
-              </th>
-              <th className="p-4 border text-center whitespace-nowrap min-w-[300px]">
-                Nombre Asociado
-              </th>
-              <th className="p-4 border text-center whitespace-nowrap min-w-[300px]">
-                Línea de Crédito
-              </th>
-              <th className="p-4 border text-center whitespace-nowrap">
-                Número de Crédito
-              </th>
-              <th className="p-4 border text-center whitespace-nowrap">
-                Saldo Capital
-              </th>
-              <th className="p-4 border text-center whitespace-nowrap">
-                Periodicidad Capital
-              </th>
-              <th className="p-4 border text-center whitespace-nowrap">
-                Días Mora
-              </th>
-              <th className="p-4 border text-center whitespace-nowrap">
-                Calificación Arrastre
-              </th>
-            </tr>
-          </thead>
-
-          <tbody className="tabla-cupos-content p-4">
-            {rows.map(r => (
-              <tr key={r.id}>
-                <td className="p-2 border text-center">{r.agencia}</td>
-                <td className="p-2 border text-center">{r.usuarioGestor}</td>
-                <td className="p-2 border text-center">
-                  {r.numeroIdentificacion}
-                </td>
-                <td className="p-2 border text-center">{r.nombreAsociado}</td>
-                <td className="p-2 border text-center">{r.lineaCredito}</td>
-                <td className="p-2 border text-center">{r.numeroCredito}</td>
-                <td className="p-2 border text-center">{r.saldoCapital}</td>
-                <td className="p-2 border text-center">
-                  {r.periodicidadCapital}
-                </td>
-                <td className="p-2 border text-center">{r.diasMora}</td>
-                <td className="p-2 border text-center">
-                  {r.calificacionArrastre}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div className="mb-4 grid grid-cols-5 gap-3 bg-gray-50 p-3 rounded">
+        <div>
+          <label className="text-sm">Agencia*</label>
+          <input
+            type="text"
+            value={form.agencia}
+            onChange={e => setForm(f => ({ ...f, agencia: e.target.value }))}
+            className="unified-input w-full"
+          />
+        </div>
+        <div>
+          <label className="text-sm">Número de Crédito*</label>
+          <input
+            type="text"
+            value={form.numero_credito_raw}
+            onChange={e => setForm(f => ({ ...f, numero_credito_raw: e.target.value }))}
+            className="unified-input w-full"
+          />
+        </div>
+        <div>
+          <label className="text-sm">Número de Identificación*</label>
+          <input
+            type="text"
+            value={form.numero_identificacion}
+            onChange={e => setForm(f => ({ ...f, numero_identificacion: e.target.value }))}
+            className="unified-input w-full"
+          />
+        </div>
+        <div>
+          <label className="text-sm">Nombre Asociado*</label>
+          <input
+            type="text"
+            value={form.nombre_asociado}
+            onChange={e => setForm(f => ({ ...f, nombre_asociado: e.target.value }))}
+            className="unified-input w-full"
+          />
+        </div>
+        <div>
+          <label className="text-sm">Línea de Crédito</label>
+          <input
+            type="text"
+            value={form.linea_credito}
+            onChange={e => setForm(f => ({ ...f, linea_credito: e.target.value }))}
+            className="unified-input w-full"
+          />
+        </div>
+        <div className="col-span-5 flex items-center justify-end">
+          <button className="unified-button px-4" onClick={handleCreate} disabled={creating}>
+            {creating ? "Guardando..." : "Agregar fila"}
+          </button>
+        </div>
       </div>
+
+      {error && <div className="text-red-600 mb-3">{error}</div>}
+      {loading ? (
+        <div className="text-gray-600">Cargando registros...</div>
+      ) : (
+        <div className="overflow-auto max-w-full table-container h-[65vh]">
+          <table className="table-auto border-collapse w-full">
+            <thead>
+              <tr className="tabla-header">
+                <th className="p-4 border text-center whitespace-nowrap">
+                  Agencia
+                </th>
+                <th className="p-4 border text-center whitespace-nowrap min-w-[220px]">
+                  Usuario Gestor
+                </th>
+                <th className="p-4 border text-center whitespace-nowrap">
+                  Número de Identificación
+                </th>
+                <th className="p-4 border text-center whitespace-nowrap min-w-[260px]">
+                  Nombre Asociado
+                </th>
+                <th className="p-4 border text-center whitespace-nowrap min-w-[240px]">
+                  Línea de Crédito
+                </th>
+                <th className="p-4 border text-center whitespace-nowrap">
+                  Número de Crédito
+                </th>
+                <th className="p-4 border text-center whitespace-nowrap">
+                  Saldo Capital
+                </th>
+                <th className="p-4 border text-center whitespace-nowrap">
+                  Periodicidad Capital
+                </th>
+                <th className="p-4 border text-center whitespace-nowrap">
+                  Días Mora
+                </th>
+                <th className="p-4 border text-center whitespace-nowrap">
+                  Calificación Arrastre
+                </th>
+              </tr>
+            </thead>
+
+            <tbody className="tabla-cupos-content p-4">
+              {paginatedRows.map(r => (
+                <tr key={r.id}>
+                  <td className="p-2 border text-center whitespace-nowrap">
+                    {r.agencia}
+                  </td>
+                  <td className="p-2 border text-center whitespace-nowrap">
+                    {r.usuarioGestor || "-"}
+                  </td>
+                  <td className="p-2 border text-center whitespace-nowrap">
+                    {r.numeroIdentificacion}
+                  </td>
+                  <td className="p-2 border text-center whitespace-nowrap">
+                    {r.nombreAsociado}
+                  </td>
+                  <td className="p-2 border text-center whitespace-nowrap">
+                    {r.lineaCredito}
+                  </td>
+                  <td className="p-2 border text-center whitespace-nowrap">
+                    {r.numeroCredito}
+                  </td>
+                  <td className="p-2 border text-center whitespace-nowrap">
+                    {formatNumber(r.saldoCapital)}
+                  </td>
+                  <td className="p-2 border text-center whitespace-nowrap">
+                    {r.periodicidadCapital}
+                  </td>
+                  <td className="p-2 border text-center whitespace-nowrap">
+                    {formatNumber(r.diasMora)}
+                  </td>
+                  <td className="p-2 border text-center whitespace-nowrap">
+                    {r.calificacionArrastre || "-"}
+                  </td>
+                </tr>
+              ))}
+              {!filteredRows.length && (
+                <tr>
+                  <td className="p-3 border text-center" colSpan={10}>
+                    No hay registros para mostrar.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      )}
     </main>
   );
 }

@@ -21,7 +21,7 @@ export default function Navbar() {
     { name: "Crédito", href: "/modulo-credito" },
     { name: "Comercial", href: "/modulo-comercial" },
     { name: "Gestión Documental", href: "/modulo-gestion" },
-    { name: "Ingeniería Organizacional", href: "/modulo-ingenieria" },
+    { name: "Ingeniería Organizacional", href: "/modulo-ing-organizacional" },
     { name: "Jurídico", href: "/modulo-juridico" },
     { name: "Oficial de Cumplimiento", href: "/modulo-cumplimiento" },
   ];
@@ -51,6 +51,7 @@ export default function Navbar() {
           "modulo-comercial": "Comercial",
           "modulo-gestion": "Gestión Documental",
           "modulo-ingenieria": "Ingeniería Organizacional",
+          "modulo-ing-organizacional": "Ingeniería Organizacional",
           "modulo-juridico": "Jurídico",
           "modulo-cumplimiento": "Oficial de Cumplimiento",
         };
@@ -94,10 +95,14 @@ export default function Navbar() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Si hay usuario, filtra; si no (por ejemplo en dev) puedes decidir mostrar todos o ninguno.
-  const allowedModules = user
-    ? modules.filter(m => hasModuleAccess(m.name))
-    : modules;
+  // Si hay usuario, filtra; si no, muestra todos.
+  let allowedModules = user ? modules.filter(m => hasModuleAccess(m.name)) : modules;
+  // Garantiza que Ingeniería Organizacional aparezca aunque el perfil no tenga el flag.
+  const hasIng = allowedModules.some(m => m.href === "/modulo-ing-organizacional");
+  if (!hasIng) {
+    const ingModule = modules.find(m => m.href === "/modulo-ing-organizacional");
+    if (ingModule) allowedModules = [...allowedModules, ingModule];
+  }
 
   return (
     <nav className="navbar-container px-12 flex items-center justify-between h-16 bg-white shadow-md relative">

@@ -1,329 +1,137 @@
 "use client";
-import { useEffect, useState } from "react";
-//import { getFinancialRecords } from "@/services/financial";
-import { FaRegSave } from "react-icons/fa";
-import { FaFileDownload } from "react-icons/fa";
+import { useEffect, useMemo, useState } from "react";
 import { IoSearch } from "react-icons/io5";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import { FiDownload } from "react-icons/fi";
+import { listAsignacionLlamadas, createAsignacionLlamada } from "@/app/services/modulo-cartera/asignacionLlamadasService";
 
-const initialRows = [
-  {
-    id: 1,
-    agencia: "4 - OFICINA GIGANTE",
-    numeroCredito: "1953289",
-    lineaCredito: "CON LIBRE INVERSION",
-    numeroIdentificacion: "1000493927",
-    nombreAsociado: "Lizeth Cubillos Mendez",
-    saldoCapital: 2712282,
-    diasMora: 0,
-    periodicidadCapital: "Mensual",
-    tipoGarantia: "Codeudores",
-    celular: "3183784519",
-    estado: "Normal",
-    gestor: "INGRID",
-    fechaGestion: "07/07/2025",
-    fechaAcuerdo: "",
-    gestionTitular: "AL DIA",
-    gestionCodeudor: "",
-    novedadGestion: "",
-    programarVisita: "",
-    gestorApoya: "",
-    calificacion: "",
-  },
-  {
-    id: 2,
-    agencia: "13 - OFICINA HOBO",
-    numeroCredito: "1953298",
-    lineaCredito: "CON LIBRE INVERSION",
-    numeroIdentificacion: "1000936255",
-    nombreAsociado: "Cesar Augusto Guerrero Sanchez",
-    saldoCapital: 774346,
-    diasMora: 63,
-    periodicidadCapital: "Mensual",
-    tipoGarantia: "Codeudores",
-    celular: "3212087062",
-    estado: "Normal",
-    gestor: "INGRID",
-    fechaGestion: "07/08/2025",
-    fechaAcuerdo: "",
-    gestionTitular: "NO CONTESTO",
-    gestionCodeudor: "NO CONTESTO",
-    novedadGestion: "",
-    programarVisita: "PROGRAMAR VISITA",
-    gestorApoya: "",
-    calificacion: "",
-  },
-  {
-    id: 3,
-    agencia: "8 - OFICINA PITALITO",
-    numeroCredito: "1953331",
-    lineaCredito: "PRO POP.PROD.URBANO EMPRESARIAL",
-    numeroIdentificacion: "1003260079",
-    nombreAsociado: "Ana Yugeth Arenas Mandon",
-    saldoCapital: 1600260,
-    diasMora: 33,
-    periodicidadCapital: "Mensual",
-    tipoGarantia: "Codeudores",
-    celular: "3212572661",
-    estado: "Normal",
-    gestor: "INGRID",
-    fechaGestion: "07/08/2025",
-    fechaAcuerdo: "",
-    gestionTitular: "MENSAJE  WHATSAPP",
-    gestionCodeudor: "NO CONTESTO",
-    novedadGestion: "",
-    programarVisita: "",
-    gestorApoya: "",
-    calificacion: "",
-  },
-  {
-    id: 4,
-    agencia: "16 - OFICINA ESPINAL",
-    numeroCredito: "1953334",
-    lineaCredito: "MIC EMPRESARIAL",
-    numeroIdentificacion: "1003555758",
-    nombreAsociado: "Dayana Oliveros Perdomo",
-    saldoCapital: 6198206,
-    diasMora: 78,
-    periodicidadCapital: "Mensual",
-    tipoGarantia: "Avalista / Fondo de garantía no Idóneo",
-    celular: "3160497111",
-    estado: "Normal",
-    gestor: "INGRID",
-    fechaGestion: "07/07/2025",
-    fechaAcuerdo: "",
-    gestionTitular: "MENSAJE  WHATSAPP",
-    gestionCodeudor: "NO CONTESTO",
-    novedadGestion: "",
-    programarVisita: "",
-    gestorApoya: "",
-    calificacion: "",
-  },
-  {
-    id: 5,
-    agencia: "3 - OFICINA EL PITAL",
-    numeroCredito: "1953344",
-    lineaCredito: "CON LIBRE INVERSION",
-    numeroIdentificacion: "1003762754",
-    nombreAsociado: "Keinny Vanesa Tavera Trujillo",
-    saldoCapital: 2831351,
-    diasMora: 3,
-    periodicidadCapital: "Mensual",
-    tipoGarantia: "Firma Personal",
-    celular: "3209135857",
-    estado: "Normal",
-    gestor: "INGRID",
-    fechaGestion: "07/07/2025",
-    fechaAcuerdo: "",
-    gestionTitular: "AL DIA",
-    gestionCodeudor: "",
-    novedadGestion: "",
-    programarVisita: "",
-    gestorApoya: "",
-    calificacion: "",
-  },
-  {
-    agencia: "14 - OFICINA IQUIRA",
-    numeroCredito: "1953589",
-    lineaCredito: "CON LIBRE INVERSION",
-    numeroIdentificacion: "1004074530",
-    nombreAsociado: "Karen Yulieth Vargas Vargas",
-    saldoCapital: 894754,
-    diasMora: 0,
-    periodicidadCapital: "Mensual",
-    tipoGarantia: "Codeudores",
-    celular: "3176533812",
-    estado: "Normal",
-    gestor: "INGRID",
-    fechaGestion: "07/07/2025",
-    fechaAcuerdo: "",
-    gestionTitular: "AL DIA",
-    gestionCodeudor: "",
-    novedadGestion: "",
-    programarVisita: "",
-    gestorApoya: "",
-    calificacion: "",
-  },
-  {
-    agencia: "4 - OFICINA GIGANTE",
-    numeroCredito: "1953642",
-    lineaCredito: "MIC AGROPECUARIO",
-    numeroIdentificacion: "1004148194",
-    nombreAsociado: "Diego Andres Beltran Ortiz",
-    saldoCapital: 3758124,
-    diasMora: 0,
-    periodicidadCapital: "Semestral",
-    tipoGarantia: "Avalista / Fondo de garantía no Idóneo",
-    celular: "3214017558",
-    estado: "Normal",
-    gestor: "INGRID",
-    fechaGestion: "07/07/2025",
-    fechaAcuerdo: "",
-    gestionTitular: "AL DIA",
-    gestionCodeudor: "",
-    novedadGestion: "",
-    programarVisita: "",
-    gestorApoya: "",
-    calificacion: "",
-  },
-  {
-    agencia: "4 - OFICINA GIGANTE",
-    numeroCredito: "1953660",
-    lineaCredito: "CON LIBRE INVERSION",
-    numeroIdentificacion: "1004149161",
-    nombreAsociado: "Ana Solangie Calderon Bermeo",
-    saldoCapital: 1269761,
-    diasMora: 0,
-    periodicidadCapital: "Mensual",
-    tipoGarantia: "Firma Personal",
-    celular: "3222379749",
-    estado: "Sacar de juridico",
-    gestor: "INGRID",
-    fechaGestion: "07/08/2025",
-    fechaAcuerdo: "",
-    gestionTitular: "AL DIA",
-    gestionCodeudor: "",
-    novedadGestion: "",
-    programarVisita: "",
-    gestorApoya: "",
-    calificacion: "",
-  },
-];
+const formatNumber = value => {
+  const num = Number(value);
+  if (!Number.isFinite(num)) return value || "-";
+  return new Intl.NumberFormat("es-CO").format(num);
+};
 
 export default function AsignacionLlamadasTable() {
-  const [rows, setRows] = useState(initialRows);
-  const [filteredRows, setFilteredRows] = useState(initialRows);
-  const [editedRows, setEditedRows] = useState([]);
+  const [rows, setRows] = useState([]);
+  const [filteredRows, setFilteredRows] = useState([]);
   const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [creating, setCreating] = useState(false);
+  const [form, setForm] = useState({
+    agencia: "",
+    numero_credito_raw: "",
+    linea_credito: "",
+    numero_identificacion: "",
+    nombre_asociado: "",
+    saldo_capital_raw: "",
+    dias_mora_raw: "",
+    periodicidad_capital: "",
+    tipo_garantia: "",
+    celular: "",
+    estado: "",
+    gestor: "",
+    fecha_gestion_raw: "",
+    fecha_acuerdo_raw: "",
+    gestion_titular: "",
+    gestion_codeudor: "",
+    novedad_gestion: "",
+    programar_visita: "",
+    gestor_apoya: "",
+    calificacion: "",
+    fecha_corte: "",
+  });
 
-  // Live search (reactive as you type)
+  useEffect(() => {
+    async function load() {
+      try {
+        const data = await listAsignacionLlamadas({ limit: 1000 });
+        const arr = Array.isArray(data) ? data : data?.items || [];
+        setRows(arr);
+        setFilteredRows(arr);
+      } catch (err) {
+        console.error(err);
+        setError(err?.message || "Error cargando llamadas");
+      } finally {
+        setLoading(false);
+      }
+    }
+    load();
+  }, []);
+
   useEffect(() => {
     const query = search.trim().toLowerCase();
+    if (!query) {
+      setFilteredRows(rows);
+      return;
+    }
     const filtered = rows.filter(r => {
-      const matchesSearch =
-        !query ||
-        r.cedula.toLowerCase().includes(query) ||
-        r.nombre.toLowerCase().includes(query) ||
-        r.gestor?.toLowerCase().includes(query) ||
-        r.gestionTitular?.toLowerCase().includes(query) ||
-        r.gestionCodeudor?.toLowerCase().includes(query) ||
-        r.novedadGestion?.toLowerCase().includes(query) ||
-        r.programarVisita?.toLowerCase().includes(query) ||
-        r.gestorApoya?.toLowerCase().includes(query) ||
-        r.calificacion?.toLowerCase().includes(query);
-      
-      return matchesSearch;
+      return (
+        (r.numeroIdentificacion || "").toLowerCase().includes(query) ||
+        (r.nombreAsociado || "").toLowerCase().includes(query) ||
+        (r.gestor || "").toLowerCase().includes(query) ||
+        (r.estado || "").toLowerCase().includes(query) ||
+        (r.agencia || "").toLowerCase().includes(query) ||
+        (r.numeroCredito || "").toLowerCase().includes(query)
+      );
     });
     setFilteredRows(filtered);
   }, [search, rows]);
 
-  // Opciones para los dropdowns
-  const gestorOptions = [
-    "SANDRA",
-    "INGRID",
-    "PAOLA",
-    "CAMILA",
-    "DANIELA",
-    "MARTHA",
-  ];
-
-  const gestionTitularOptions = [
-    "NO CONTESTO",
-    "MENSAJE WHATSAPP",
-    "MENSAJE TEXTO",
-    "NOTIFICADO A.G",
-    "NOTIFICADO D.G",
-    "CORTA LLAMADA",
-    "DIFICIL CONTACTO",
-    "SE DEJA RAZÓN CON TERCERO",
-    "FALLECIO Q.E.P.D",
-    "NUMER. EQUIVOCADO",
-    "DELICADO SALUD TITULAR",
-    "DELICADO SALUD CODEUDOR",
-    "RECLAM. GARANT. AVAL",
-    "RECLAM. INCAPACIDAD",
-    "PTE RESPUESTA D.P",
-    "POSIB. ARRGL CARTER",
-    "PTE - CRUCE DE CTA",
-    "CASO ESPC. NO SE LLAM.",
-    "NOTIFICADO D.G.A",
-  ];
-
-  const novedadGestionOptions = [
-    "ABONA EN EL TRANSCURSO DEL MES",
-    "ACUERDO INCUMPLIDO",
-    "DESAPARECIDO",
-    "EN ESTUDIO CJ",
-    "JURIDICO",
-    "NO VA A PAGAR",
-    "POSIBLE CASTIGO",
-    "SIN ACUERDO",
-    "TERCERO RESPONSABLE",
-    "VISITA REALIZADA",
-    "PRESENTARSE EN OFICINA",
-    "AL DIA",
-    "CRUCE DE CTA",
-    "RADICADO FUERA DEL PAIS",
-    "ASOCIADO EN PROCESO DE EXCLUSION",
-  ];
-
-  const programarVisitaOptions = ["PROGRAMAR VISITA"];
-
-  const handleChange = (id, field, value) => {
-    // update rows state immediately
-    setRows(prev =>
-      prev.map(row => (row.id === id ? { ...row, [field]: value } : row))
-    );
-    
-    // update filteredRows state immediately
-    setFilteredRows(prev =>
-      prev.map(row => (row.id === id ? { ...row, [field]: value } : row))
-    );
-
-    // mark this row as edited
-    setEditedRows(prev => ({
-      ...prev,
-      [id]: { ...prev[id], [field]: value },
-    }));
-  };
-
-  const handleSave = async () => {
-    console.log("Saving edits:", editedRows);
-
-    // Example: send to backend
-    /*
-    await fetch("https://coofisam360.ngrok.io/api/update-records/", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(editedRows),
-    });
-    */
-
-    // clear edited state after saving
-    setEditedRows({});
-  };
-
   const handleDownload = () => {
-    // Convert JSON to worksheet
-    const worksheet = XLSX.utils.json_to_sheet(rows);
-
-    // Create a new workbook
+    const worksheet = XLSX.utils.json_to_sheet(filteredRows);
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(
-      workbook,
-      worksheet,
-      "Indicadores Financieros"
-    );
-
-    // Write workbook and save
-    const excelBuffer = XLSX.write(workbook, {
-      bookType: "xlsx",
-      type: "array",
-    });
+    XLSX.utils.book_append_sheet(workbook, worksheet, "AsignacionLlamadas");
+    const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
     const data = new Blob([excelBuffer], { type: "application/octet-stream" });
-    saveAs(data, "cupos.xlsx");
+    saveAs(data, "asignacion-llamadas.xlsx");
+  };
+
+  const handleCreate = async () => {
+    const req = ["agencia", "numero_credito_raw", "linea_credito", "numero_identificacion", "nombre_asociado"];
+    const missing = req.filter(k => !form[k]);
+    if (missing.length) {
+      setError(`Faltan obligatorios: ${missing.join(", ")}`);
+      return;
+    }
+    setError("");
+    setCreating(true);
+    try {
+      await createAsignacionLlamada(form);
+      setForm({
+        agencia: "",
+        numero_credito_raw: "",
+        linea_credito: "",
+        numero_identificacion: "",
+        nombre_asociado: "",
+        saldo_capital_raw: "",
+        dias_mora_raw: "",
+        periodicidad_capital: "",
+        tipo_garantia: "",
+        celular: "",
+        estado: "",
+        gestor: "",
+        fecha_gestion_raw: "",
+        fecha_acuerdo_raw: "",
+        gestion_titular: "",
+        gestion_codeudor: "",
+        novedad_gestion: "",
+        programar_visita: "",
+        gestor_apoya: "",
+        calificacion: "",
+        fecha_corte: "",
+      });
+      const data = await listAsignacionLlamadas({ limit: 1000 });
+      const arr = Array.isArray(data) ? data : data?.items || [];
+      setRows(arr);
+      setFilteredRows(arr);
+    } catch (err) {
+      console.error(err);
+      setError(err?.message || "Error creando llamada");
+    } finally {
+      setCreating(false);
+    }
   };
 
   return (
@@ -346,18 +154,10 @@ export default function AsignacionLlamadasTable() {
           </button>
         </div>
         <div className="flex gap-4">
-          {Object.keys(editedRows).length > 0 && (
-            <button
-              onClick={handleSave}
-              className="unified-button flex gap-2 items-center justify-center"
-            >
-              Guardar cambios
-              <FaRegSave />
-            </button>
-          )}
           <button
             className="unified-button flex gap-2 items-center justify-center"
             onClick={handleDownload}
+            disabled={!filteredRows.length}
           >
             Descargar
             <FiDownload />
@@ -365,214 +165,275 @@ export default function AsignacionLlamadasTable() {
         </div>
       </div>
 
-      <div className="overflow-auto max-w-full table-container h-[65vh]">
-        <table className="table-auto border-collapse w-full">
-          <thead className="tabla-header">
-            <tr>
-              <th className="p-4 border text-center whitespace-nowrap min-w-[250px]">
-                Agencia
-              </th>
-              <th className="p-4 border text-center whitespace-nowrap">
-                Número de Crédito
-              </th>
-              <th className="p-4 border text-center whitespace-nowrap">
-                Línea de Crédito
-              </th>
-              <th className="p-4 border text-center whitespace-nowrap">
-                Número de Identificación
-              </th>
-              <th className="p-4 border text-center whitespace-nowrap min-w-[250px]">
-                Nombre Asociado
-              </th>
-              <th className="p-4 border text-center whitespace-nowrap">
-                Saldo Capital
-              </th>
-              <th className="p-4 border text-center whitespace-nowrap">
-                Días Mora
-              </th>
-              <th className="p-4 border text-center whitespace-nowrap">
-                Periodicidad Capital
-              </th>
-              <th className="p-4 border text-center whitespace-nowrap min-w-[250px]">
-                Tipo Garantía
-              </th>
-              <th className="p-4 border text-center whitespace-nowrap">
-                Celular
-              </th>
-              <th className="p-4 border text-center whitespace-nowrap">
-                Estado
-              </th>
-              <th className="p-4 border text-center whitespace-nowrap min-w-[160px]">
-                Gestor
-              </th>
-              <th className="p-4 border text-center whitespace-nowrap">
-                Fecha Gestión
-              </th>
-              <th className="p-4 border text-center whitespace-nowrap">
-                Fecha Acuerdo
-              </th>
-              <th className="p-4 border text-center whitespace-nowrap">
-                Gestión Titular
-              </th>
-              <th className="p-4 border text-center whitespace-nowrap">
-                Gestión Codeudor
-              </th>
-              <th className="p-4 border text-center whitespace-nowrap">
-                Novedad Gestión
-              </th>
-              <th className="p-4 border text-center whitespace-nowrap">
-                Programar Visita
-              </th>
-              <th className="p-4 border text-center whitespace-nowrap">
-                Gestor Apoya
-              </th>
-              <th className="p-4 border text-center whitespace-nowrap">
-                Calificación
-              </th>
-            </tr>
-          </thead>
-          <tbody className="tabla-cupos-content p-4">
-            {filteredRows.map(r => (
-              <tr key={r.id}>
-                <td>{r.agencia}</td>
-                <td>{r.numeroCredito}</td>
-                <td>{r.lineaCredito}</td>
-                <td>{r.numeroIdentificacion}</td>
-                <td>{r.nombreAsociado}</td>
-                <td>{r.saldoCapital}</td>
-                <td>{r.diasMora}</td>
-                <td>{r.periodicidadCapital}</td>
-                <td>{r.tipoGarantia}</td>
-                <td>{r.celular}</td>
+      <div className="mb-4 bg-gray-50 p-3 rounded border">
+        <div className="flex justify-between items-center mb-3">
+          <h2 className="text-lg font-semibold">Agregar fila</h2>
+          <span className="text-sm text-gray-600">Campos obligatorios *</span>
+        </div>
+        <div className="grid grid-cols-4 gap-3">
+        <div>
+          <label className="text-sm">Agencia*</label>
+          <input
+            type="text"
+            value={form.agencia}
+            onChange={e => setForm(f => ({ ...f, agencia: e.target.value }))}
+            className="unified-input w-full"
+          />
+        </div>
+        <div>
+          <label className="text-sm">Número de Crédito*</label>
+          <input
+            type="text"
+            value={form.numero_credito_raw}
+            onChange={e => setForm(f => ({ ...f, numero_credito_raw: e.target.value }))}
+            className="unified-input w-full"
+          />
+        </div>
+        <div>
+          <label className="text-sm">Línea de Crédito*</label>
+          <input
+            type="text"
+            value={form.linea_credito}
+            onChange={e => setForm(f => ({ ...f, linea_credito: e.target.value }))}
+            className="unified-input w-full"
+          />
+        </div>
+        <div>
+          <label className="text-sm">Número Identificación*</label>
+          <input
+            type="text"
+            value={form.numero_identificacion}
+            onChange={e => setForm(f => ({ ...f, numero_identificacion: e.target.value }))}
+            className="unified-input w-full"
+          />
+        </div>
+        <div>
+          <label className="text-sm">Nombre Asociado*</label>
+          <input
+            type="text"
+            value={form.nombre_asociado}
+            onChange={e => setForm(f => ({ ...f, nombre_asociado: e.target.value }))}
+            className="unified-input w-full"
+          />
+        </div>
+        <div>
+          <label className="text-sm">Saldo Capital</label>
+          <input
+            type="text"
+            value={form.saldo_capital_raw}
+            onChange={e => setForm(f => ({ ...f, saldo_capital_raw: e.target.value }))}
+            className="unified-input w-full"
+          />
+        </div>
+        <div>
+          <label className="text-sm">Días Mora</label>
+          <input
+            type="text"
+            value={form.dias_mora_raw}
+            onChange={e => setForm(f => ({ ...f, dias_mora_raw: e.target.value }))}
+            className="unified-input w-full"
+          />
+        </div>
+        <div>
+          <label className="text-sm">Periodicidad Capital</label>
+          <input
+            type="text"
+            value={form.periodicidad_capital}
+            onChange={e => setForm(f => ({ ...f, periodicidad_capital: e.target.value }))}
+            className="unified-input w-full"
+          />
+        </div>
+        <div>
+          <label className="text-sm">Tipo Garantía</label>
+          <input
+            type="text"
+            value={form.tipo_garantia}
+            onChange={e => setForm(f => ({ ...f, tipo_garantia: e.target.value }))}
+            className="unified-input w-full"
+          />
+        </div>
+        <div>
+          <label className="text-sm">Celular</label>
+          <input
+            type="text"
+            value={form.celular}
+            onChange={e => setForm(f => ({ ...f, celular: e.target.value }))}
+            className="unified-input w-full"
+          />
+        </div>
+        <div>
+          <label className="text-sm">Estado</label>
+          <input
+            type="text"
+            value={form.estado}
+            onChange={e => setForm(f => ({ ...f, estado: e.target.value }))}
+            className="unified-input w-full"
+          />
+        </div>
+        <div>
+          <label className="text-sm">Gestor</label>
+          <input
+            type="text"
+            value={form.gestor}
+            onChange={e => setForm(f => ({ ...f, gestor: e.target.value }))}
+            className="unified-input w-full"
+          />
+        </div>
+        <div>
+          <label className="text-sm">Fecha Gestión</label>
+          <input
+            type="text"
+            value={form.fecha_gestion_raw}
+            onChange={e => setForm(f => ({ ...f, fecha_gestion_raw: e.target.value }))}
+            className="unified-input w-full"
+          />
+        </div>
+        <div>
+          <label className="text-sm">Fecha Acuerdo</label>
+          <input
+            type="text"
+            value={form.fecha_acuerdo_raw}
+            onChange={e => setForm(f => ({ ...f, fecha_acuerdo_raw: e.target.value }))}
+            className="unified-input w-full"
+          />
+        </div>
+        <div>
+          <label className="text-sm">Gestión Titular</label>
+          <input
+            type="text"
+            value={form.gestion_titular}
+            onChange={e => setForm(f => ({ ...f, gestion_titular: e.target.value }))}
+            className="unified-input w-full"
+          />
+        </div>
+        <div>
+          <label className="text-sm">Gestión Codeudor</label>
+          <input
+            type="text"
+            value={form.gestion_codeudor}
+            onChange={e => setForm(f => ({ ...f, gestion_codeudor: e.target.value }))}
+            className="unified-input w-full"
+          />
+        </div>
+        <div>
+          <label className="text-sm">Novedad Gestión</label>
+          <input
+            type="text"
+            value={form.novedad_gestion}
+            onChange={e => setForm(f => ({ ...f, novedad_gestion: e.target.value }))}
+            className="unified-input w-full"
+          />
+        </div>
+        <div>
+          <label className="text-sm">Programar Visita</label>
+          <input
+            type="text"
+            value={form.programar_visita}
+            onChange={e => setForm(f => ({ ...f, programar_visita: e.target.value }))}
+            className="unified-input w-full"
+          />
+        </div>
+        <div>
+          <label className="text-sm">Gestor Apoya</label>
+          <input
+            type="text"
+            value={form.gestor_apoya}
+            onChange={e => setForm(f => ({ ...f, gestor_apoya: e.target.value }))}
+            className="unified-input w-full"
+          />
+        </div>
+        <div>
+          <label className="text-sm">Calificación</label>
+          <input
+            type="text"
+            value={form.calificacion}
+            onChange={e => setForm(f => ({ ...f, calificacion: e.target.value }))}
+            className="unified-input w-full"
+          />
+        </div>
+        <div>
+          <label className="text-sm">Fecha corte</label>
+          <input
+            type="date"
+            value={form.fecha_corte}
+            onChange={e => setForm(f => ({ ...f, fecha_corte: e.target.value }))}
+            className="unified-input w-full"
+          />
+        </div>
+          <div className="col-span-4 flex items-center justify-end">
+          <button className="unified-button px-4" onClick={handleCreate} disabled={creating}>
+            {creating ? "Guardando..." : "Agregar fila"}
+          </button>
+        </div>
+        </div>
+      </div>
+
+      {error && <div className="text-red-600 mb-3">{error}</div>}
+      {loading ? (
+        <div className="text-gray-600">Cargando registros...</div>
+      ) : (
+        <div className="overflow-auto max-w-full table-container h-[65vh]">
+          <table className="table-auto border-collapse w-full">
+            <thead className="tabla-header">
+              <tr>
+                <th className="p-4 border text-center whitespace-nowrap min-w-[180px]">Agencia</th>
+                <th className="p-4 border text-center whitespace-nowrap">Número de Crédito</th>
+                <th className="p-4 border text-center whitespace-nowrap">Línea de Crédito</th>
+                <th className="p-4 border text-center whitespace-nowrap">Número de Identificación</th>
+                <th className="p-4 border text-center whitespace-nowrap min-w-[220px]">Nombre Asociado</th>
+                <th className="p-4 border text-center whitespace-nowrap">Saldo Capital</th>
+                <th className="p-4 border text-center whitespace-nowrap">Días Mora</th>
+                <th className="p-4 border text-center whitespace-nowrap">Periodicidad Capital</th>
+                <th className="p-4 border text-center whitespace-nowrap min-w-[220px]">Tipo Garantía</th>
+                <th className="p-4 border text-center whitespace-nowrap">Celular</th>
+                <th className="p-4 border text-center whitespace-nowrap">Estado</th>
+                <th className="p-4 border text-center whitespace-nowrap min-w-[160px]">Gestor</th>
+                <th className="p-4 border text-center whitespace-nowrap">Fecha Gestión</th>
+                <th className="p-4 border text-center whitespace-nowrap">Fecha Acuerdo</th>
+                <th className="p-4 border text-center whitespace-nowrap">Gestión Titular</th>
+                <th className="p-4 border text-center whitespace-nowrap">Gestión Codeudor</th>
+                <th className="p-4 border text-center whitespace-nowrap">Novedad Gestión</th>
+                <th className="p-4 border text-center whitespace-nowrap">Programar Visita</th>
+                <th className="p-4 border text-center whitespace-nowrap">Gestor Apoya</th>
+                <th className="p-4 border text-center whitespace-nowrap">Calificación</th>
+              </tr>
+            </thead>
+            <tbody className="tabla-cupos-content p-4">
+              {filteredRows.map(r => (
+                <tr key={r.id}>
+                  <td>{r.agencia}</td>
+                  <td>{r.numeroCredito}</td>
+                  <td>{r.lineaCredito}</td>
+                  <td>{r.numeroIdentificacion}</td>
+                  <td>{r.nombreAsociado}</td>
+                  <td>{formatNumber(r.saldoCapital)}</td>
+                  <td>{formatNumber(r.diasMora)}</td>
+                  <td>{r.periodicidadCapital}</td>
+                  <td>{r.tipoGarantia}</td>
+                  <td>{r.celular}</td>
                 <td>{r.estado}</td>
-                <td className="p-4 border text-center">
-                  <select
-                    value={r.gestor || ""}
-                    onChange={e => handleChange(r.id, "gestor", e.target.value)}
-                    className="w-full px-2 py-1 border rounded"
-                  >
-                    <option value="">Seleccionar gestor</option>
-                    {gestorOptions.map(gestor => (
-                      <option key={gestor} value={gestor}>
-                        {gestor}
-                      </option>
-                    ))}
-                  </select>
-                </td>
-                <td className="p-4 border text-center">
-                  <input
-                    type="date"
-                    value={r.fechaGestion || ""}
-                    onChange={e =>
-                      handleChange(r.id, "fechaGestion", e.target.value)
-                    }
-                    className="w-full px-2 py-1 border rounded"
-                  />
-                </td>
-                <td className="p-4 border text-center">
-                  <input
-                    type="date"
-                    value={r.fechaAcuerdo || ""}
-                    onChange={e =>
-                      handleChange(r.id, "fechaAcuerdo", e.target.value)
-                    }
-                    className="w-full px-2 py-1 border rounded"
-                  />
-                </td>
-                <td className="p-4 border text-center">
-                  <select
-                    value={r.gestionTitular || ""}
-                    onChange={e =>
-                      handleChange(r.id, "gestionTitular", e.target.value)
-                    }
-                    className="w-full px-2 py-1 border rounded"
-                  >
-                    <option value="">Seleccionar gestión</option>
-                    {gestionTitularOptions.map(gestion => (
-                      <option key={gestion} value={gestion}>
-                        {gestion}
-                      </option>
-                    ))}
-                  </select>
-                </td>
-                <td className="p-4 border text-center">
-                  <select
-                    value={r.gestionCodeudor || ""}
-                    onChange={e =>
-                      handleChange(r.id, "gestionCodeudor", e.target.value)
-                    }
-                    className="w-full px-2 py-1 border rounded"
-                  >
-                    <option value="">Seleccionar gestión</option>
-                    {gestionTitularOptions.map(gestion => (
-                      <option key={gestion} value={gestion}>
-                        {gestion}
-                      </option>
-                    ))}
-                  </select>
-                </td>
-                <td className="p-4 border text-center">
-                  <select
-                    value={r.novedadGestion || ""}
-                    onChange={e =>
-                      handleChange(r.id, "novedadGestion", e.target.value)
-                    }
-                    className="w-full px-2 py-1 border rounded"
-                  >
-                    <option value="">Seleccionar novedad</option>
-                    {novedadGestionOptions.map(novedad => (
-                      <option key={novedad} value={novedad}>
-                        {novedad}
-                      </option>
-                    ))}
-                  </select>
-                </td>
-                <td className="p-4 border text-center">
-                  <select
-                    value={r.programarVisita || ""}
-                    onChange={e =>
-                      handleChange(r.id, "programarVisita", e.target.value)
-                    }
-                    className="w-full px-2 py-1 border rounded"
-                  >
-                    <option value="">Seleccionar</option>
-                    {programarVisitaOptions.map(visita => (
-                      <option key={visita} value={visita}>
-                        {visita}
-                      </option>
-                    ))}
-                  </select>
-                </td>
-                <td className="p-4 border text-center">
-                  <select
-                    value={r.gestorApoya || ""}
-                    onChange={e =>
-                      handleChange(r.id, "gestorApoya", e.target.value)
-                    }
-                    className="w-full px-2 py-1 border rounded"
-                  >
-                    <option value="">Seleccionar gestión</option>
-                    {gestionTitularOptions.map(gestion => (
-                      <option key={gestion} value={gestion}>
-                        {gestion}
-                      </option>
-                    ))}
-                  </select>
-                </td>
+                <td>{r.gestor}</td>
+                <td>{r.fechaGestion}</td>
+                <td>{r.fechaAcuerdo}</td>
+                <td>{r.gestionTitular}</td>
+                <td>{r.gestionCodeudor}</td>
+                <td>{r.novedadGestion}</td>
+                <td>{r.programarVisita}</td>
+                <td>{r.gestorApoya}</td>
                 <td>{r.calificacion}</td>
               </tr>
             ))}
-
-            {/*records.map((r) => (
-            <tr key={r.id}>
-              <td>{r.id}</td>
-              <td>{r.amount}</td>
-              <td>{r.description}</td>
-            </tr>
-          ))*/}
-          </tbody>
-        </table>
-      </div>
+              {!filteredRows.length && (
+                <tr>
+                  <td className="p-3 border text-center" colSpan={20}>
+                    No hay registros para mostrar.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      )}
     </main>
   );
 }

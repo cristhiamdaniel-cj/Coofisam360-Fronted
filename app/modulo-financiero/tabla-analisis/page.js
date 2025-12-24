@@ -5,7 +5,7 @@
  * CRUD de textos explicativos por panel/mes.
  */
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   listAnalisisExplicativo,
   saveAnalisisExplicativo,
@@ -35,6 +35,7 @@ export default function CategoriasTable() {
   const [selectedMonth, setSelectedMonth] = useState();
   const [statusMsg, setStatusMsg] = useState("");
   const [statusType, setStatusType] = useState("");
+  const tableContainerRef = useRef(null);
 
   async function loadData() {
     setLoading(true);
@@ -87,6 +88,12 @@ export default function CategoriasTable() {
     setRows(prev => [newRow, ...(prev || [])]);
     setFilteredRows(prev => [newRow, ...(prev || [])]);
     setEditingRows(prev => ({ ...(prev || {}), [newRow.id]: true }));
+    // Llevar el scroll del contenedor al inicio para que se vea la nueva fila
+    requestAnimationFrame(() => {
+      if (tableContainerRef.current) {
+        try { tableContainerRef.current.scrollTo({ top: 0, behavior: 'smooth' }); } catch { tableContainerRef.current.scrollTop = 0; }
+      }
+    });
   };
 
   const handleDelete = async (id, categoria, subcategoria) => {
@@ -123,7 +130,11 @@ export default function CategoriasTable() {
         return matchesSearch && matchesYear && matchesMonth;
       })
       .sort((a, b) => {
-        // Sort by year first (descending), then by month (descending) to show most recent first
+        // Siempre priorizar filas nuevas arriba
+        const aNew = Boolean(a && a.isNew);
+        const bNew = Boolean(b && b.isNew);
+        if (aNew !== bNew) return aNew ? -1 : 1;
+        // Luego ordenar por año descendente y mes descendente (más reciente primero)
         if (a.anio !== b.anio) return b.anio - a.anio;
         const monthOrder = [
           "Enero",
@@ -314,7 +325,7 @@ export default function CategoriasTable() {
         </div>
       </div>
 
-      <div className="overflow-x-auto max-w-full table-container h-[65vh]">
+      <div ref={tableContainerRef} className="overflow-x-auto max-w-full table-container h-[65vh]">
         <table className="table-auto border-collapse w-full">
           <thead className="tabla-cupos-header">
             <tr>

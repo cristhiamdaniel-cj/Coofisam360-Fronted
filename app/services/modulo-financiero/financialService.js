@@ -122,49 +122,15 @@ export async function saveIndicator(payload = {}) {
  *  Eliminación de indicador financiero
  * ------------------------------------- */
 export async function deleteIndicator(indicador, anio, mes) {
-  try {
-    const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:8060";
-    const response = await fetch(`${API_BASE_URL}/api/v1/indicadores/comparativa/?indicador=${encodeURIComponent(indicador)}&year=${anio}&month=${mes}`, {
-      method: 'DELETE',
-      headers: {
-        'Authorization': `Token ${localStorage.getItem('authToken')}`,
-        'Content-Type': 'application/json',
-      },
-    });
-    
-    if (!response.ok) {
-      throw new Error(`Error ${response.status}: ${response.statusText}`);
-    }
-    
-    return await response.json();
-  } catch (error) {
-    console.error("Error al eliminar indicador financiero:", error);
-    throw error;
-  }
+  const params = { indicador, year: anio, month: mes };
+  const { data } = await api.delete("/api/v1/indicadores/comparativa/", { params });
+  return data;
 }
 
 /* -------------------------------------
  *  Catálogo de indicadores disponibles
  * ------------------------------------- */
 export async function getIndicadoresDisponibles() {
-  try {
-    const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:8060";
-    const response = await fetch(`${API_BASE_URL}/api/v1/indicadores/disponibles/`, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Token ${localStorage.getItem('authToken')}`,
-        'Content-Type': 'application/json',
-      },
-    });
-    
-    if (!response.ok) {
-      throw new Error(`Error ${response.status}: ${response.statusText}`);
-    }
-    
-    const data = await response.json();
-    return data.indicadores || [];
-  } catch (error) {
-    console.error("Error al obtener indicadores disponibles:", error);
-    throw error;
-  }
+  const { data } = await api.get("/api/v1/indicadores/disponibles/");
+  return data?.indicadores || data?.items || data || [];
 }

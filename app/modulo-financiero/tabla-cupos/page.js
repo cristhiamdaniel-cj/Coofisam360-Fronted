@@ -137,7 +137,7 @@ export default function CuposTable() {
     setSaving(true);
     try {
       const updates = Object.entries(editedRows).map(async ([id, changes]) => {
-        const fullRow = rows.find(r => r.id === Number(id));
+        const fullRow = rows.find(r => String(r.id) === String(id));
         if (!fullRow) return;
 
         const payload = {
@@ -212,8 +212,8 @@ export default function CuposTable() {
       fechaRenovado: "",
       isNew: true, // Marcar como nueva fila
     };
-    setRows(prev => [...prev, newRow]);
-    setFilteredRows(prev => [...prev, newRow]);
+    setRows(prev => [newRow, ...prev]);
+    setFilteredRows(prev => [newRow, ...prev]);
     setEditingRows(prev => ({...prev, [newRow.id]: true})); // Entrar en modo edición automáticamente
   };
 
